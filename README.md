@@ -7,6 +7,7 @@ I wanted to learn how to write in Rust. I'm using this project to practice. I do
 - [x] Database generation
 - [x] Basic CRUD for SQlite using rusqlite
 - [ ] More complex logic for generating invoices
+- [ ] Figure out how to handle logo images for the company table
 - [ ] Generate HTML using Tera(?)
 - [ ] Generate PDF from HTML
 - [ ] ?

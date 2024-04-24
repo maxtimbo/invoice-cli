@@ -11,3 +11,9 @@ I wanted to learn how to write in Rust. I'm using this project to practice. I do
 - [ ] Generate HTML using Tera(?)
 - [ ] Generate PDF from HTML
 - [ ] ?
+
+## Maybe Features?
+- Automatically send generated pdf to company email and client email
+- Check if Invoice has been paid
+- Send reminders as due date closes
+

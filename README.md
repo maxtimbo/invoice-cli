@@ -17,3 +17,21 @@ I wanted to learn how to write in Rust. I'm using this project to practice. I do
 - Check if Invoice has been paid
 - Send reminders as due date closes
 
+## Installation
+
+1. Clone the repo and `cd` to the dir:
+
+```
+$ git clone https://github.com/maxtimbo/invoice-cli.git
+$ cd invoice-cli
+```
+
+2. Build with cargo:
+
+```
+$ cargo build
+```
+Or just run:
+```
+$ cargo run
+```

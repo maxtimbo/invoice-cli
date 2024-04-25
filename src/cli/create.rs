@@ -90,7 +90,7 @@ impl TableName for CreateMethod {
 }
 impl TableName for CreateItem {
     fn table_name(&self) -> String {
-        "items".to_string()
+        "item".to_string()
     }
 }
 

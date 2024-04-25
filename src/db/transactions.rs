@@ -67,7 +67,7 @@ impl CachedStmt {
             "methods" => {
                 long_list_method(&conn, &self.query)?;
             },
-            "items" => {
+            "item" => {
                 long_list_item(&conn, &self.query)?;
             },
             _ => todo!("Something else!"),
@@ -169,7 +169,7 @@ fn long_list_method(conn: &InvoiceDB, query: &str) -> Result<()> {
         },
     ))?;
     for data in new_entry.flatten() {
-        println!("Client\n\
+        println!("Payment Method\n\
             ~~~~~~~~~~~~\n\
             id:\t\t{}\n\
             name:\t\t{}",
@@ -188,7 +188,7 @@ fn long_list_terms(conn: &InvoiceDB, query: &str) -> Result<()> {
         },
     ))?;
     for data in new_entry.flatten() {
-        println!("Client\n\
+        println!("Terms\n\
             ~~~~~~~~~~~~\n\
             id:\t\t{}\n\
             name:\t\t{}\n\
@@ -210,11 +210,11 @@ fn long_list_item(conn: &InvoiceDB, query: &str) -> Result<()> {
         },
     ))?;
     for data in new_entry.flatten() {
-        println!("Client\n\
+        println!("Item\n\
             ~~~~~~~~~~~~\n\
             id:\t\t{}\n\
             name:\t\t{}\n\
-            due:\t\t{}",
+            rate:\t\t{}",
             data.id,
             data.name,
             data.rate

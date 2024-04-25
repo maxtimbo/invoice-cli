@@ -11,3 +11,4 @@ clap = { version = "4.5.4", features = ["derive"] }
 directories = "5.0.1"
 rusqlite = { version = "0.31.0", features = ["bundled"] }
 struct_iterable = "0.1.1"
+tera = "1.19.1"

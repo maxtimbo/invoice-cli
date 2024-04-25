@@ -5,9 +5,9 @@ mod initdb;
 
 use std::path::PathBuf;
 
-use anyhow::{Context, Result, Error};
+use anyhow::{Context, Result};
 use rusqlite::{Connection, Transaction};
-use directories::ProjectDirs;
+//use directories::ProjectDirs;
 
 #[derive(Debug)]
 pub struct InvoiceDB {
@@ -36,13 +36,7 @@ impl InvoiceDB {
         Ok(tx)
     }
 
-    pub fn open() -> Result<InvoiceDB> {
-        let project_dirs = ProjectDirs::from("", "", "invoice-cli")
-            .ok_or_else(|| Error::msg("directory not found"))?;
-        let mut db_path: PathBuf = project_dirs.data_dir().into();
-        std::fs::create_dir_all(&db_path)
-            .with_context(|| format!("Unable to create database dir: {:?}", &db_path))?;
-        db_path.push("invoice-cli.db");
+    pub fn open(db_path: PathBuf) -> Result<InvoiceDB> {
         let existing_db = db_path.is_file();
         let connection = Connection::open(db_path)?;
         connection.pragma_update(None, "foreign_keys", true)

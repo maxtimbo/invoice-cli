@@ -121,7 +121,9 @@
             <div id="header" class="header">
                 <div id="parties" class="header contact">
                     <div id="company" class="header">
-                        <img src="https://mrcoolz.com/cdn/shop/files/MrCoolz-Blue.png?v=1707649201&width=600" />
+                        {% if company.logo %}
+                            <img src="{{ company.logo }}" />
+                        {% endif %}
                         <div id="company-contact">
                             <h4>{{ company.name }}</h4>
                             {% if company.contact.phone %}

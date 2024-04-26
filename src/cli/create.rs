@@ -1,5 +1,6 @@
 use crate::cli::contact::Contact;
 use crate::db::prepare::{PrepFields, PrepValues, TableName, PrepCreate};
+use std::path::PathBuf;
 
 use clap::{Args, Subcommand};
 
@@ -19,8 +20,8 @@ pub struct CreateCompany {
     pub name: String,
 
     #[arg(long)]
-    pub logo: Option<String>,
-    //logo: Option<PathBuf>,
+    //pub logo: Option<String>,
+    pub logo: Option<PathBuf>,
 
     #[command(flatten)]
     pub contact: Contact,
@@ -147,8 +148,9 @@ impl PrepValues for CreateCompany {
     fn values(&self) -> Vec<rusqlite::types::Value> {
         let mut values: Vec<rusqlite::types::Value> = Vec::new();
         values.push(self.name.clone().into());
-        if self.logo.is_some() {
-            values.push(self.logo.clone().into());
+        if let Some(logo) = &self.logo {
+            values.push(rusqlite::types::Value::Blob(std::fs::read(logo).unwrap()));
+            //values.push(self.logo.clone().into());
         }
         values.extend(self.contact.values());
         values

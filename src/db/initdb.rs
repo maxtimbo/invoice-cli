@@ -52,7 +52,7 @@ impl<'conn> InvoiceTx<'conn> {
                  company_id INTEGER NOT NULL,
                  client_id INTEGER NOT NULL,
                  terms_id INTEGER NOT NULL,
-                 methods_id INTEGER NOT NULL,
+                 methods TEXT NOT NULL,
                  items TEXT NOT NULL,
                  FOREIGN KEY (company_id)
                      REFERENCES company (id)
@@ -64,10 +64,6 @@ impl<'conn> InvoiceTx<'conn> {
                      ON UPDATE NO ACTION,
                  FOREIGN KEY (terms_id)
                      REFERENCES terms (id)
-                     ON DELETE NO ACTION
-                     ON UPDATE NO ACTION,
-                 FOREIGN KEY (methods_id)
-                     REFERENCES methods (id)
                      ON DELETE NO ACTION
                      ON UPDATE NO ACTION
              )", []).context("failed to create invoices table")?;

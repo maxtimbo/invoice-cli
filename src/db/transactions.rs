@@ -97,7 +97,7 @@ fn long_list_company(conn: &InvoiceDB, query: &str) -> Result<()> {
             ~~~~~~~~~~~~\n\
             id:\t\t{}\n\
             name:\t\t{}\n\
-            logo:\t\t{}\n\
+            logo:\t\t\n\
             phone:\t\t{}\n\
             email:\t\t{}\n\
             addr1:\t\t{}\n\
@@ -107,7 +107,7 @@ fn long_list_company(conn: &InvoiceDB, query: &str) -> Result<()> {
             zip:\t\t{}",
             data.id,
             data.name,
-            data.logo.as_deref().unwrap_or("None"),
+            //data.logo.as_deref().unwrap_or("None"),
             data.contact.phone.as_deref().unwrap_or("None"),
             data.contact.email.as_deref().unwrap_or("None"),
             data.contact.addr1.as_deref().unwrap_or("None"),

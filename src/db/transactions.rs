@@ -6,6 +6,7 @@ use crate::models::methods::Methods;
 use crate::models::terms::Terms;
 use crate::models::items::Items;
 use crate::models::contact::Contact;
+use crate::models::invoice::Template;
 
 use anyhow::Result;
 
@@ -224,3 +225,21 @@ fn long_list_item(conn: &InvoiceDB, query: &str) -> Result<()> {
     }
     Ok(())
 }
+
+fn long_list_template(conn: &InvoiceDB, query: &str) -> Result<()> {
+    let mut resp = conn.connection.prepare(&query)?;
+    let new_entry = resp.query_map([], |row| Ok(Template {
+        id: row.get(0)?,
+        //company: long_list_company(&conn, format!("SELECT * FROM company WHERE id = {}", row.get(1))?)?,
+        company: todo!("idk yet"),
+        client: todo!(),
+        terms: todo!(),
+        //client: row.get(2)?,
+        //terms: row.get(3)?,
+        name: row.get(4)?,
+        methods: row.get(5)?,
+        },
+    ));
+    Ok(())
+}
+

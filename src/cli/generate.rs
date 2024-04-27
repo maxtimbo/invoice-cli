@@ -42,7 +42,7 @@ impl GenerateTemplate {
 
 #[derive(Debug, Args)]
 pub struct GenerateInvoice {
-    pub template: String,
+    pub template: i64,
     
     #[arg(long, short)]
     pub output: Option<PathBuf>,

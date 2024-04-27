@@ -19,7 +19,7 @@ pub struct GenerateTemplate {
 }
 
 impl GenerateTemplate {
-    pub fn generate(&self, db: &InvoiceDB) -> Result<()> {
+    pub fn generate(&self, db: &InvoiceDB) -> Result<CreateTemplate> {
         let company_selection = select_entity!("Select Company:", db, ListCompany::table)?;
 
         let client_selection = select_entity!("Select Client:", db, ListClient::table)?;
@@ -36,7 +36,7 @@ impl GenerateTemplate {
             methods: methods_selection,
         };
 
-        Ok(())
+        Ok(new_template)
     }
 }
 

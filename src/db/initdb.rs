@@ -30,19 +30,19 @@ impl<'conn> InvoiceTx<'conn> {
                 zip TEXT
             )", []).context("failed to create client table")?;
         self.tx.execute(
-             "CREATE TABLE IF NOT EXISTS item (
+            "CREATE TABLE IF NOT EXISTS item (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  name TEXT NOT NULL UNIQUE,
                  rate INTEGER
              )", []).context("failed to create item table")?;
         self.tx.execute(
-             "CREATE TABLE IF NOT EXISTS terms (
+            "CREATE TABLE IF NOT EXISTS terms (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  name TEXT NOT NULL UNIQUE,
                  due INTEGER NOT NULL UNIQUE
              )", []).context("failed to create terms table")?;
         self.tx.execute(
-             "CREATE TABLE IF NOT EXISTS methods (
+            "CREATE TABLE IF NOT EXISTS methods (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  name NOT NULL UNIQUE
              )", []).context("failed to create methods table")?;
@@ -52,6 +52,7 @@ impl<'conn> InvoiceTx<'conn> {
                 company_id INTEGER NOT NULL,
                 client_id INTEGER NOT NULL,
                 terms_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
                 methods_json TEXT NOT NULL,
                 FOREIGN KEY (company_id)
                     REFERENCES company (id)
@@ -67,7 +68,7 @@ impl<'conn> InvoiceTx<'conn> {
                     ON UPDATE NO ACTION
             )", []).context("failed to create template table")?;
         self.tx.execute(
-             "CREATE TABLE IF NOT EXISTS invoices (
+            "CREATE TABLE IF NOT EXISTS invoices (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  template_id INTEGER NOT NULL,
                  items_json TEXT NOT NULL,
@@ -76,8 +77,8 @@ impl<'conn> InvoiceTx<'conn> {
                      ON DELETE NO ACTION
                      ON UPDATE NO ACTION
              )", []).context("failed to create invoices table")?;
-        
+
         Ok(())
     }
 }
-            
+

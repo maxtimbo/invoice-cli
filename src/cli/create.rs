@@ -1,6 +1,7 @@
 use crate::cli::contact::Contact;
 use crate::db::prepare::{PrepFields, PrepValues, TableName, PrepCreate};
 use std::path::PathBuf;
+use serde_json;
 
 use clap::{Args, Subcommand};
 
@@ -16,11 +17,9 @@ pub enum CreateCommands {
 #[derive(Debug, Args)]
 #[group(required = false)]
 pub struct CreateCompany {
-    #[arg(long)]
     pub name: String,
 
     #[arg(long)]
-    //pub logo: Option<String>,
     pub logo: Option<PathBuf>,
 
     #[command(flatten)]
@@ -30,7 +29,6 @@ pub struct CreateCompany {
 #[derive(Debug, Args)]
 #[group(required = false)]
 pub struct CreateClient {
-    #[arg(long)]
     pub name: String,
 
     #[command(flatten)]
@@ -39,7 +37,6 @@ pub struct CreateClient {
 
 #[derive(Debug, Args)]
 pub struct CreateTerms {
-    #[arg(long)]
     pub name: String,
     #[arg(long)]
     pub due: u32,
@@ -47,13 +44,11 @@ pub struct CreateTerms {
 
 #[derive(Debug, Args)]
 pub struct CreateMethod {
-    #[arg(long)]
     pub name: String,
 }
 
 #[derive(Debug, Args)]
 pub struct CreateItem {
-    #[arg(long)]
     pub name: String,
     #[arg(long)]
     pub rate: i32,
@@ -227,6 +222,8 @@ impl PrepValues for CreateTemplate {
         values.push(self.company.into());
         values.push(self.client.into());
         values.push(self.terms.into());
+        let methods_json = serde_json::to_string(&self.methods).expect("Failed to serialize to JSON");
+        values.push(methods_json.into());
         values
     }
 }

@@ -540,6 +540,7 @@ dependencies = [
  "directories",
  "inquire",
  "rusqlite",
+ "serde_json",
  "struct_iterable",
  "tera",
  "text_io",

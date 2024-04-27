@@ -138,7 +138,9 @@ impl Cli {
             },
             Commands::Generate(gen) => match gen {
                 GenerateCommands::Template(obj) => {
-                    GenerateTemplate::generate(obj, &db)?;
+                    let tmp = GenerateTemplate::generate(obj, &db)?;
+                    let query = tmp.prepare();
+                    query.execute(&db)?;
                 },
                 GenerateCommands::Invoice(obj) => {
                     println!("{:?}, {:?}", gen, obj);

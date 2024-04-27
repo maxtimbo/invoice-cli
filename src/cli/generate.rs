@@ -1,17 +1,11 @@
 use crate::cli::list::*;
+use crate::cli::create::CreateTemplate;
 use invoice_cli::{select_entity, select_multiple_entities};
 use crate::db::InvoiceDB;
 use anyhow::Result;
 
 use clap::{Args, Subcommand};
 use std::path::PathBuf;
-//use anyhow::Context;
-//use inquire::{
-//    error::InquireError,
-//    formatter::MultiOptionFormatter,
-//    list_option::ListOption,
-//    Select, MultiSelect};
-
 
 #[derive(Debug, Subcommand)]
 pub enum GenerateCommands {
@@ -24,14 +18,6 @@ pub struct GenerateTemplate {
     pub name: String,
 }
 
-pub struct NewTemplate<'a> {
-    pub name: &'a String,
-    pub company: i64,
-    pub client: i64,
-    pub terms: i64,
-    pub methods: Vec<i64>,
-}
-
 impl GenerateTemplate {
     pub fn generate(&self, db: &InvoiceDB) -> Result<()> {
         let company_selection = select_entity!("Select Company:", db, ListCompany::table)?;
@@ -42,8 +28,8 @@ impl GenerateTemplate {
 
         let methods_selection = select_multiple_entities!("Select Payment Methods:", db, ListMethods::table)?;
 
-        let new_template = NewTemplate {
-            name: &self.name,
+        let new_template = CreateTemplate {
+            name: self.name.clone(),
             company: company_selection,
             client: client_selection,
             terms: terms_selection,

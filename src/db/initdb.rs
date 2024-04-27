@@ -47,23 +47,32 @@ impl<'conn> InvoiceTx<'conn> {
                  name NOT NULL UNIQUE
              )", []).context("failed to create methods table")?;
         self.tx.execute(
+            "CREATE TABLE IF NOT EXISTS templates (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                company_id INTEGER NOT NULL,
+                client_id INTEGER NOT NULL,
+                terms_id INTEGER NOT NULL,
+                methods_json TEXT NOT NULL,
+                FOREIGN KEY (company_id)
+                    REFERENCES company (id)
+                    ON DELETE NO ACTION
+                    ON UPDATE NO ACTION,
+                FOREIGN KEY (client_id)
+                    REFERENCES client (id)
+                    ON DELETE NO ACTION
+                    ON UPDATE NO ACTION,
+                FOREIGN KEY (terms_id)
+                    REFERENCES terms (id)
+                    ON DELETE NO ACTION
+                    ON UPDATE NO ACTION
+            )", []).context("failed to create template table")?;
+        self.tx.execute(
              "CREATE TABLE IF NOT EXISTS invoices (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
-                 company_id INTEGER NOT NULL,
-                 client_id INTEGER NOT NULL,
-                 terms_id INTEGER NOT NULL,
-                 methods TEXT NOT NULL,
-                 items TEXT NOT NULL,
-                 FOREIGN KEY (company_id)
-                     REFERENCES company (id)
-                     ON DELETE NO ACTION
-                     ON UPDATE NO ACTION,
-                 FOREIGN KEY (client_id)
-                     REFERENCES client (id)
-                     ON DELETE NO ACTION
-                     ON UPDATE NO ACTION,
-                 FOREIGN KEY (terms_id)
-                     REFERENCES terms (id)
+                 template_id INTEGER NOT NULL,
+                 items_json TEXT NOT NULL,
+                 FOREIGN KEY (template_id)
+                     REFERENCES template (id)
                      ON DELETE NO ACTION
                      ON UPDATE NO ACTION
              )", []).context("failed to create invoices table")?;

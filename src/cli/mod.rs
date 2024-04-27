@@ -70,6 +70,8 @@ impl Cli {
             },
             Commands::List(flags) => match flags {
                 ListFlags::Company(opt) => {
+                    println!("{:?}", flags);
+                    println!("{:?}", opt);
                     let query = ListCompany::table_or_id(opt, opt.id);
                     query.list(&db, opt.id)?;
                 },
@@ -134,8 +136,13 @@ impl Cli {
                     query.execute(&db)?;
                 },
             },
-            Commands::Generate(gen) => {
-                println!("gen {:?}", gen);
+            Commands::Generate(gen) => match gen {
+                GenerateCommands::Template(obj) => {
+                    GenerateTemplate::generate(obj, &db)?;
+                },
+                GenerateCommands::Invoice(obj) => {
+                    println!("{:?}, {:?}", gen, obj);
+                }
             }
         }
         Ok(())

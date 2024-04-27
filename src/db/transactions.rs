@@ -40,18 +40,20 @@ impl CachedStmt {
         Ok(())
     }
 
-    pub fn list_table(&self, conn: &InvoiceDB) -> Result<()> {
+    pub fn list_table(&self, conn: &InvoiceDB) -> Result<Vec<i64>> {
         let mut stmt = conn.connection.prepare(&self.query)?;
         let resp = stmt.query_map([], |row| Ok(ShortList {
             id: row.get(0)?,
             name: row.get(1)?,
         }))?;
         println!("Entries for {}\n", self.table);
+        let mut ids: Vec<i64> = Vec::new();
         for row in resp.flatten() {
             println!("+-----\n| id:\t{}\n| name:\t{}", row.id, row.name);
+            ids.push(row.id);
         }
         println!("+-----");
-        Ok(())
+        Ok(ids)
     }
     pub fn long_list(&self, conn: &InvoiceDB) -> Result<()> {
         match self.table.as_str() {

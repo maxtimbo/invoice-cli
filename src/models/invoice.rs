@@ -3,6 +3,7 @@ use crate::models::client::Client;
 use crate::models::terms::Terms;
 
 pub struct Template {
+    name: String,
     company: Company,
     client: Client,
     terms: Terms,

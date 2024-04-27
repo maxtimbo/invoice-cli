@@ -12,30 +12,24 @@ pub enum ListFlags {
     Items(ListItems),
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Default)]
 pub struct ListCompany {
-    #[arg(long)]
     pub id: Option<i64>,
 }
-
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Default)]
 pub struct ListClient {
-    #[arg(long)]
     pub id: Option<i64>,
 }
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Default)]
 pub struct ListTerms {
-    #[arg(long)]
     pub id: Option<i64>,
 }
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Default)]
 pub struct ListMethods {
-    #[arg(long)]
     pub id: Option<i64>,
 }
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Default)]
 pub struct ListItems {
-    #[arg(long)]
     pub id: Option<i64>,
 }
 
@@ -46,6 +40,9 @@ pub trait ListDefault: ListTable + ListID {
         } else {
             return self.list_short();
         }
+    }
+    fn table(&self) -> CachedStmt {
+        self.list_short()
     }
 }
 

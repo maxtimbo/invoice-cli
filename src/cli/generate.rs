@@ -1,5 +1,17 @@
+use crate::cli::list::*;
+use invoice_cli::{select_entity, select_multiple_entities};
+use crate::db::InvoiceDB;
+use anyhow::Result;
+
 use clap::{Args, Subcommand};
 use std::path::PathBuf;
+//use anyhow::Context;
+//use inquire::{
+//    error::InquireError,
+//    formatter::MultiOptionFormatter,
+//    list_option::ListOption,
+//    Select, MultiSelect};
+
 
 #[derive(Debug, Subcommand)]
 pub enum GenerateCommands {
@@ -10,18 +22,36 @@ pub enum GenerateCommands {
 #[derive(Debug, Args)]
 pub struct GenerateTemplate {
     pub name: String,
+}
 
-    #[arg(long, short='o', required=true)]
-    pub company: String,
+pub struct NewTemplate<'a> {
+    pub name: &'a String,
+    pub company: i64,
+    pub client: i64,
+    pub terms: i64,
+    pub methods: Vec<i64>,
+}
 
-    #[arg(long, short, required=true)]
-    pub client: String,
+impl GenerateTemplate {
+    pub fn generate(&self, db: &InvoiceDB) -> Result<()> {
+        let company_selection = select_entity!("Select Company:", db, ListCompany::table)?;
 
-    #[arg(long, short, required=true)]
-    pub terms: String,
+        let client_selection = select_entity!("Select Client:", db, ListClient::table)?;
 
-    #[arg(long, short, required=true)]
-    pub methods: String,
+        let terms_selection = select_entity!("Select Payment Terms", db, ListTerms::table)?;
+
+        let methods_selection = select_multiple_entities!("Select Payment Methods:", db, ListMethods::table)?;
+
+        let new_template = NewTemplate {
+            name: &self.name,
+            company: company_selection,
+            client: client_selection,
+            terms: terms_selection,
+            methods: methods_selection,
+        };
+
+        Ok(())
+    }
 }
 
 #[derive(Debug, Args)]
@@ -31,3 +61,4 @@ pub struct GenerateInvoice {
     #[arg(long, short)]
     pub output: Option<PathBuf>,
 }
+

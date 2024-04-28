@@ -60,10 +60,10 @@ pub trait PrepUpdate: PrepFields + TableName + PrepValues {
 }
 
 pub trait PrepDelete: TableName {
-    fn prepare(&self, id: &i64) -> CachedStmt {
+    fn prepare(&self) -> CachedStmt {
         CachedStmt {
             table: self.table_name(),
-            query: format!("DELETE FROM {} WHERE id = {}", self.table_name(), id),
+            query: format!("DELETE FROM {} WHERE id = ?", self.table_name()),
             params: [].to_vec(),
         }
     }

@@ -29,3 +29,12 @@ macro_rules! select_multiple_entities {
         }
     };
 }
+
+#[macro_export]
+macro_rules! print_entries {
+    ($entries:expr) => {
+        for entry in $entries {
+            println!("ID: {}, Name: {}", entry.id, entry.name);
+        }
+    };
+}

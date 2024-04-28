@@ -1,4 +1,5 @@
 use crate::db::prepare::{PrepCreate, PrepUpdate, PrepDelete};
+use invoice_cli::print_entries;
 use crate::db::InvoiceDB;
 mod contact;
 mod create;
@@ -43,97 +44,125 @@ pub enum Commands {
 }
 
 impl Cli {
-    pub fn to_cmd(db: &InvoiceDB) -> Result<()> {
+    pub fn to_cmd(db: &mut InvoiceDB) -> Result<()> {
         let cli = Cli::parse();
         match &cli.commands {
             Commands::Create(create) => match create {
-                CreateCommands::Company(company) => {
-                    let mut query = CreateCompany::prepare(company);
-                    query.create_entry(&db)?;
+                CreateCommands::Company(obj) => {
+                    db.create_entry(CreateCompany::prepare(obj))?;
                 },
-                CreateCommands::Client(client) => {
-                    let mut query = CreateClient::prepare(client);
-                    query.create_entry(&db)?;
+                CreateCommands::Client(obj) => {
+                    db.create_entry(CreateClient::prepare(obj))?;
                 },
-                CreateCommands::Terms(terms) => {
-                    let mut query = CreateTerms::prepare(terms);
-                    query.create_entry(&db)?;
+                CreateCommands::Terms(obj) => {
+                    db.create_entry(CreateTerms::prepare(obj))?;
                 },
-                CreateCommands::Method(method) => {
-                    let mut query = CreateMethod::prepare(method);
-                    query.create_entry(&db)?;
+                CreateCommands::Method(obj) => {
+                    db.create_entry(CreateMethod::prepare(obj))?;
                 },
-                CreateCommands::Item(item) => {
-                    let mut query = CreateItem::prepare(item);
-                    query.create_entry(&db)?;
+                CreateCommands::Item(obj) => {
+                    db.create_entry(CreateItem::prepare(obj))?;
                 },
             },
             Commands::List(flags) => match flags {
                 ListFlags::Company(opt) => {
-                    println!("{:?}", flags);
-                    println!("{:?}", opt);
-                    let query = ListCompany::table_or_id(opt, opt.id);
-                    query.list(&db, opt.id)?;
+                    match &opt.id {
+                        Some(value) => {
+                            let res = db.get_company(value)?;
+                            res.display();
+                        },
+                        None => {
+                            let res = db.get_table("company")?;
+                            println!("Companies:");
+                            print_entries!(res);
+                        }
+                    }
                 },
                 ListFlags::Client(opt) => {
-                    let query = ListClient::table_or_id(opt, opt.id);
-                    query.list(&db, opt.id)?;
+                    match &opt.id {
+                        Some(value) => {
+                            let res = db.get_client(value)?;
+                            res.display();
+                        },
+                        None => {
+                            let res = db.get_table("client")?;
+                            println!("Clients:");
+                            print_entries!(res);
+                        }
+                    }
                 },
                 ListFlags::Methods(opt) => {
-                    let query = ListMethods::table_or_id(opt, opt.id);
-                    query.list(&db, opt.id)?;
+                    match &opt.id {
+                        Some(value) => {
+                            let res = db.get_method(value)?;
+                            res.display();
+                        },
+                        None => {
+                            let res = db.get_table("methods")?;
+                            println!("Methods:");
+                            print_entries!(res);
+                        }
+                    }
                 },
                 ListFlags::Terms(opt) => {
-                    let query = ListTerms::table_or_id(opt, opt.id);
-                    query.list(&db, opt.id)?;
+                    match &opt.id {
+                        Some(value) => {
+                            let res = db.get_terms(value)?;
+                            res.display();
+                        },
+                        None => {
+                            let res = db.get_table("terms")?;
+                            println!("Terms:");
+                            print_entries!(res);
+                        }
+                    }
                 },
                 ListFlags::Items(opt) => {
-                    let query = ListItems::table_or_id(opt, opt.id);
-                    query.list(&db, opt.id)?;
+                    match &opt.id {
+                        Some(value) => {
+                            let res = db.get_item(value)?;
+                            res.display();
+                        },
+                        None => {
+                            let res = db.get_table("items")?;
+                            println!("Items:");
+                            print_entries!(res);
+                        }
+                    }
                 },
             },
             Commands::Edit(edit) => match edit {
                 EditCommands::Company(obj) => {
-                    let mut query = EditCompany::prepare(obj);
-                    query.update_entry(&db, &obj.id)?;
+                    db.update_entry(EditCompany::prepare(obj), &obj.id)?;
                 },
                 EditCommands::Client(obj) => {
-                    let mut query = EditClient::prepare(obj);
-                    query.update_entry(&db, &obj.id)?;
+                    db.update_entry(EditClient::prepare(obj), &obj.id)?;
                 },
                 EditCommands::Terms(obj) => {
-                    let mut query = EditTerms::prepare(obj);
-                    query.update_entry(&db, &obj.id)?;
+                    db.update_entry(EditTerms::prepare(obj), &obj.id)?;
                 },
                 EditCommands::Method(obj) => {
-                    let mut query = EditMethod::prepare(obj);
-                    query.update_entry(&db, &obj.id)?;
+                    db.update_entry(EditMethod::prepare(obj), &obj.id)?;
                 },
                 EditCommands::Item(obj) => {
-                    let mut query = EditItem::prepare(obj);
-                    query.update_entry(&db, &obj.id)?;
+                    db.update_entry(EditItem::prepare(obj), &obj.id)?;
                 },
             },
             Commands::Delete(arg) => match arg {
                 DeleteCommands::Company(obj) => {
-                    let query = DeleteCompany::prepare(obj, &obj.id);
-                    query.execute(&db)?;
+                    db.delete_entry(DeleteCompany::prepare(obj), &obj.id)?;
                 },
                 DeleteCommands::Client(obj) => {
-                    let query = DeleteClient::prepare(obj, &obj.id);
-                    query.execute(&db)?;
+                    db.delete_entry(DeleteClient::prepare(obj), &obj.id)?;
                 },
                 DeleteCommands::Terms(obj) => {
-                    let query = DeleteTerms::prepare(obj, &obj.id);
-                    query.execute(&db)?;
+                    db.delete_entry(DeleteTerms::prepare(obj), &obj.id)?;
                 },
                 DeleteCommands::Method(obj) => {
-                    let query = DeleteMethod::prepare(obj, &obj.id);
-                    query.execute(&db)?;
+                    db.delete_entry(DeleteMethod::prepare(obj), &obj.id)?;
                 },
                 DeleteCommands::Item(obj) => {
-                    let query = DeleteItem::prepare(obj, &obj.id);
-                    query.execute(&db)?;
+                    db.delete_entry(DeleteItem::prepare(obj), &obj.id)?;
                 },
             },
             Commands::Generate(gen) => match gen {

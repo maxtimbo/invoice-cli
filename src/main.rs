@@ -10,7 +10,7 @@ use anyhow::Result;
 
 fn main() -> Result<()> {
     let paths = Paths::init()?;
-    let db = InvoiceDB::open(paths.db)?;
-    Cli::to_cmd(&db)?;
+    let mut db = InvoiceDB::open(paths.db)?;
+    Cli::to_cmd(&mut db)?;
     Ok(())
 }

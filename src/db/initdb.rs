@@ -49,10 +49,10 @@ impl<'conn> InvoiceTx<'conn> {
         self.tx.execute(
             "CREATE TABLE IF NOT EXISTS templates (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
                 company_id INTEGER NOT NULL,
                 client_id INTEGER NOT NULL,
                 terms_id INTEGER NOT NULL,
-                name TEXT NOT NULL,
                 methods_json TEXT NOT NULL,
                 FOREIGN KEY (company_id)
                     REFERENCES company (id)

@@ -4,8 +4,6 @@ pub mod transactions;
 pub mod getters;
 mod initdb;
 
-use crate::db::getters::GetCompany;
-
 use std::path::PathBuf;
 
 use anyhow::{Context, Result};
@@ -59,5 +57,3 @@ impl InvoiceDB {
         Ok(db)
     }
 }
-
-impl GetCompany for InvoiceDB {}

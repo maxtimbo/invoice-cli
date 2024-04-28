@@ -63,12 +63,18 @@ pub struct CreateTemplate {
     pub methods: Vec<i64>,
 }
 
+#[derive(Debug)]
+pub struct CreateInvoice {
+    pub template: i64,
+}
+
 impl PrepCreate for CreateCompany {}
 impl PrepCreate for CreateClient {}
 impl PrepCreate for CreateTerms {}
 impl PrepCreate for CreateMethod {}
 impl PrepCreate for CreateItem {}
 impl PrepCreate for CreateTemplate {}
+impl PrepCreate for CreateInvoice {}
 
 // --- TableNames ---
 impl TableName for CreateCompany {
@@ -103,6 +109,12 @@ impl TableName for CreateItem {
 impl TableName for CreateTemplate {
     fn table_name(&self) -> String {
         "templates".to_string()
+    }
+}
+
+impl TableName for CreateInvoice {
+    fn table_name(&self) -> String {
+        "invoice".to_string()
     }
 }
 
@@ -162,6 +174,14 @@ impl PrepFields for CreateTemplate {
         fnames.push("client_id".to_string());
         fnames.push("terms_id".to_string());
         fnames.push("methods_json".to_string());
+        fnames
+    }
+}
+
+impl PrepFields for CreateInvoice {
+    fn fields(&self) -> Vec<std::string::String> {
+        let mut fnames = Vec::new();
+        fnames.push("template_id".to_string());
         fnames
     }
 }
@@ -229,4 +249,10 @@ impl PrepValues for CreateTemplate {
     }
 }
 
-
+impl PrepValues for CreateInvoice {
+    fn values(&self) -> Vec<rusqlite::types::Value> {
+        let mut values: Vec<rusqlite::types::Value> = Vec::new();
+        values.push(self.template.into());
+        values
+    }
+}

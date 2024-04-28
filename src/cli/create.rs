@@ -223,6 +223,7 @@ impl PrepValues for CreateTemplate {
         values.push(self.client.into());
         values.push(self.terms.into());
         let methods_json = serde_json::to_string(&self.methods).expect("Failed to serialize to JSON");
+        println!("{:?}", methods_json);
         values.push(methods_json.into());
         values
     }

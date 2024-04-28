@@ -10,6 +10,7 @@ pub enum ListFlags {
     Terms(ListTerms),
     Methods(ListMethods),
     Items(ListItems),
+    Templates(ListTemplates),
 }
 
 #[derive(Debug, Args, Default)]
@@ -30,6 +31,10 @@ pub struct ListMethods {
 }
 #[derive(Debug, Args, Default)]
 pub struct ListItems {
+    pub id: Option<i64>,
+}
+#[derive(Debug, Args, Default)]
+pub struct ListTemplates{
     pub id: Option<i64>,
 }
 

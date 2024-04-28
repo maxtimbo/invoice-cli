@@ -1,4 +1,4 @@
-use crate::cli::list::*;
+//use crate::cli::list::*;
 use crate::cli::create::CreateTemplate;
 use invoice_cli::{select_entity, select_multiple_entities};
 use crate::db::InvoiceDB;
@@ -20,13 +20,13 @@ pub struct GenerateTemplate {
 
 impl GenerateTemplate {
     pub fn generate(&self, db: &InvoiceDB) -> Result<CreateTemplate> {
-        let company_selection = select_entity!("Select Company:", db, ListCompany::table)?;
+        let company_selection = select_entity!("Select Company:", db, "company")?;
 
-        let client_selection = select_entity!("Select Client:", db, ListClient::table)?;
+        let client_selection = select_entity!("Select Client:", db, "client")?;
 
-        let terms_selection = select_entity!("Select Payment Terms", db, ListTerms::table)?;
+        let terms_selection = select_entity!("Select Payment Terms:", db, "terms")?;
 
-        let methods_selection = select_multiple_entities!("Select Payment Methods:", db, ListMethods::table)?;
+        let methods_selection = select_multiple_entities!("Select Payment Methods:", db, "methods")?;
 
         let new_template = CreateTemplate {
             name: self.name.clone(),

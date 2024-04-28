@@ -9,6 +9,7 @@ pub enum DeleteCommands {
     Terms(DeleteTerms),
     Method(DeleteMethod),
     Item(DeleteItem),
+    Template(DeleteTemplate),
 }
 
 #[derive(Debug, Args)]
@@ -35,12 +36,17 @@ pub struct DeleteMethod {
 pub struct DeleteItem {
     pub id: i64,
 }
+#[derive(Debug, Args)]
+pub struct DeleteTemplate{
+    pub id: i64,
+}
 
 impl PrepDelete for DeleteCompany {}
 impl PrepDelete for DeleteClient {}
 impl PrepDelete for DeleteTerms {}
 impl PrepDelete for DeleteMethod {}
 impl PrepDelete for DeleteItem {}
+impl PrepDelete for DeleteTemplate {}
 
 // --- TableNames ---
 impl TableName for DeleteCompany {
@@ -69,5 +75,10 @@ impl TableName for DeleteMethod {
 impl TableName for DeleteItem {
     fn table_name(&self) -> String {
         "items".to_string()
+    }
+}
+impl TableName for DeleteTemplate {
+    fn table_name(&self) -> String {
+        "template".to_string()
     }
 }

@@ -130,6 +130,19 @@ impl Cli {
                         }
                     }
                 },
+                ListFlags::Templates(opt) => {
+                    match &opt.id {
+                        Some(value) => {
+                            let res = db.get_template(value)?;
+                            res.display();
+                        },
+                        None => {
+                            let res = db.get_table("templates")?;
+                            println!("Templates:");
+                            print_entries!(res);
+                        }
+                    }
+                },
             },
             Commands::Edit(edit) => match edit {
                 EditCommands::Company(obj) => {
@@ -167,9 +180,8 @@ impl Cli {
             },
             Commands::Generate(gen) => match gen {
                 GenerateCommands::Template(obj) => {
-                    let tmp = GenerateTemplate::generate(obj, &db)?;
-                    let query = tmp.prepare();
-                    query.execute(&db)?;
+                    let template = GenerateTemplate::generate(obj, &db)?;
+                    db.create_entry(template.prepare())?;
                 },
                 GenerateCommands::Invoice(obj) => {
                     println!("{:?}, {:?}", gen, obj);

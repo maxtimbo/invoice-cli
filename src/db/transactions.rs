@@ -52,12 +52,16 @@ impl InvoiceDB {
                 let new_entry = self.get_method(&new_id)?;
                 new_entry.display();
             },
-            "item" => {
+            "items" => {
                 let new_entry = self.get_item(&new_id)?;
                 new_entry.display();
             },
             "templates" => {
                 let new_entry = self.get_template(&new_id)?;
+                new_entry.display();
+            },
+            "invoices" => {
+                let new_entry = self.get_invoice(&new_id)?;
                 new_entry.display();
             },
             _ => todo!("Something else!"),

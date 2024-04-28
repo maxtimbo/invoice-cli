@@ -177,6 +177,9 @@ impl Cli {
                 DeleteCommands::Item(obj) => {
                     db.delete_entry(DeleteItem::prepare(obj), &obj.id)?;
                 },
+                DeleteCommands::Template(obj) => {
+                    db.delete_entry(DeleteTemplate::prepare(obj), &obj.id)?;
+                }
             },
             Commands::Generate(gen) => match gen {
                 GenerateCommands::Template(obj) => {
@@ -184,7 +187,8 @@ impl Cli {
                     db.create_entry(template.prepare())?;
                 },
                 GenerateCommands::Invoice(obj) => {
-                    println!("{:?}, {:?}", gen, obj);
+                    let invoice = GenerateInvoice::generate(obj, &db)?;
+                    db.create_entry(invoice.prepare())?;
                 }
             }
         }

@@ -1,4 +1,5 @@
 use crate::cli::contact::Contact;
+use crate::models::invoice::InvoiceItem;
 use crate::db::prepare::{PrepFields, PrepValues, TableName, PrepCreate};
 use std::path::PathBuf;
 use serde_json;
@@ -66,6 +67,7 @@ pub struct CreateTemplate {
 #[derive(Debug)]
 pub struct CreateInvoice {
     pub template: i64,
+    pub items: Vec<InvoiceItem>,
 }
 
 impl PrepCreate for CreateCompany {}
@@ -102,7 +104,7 @@ impl TableName for CreateMethod {
 }
 impl TableName for CreateItem {
     fn table_name(&self) -> String {
-        "item".to_string()
+        "items".to_string()
     }
 }
 
@@ -114,7 +116,7 @@ impl TableName for CreateTemplate {
 
 impl TableName for CreateInvoice {
     fn table_name(&self) -> String {
-        "invoice".to_string()
+        "invoices".to_string()
     }
 }
 
@@ -182,6 +184,7 @@ impl PrepFields for CreateInvoice {
     fn fields(&self) -> Vec<std::string::String> {
         let mut fnames = Vec::new();
         fnames.push("template_id".to_string());
+        fnames.push("items_json".to_string());
         fnames
     }
 }
@@ -253,6 +256,8 @@ impl PrepValues for CreateInvoice {
     fn values(&self) -> Vec<rusqlite::types::Value> {
         let mut values: Vec<rusqlite::types::Value> = Vec::new();
         values.push(self.template.into());
+        let items_json = serde_json::to_string(&self.items).expect("Failed to serialize to JSON");
+        values.push(items_json.into());
         values
     }
 }

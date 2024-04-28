@@ -6,11 +6,11 @@ pub mod methods;
 pub mod items;
 pub mod invoice;
 
-enum Tables {
-    Company,
-    Client,
-    Terms,
-    Methods,
-    Items,
-    Templates,
-}
+//enum Tables {
+//    Company,
+//    Client,
+//    Terms,
+//    Methods,
+//    Items,
+//    Templates,
+//}

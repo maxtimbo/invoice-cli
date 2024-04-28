@@ -30,7 +30,7 @@ impl<'conn> InvoiceTx<'conn> {
                 zip TEXT
             )", []).context("failed to create client table")?;
         self.tx.execute(
-            "CREATE TABLE IF NOT EXISTS item (
+            "CREATE TABLE IF NOT EXISTS items (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  name TEXT NOT NULL UNIQUE,
                  rate INTEGER
@@ -73,7 +73,7 @@ impl<'conn> InvoiceTx<'conn> {
                  template_id INTEGER NOT NULL,
                  items_json TEXT NOT NULL,
                  FOREIGN KEY (template_id)
-                     REFERENCES template (id)
+                     REFERENCES templates (id)
                      ON DELETE NO ACTION
                      ON UPDATE NO ACTION
              )", []).context("failed to create invoices table")?;

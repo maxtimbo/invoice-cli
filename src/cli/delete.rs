@@ -79,6 +79,6 @@ impl TableName for DeleteItem {
 }
 impl TableName for DeleteTemplate {
     fn table_name(&self) -> String {
-        "template".to_string()
+        "templates".to_string()
     }
 }

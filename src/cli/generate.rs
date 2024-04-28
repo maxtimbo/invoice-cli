@@ -2,6 +2,7 @@
 use crate::cli::create::{CreateTemplate, CreateInvoice};
 use invoice_cli::{select_entity, select_multiple_entities};
 use crate::db::InvoiceDB;
+use crate::models::invoice::InvoiceItem;
 use anyhow::Result;
 
 use clap::{Args, Subcommand};
@@ -45,11 +46,22 @@ pub struct GenerateInvoice {
 
 impl GenerateInvoice {
     pub fn generate(&self, db: &InvoiceDB) -> Result<CreateInvoice> {
-        let template_selection = select_entity!("Select Template:", db, "template")?;
-        //let items_selection = select_multiple_entities!("Add items to the invoice:", db, "items")?;
+        let template_selection = select_entity!("Select Template:", db, "templates")?;
+        let item_ids = select_multiple_entities!("Add items to the invoice:", db, "items")?;
+        let mut items = Vec::new();
+        for item_id in item_ids {
+            let quantity: i64 = inquire::CustomType::<i64>::new(&format!("Enter quantity for item ID {}:", item_id))
+                .with_error_message("Please enter a valid integer")
+                .prompt()?;
+            items.push(InvoiceItem {
+                item: item_id,
+                quantity: quantity,
+            });
+        }
         //let quantities = todo!("Specify the quantity for item [x]");
         let new_invoice = CreateInvoice {
             template: template_selection,
+            items: items,
         };
 
         Ok(new_invoice)

@@ -2,6 +2,7 @@ use crate::models::company::Company;
 use crate::models::client::Client;
 use crate::models::terms::Terms;
 use crate::models::methods::Methods;
+use serde::{Serialize, Deserialize};
 
 pub struct Template {
     pub id: i64,
@@ -33,6 +34,25 @@ impl Template {
 }
 
 pub struct Invoice {
-    template: Template,
-    items: String,
+    pub id: i64,
+    pub template: Template,
+    pub items: String,
+}
+
+impl Invoice {
+    pub fn display(&self) {
+        self.template.display();
+        println!("Invoice\n\
+            ~~~~~~~~~~~~~\n\
+            id:\t\t{}\n\
+            items:\t\t{}\n",
+            self.id,
+            self.items);
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct InvoiceItem {
+    pub item: i64,
+    pub quantity: i64,
 }

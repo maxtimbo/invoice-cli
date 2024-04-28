@@ -6,7 +6,7 @@ use crate::models::client::Client;
 use crate::models::terms::Terms;
 use crate::models::methods::Methods;
 use crate::models::items::Items;
-use crate::models::invoice::Template;
+use crate::models::invoice::{Invoice, Template};
 use anyhow::Result;
 
 impl InvoiceDB {
@@ -110,6 +110,18 @@ impl InvoiceDB {
             })
         })?;
         Ok(template)
+    }
+    pub fn get_invoice(&self, id: &i64) -> Result<Invoice, rusqlite::Error> {
+        let query = "SELECT * FROM invoices WHERE id = ?";
+        let invoice = self.connection.query_row(query, &[id], |row| {
+            let template_id: i64 = row.get(1)?;
+            Ok(Invoice {
+                id: row.get(0)?,
+                template: self.get_template(&template_id)?,
+                items: row.get(2)?,
+            })
+        })?;
+        Ok(invoice)
     }
 
     pub fn get_table(&self, table_name: &str) -> Result<Vec<ShortList>, rusqlite::Error> {

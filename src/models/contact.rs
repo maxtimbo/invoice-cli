@@ -1,4 +1,6 @@
-#[derive(Debug)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Contact {
     pub phone: Option<String>,
     pub email: Option<String>,

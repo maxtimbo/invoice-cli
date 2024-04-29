@@ -1,8 +1,9 @@
 use crate::models::contact::Contact;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Client {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub contact: Contact,
 }

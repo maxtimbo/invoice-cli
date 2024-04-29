@@ -4,6 +4,7 @@ use crate::models::terms::Terms;
 use crate::models::methods::Methods;
 use serde::{Serialize, Deserialize};
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Template {
     pub id: i64,
     pub name: String,
@@ -33,6 +34,7 @@ impl Template {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Invoice {
     pub id: i64,
     pub template: Template,

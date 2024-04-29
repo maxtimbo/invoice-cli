@@ -1,6 +1,8 @@
-#[derive(Debug)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Terms {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub due: i32,
 }

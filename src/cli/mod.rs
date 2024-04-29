@@ -12,6 +12,7 @@ mod delete;
 use crate::cli::delete::*;
 mod generate;
 use crate::cli::generate::*;
+use crate::render::TemplateEngine;
 
 
 use clap::{Parser, Subcommand};
@@ -44,7 +45,7 @@ pub enum Commands {
 }
 
 impl Cli {
-    pub fn to_cmd(db: &mut InvoiceDB) -> Result<()> {
+    pub fn to_cmd(db: &mut InvoiceDB, renderer: &TemplateEngine) -> Result<()> {
         let cli = Cli::parse();
         match &cli.commands {
             Commands::Create(create) => match create {
@@ -188,10 +189,15 @@ impl Cli {
                 },
                 GenerateCommands::Invoice(obj) => {
                     match (&obj.id, &obj.output) {
-                        (Some(id),  Some(output))   => println!("Retreive invoice and output to file"),
+                        (Some(id),  Some(output))   => {
+                            let invoice_obj = db.get_invoice(id)?;
+                            renderer.to_file(&invoice_obj, output)?;
+                        },
                         (None,      Some(output))   => {
                             let invoice = GenerateInvoice::generate(obj, &db)?;
                             let new_invoice = db.create_entry(invoice.prepare())?;
+                            let invoice_obj = db.get_invoice(&new_invoice)?;
+                            renderer.to_file(&invoice_obj, output)?;
                         },
                         (Some(id),  None)           => println!("Retreive invoice and display on terminal {:?}", id),
                         (None,      None)           => {

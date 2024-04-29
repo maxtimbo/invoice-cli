@@ -13,7 +13,7 @@ use anyhow::Result;
 fn main() -> Result<()> {
     let paths = Paths::init()?;
     let mut db = InvoiceDB::open(paths.db)?;
-    let renerer = TemplateEngine::new(&paths.templates)?;
-    Cli::to_cmd(&mut db)?;
+    let renderer = TemplateEngine::new(&paths.templates)?;
+    Cli::to_cmd(&mut db, &renderer)?;
     Ok(())
 }

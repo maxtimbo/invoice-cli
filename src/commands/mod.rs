@@ -35,6 +35,8 @@ impl Paths {
             std::fs::write(&templates, default_html).expect("Unable to create default.html");
         }
 
+        templates.pop();
+
         // Create images path
         let mut imgs: PathBuf = project_dirs.data_dir().into();
         imgs.push("imgs");

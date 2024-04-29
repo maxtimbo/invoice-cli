@@ -23,7 +23,10 @@ impl TemplateEngine {
             .map_err(|e| Error::msg(format!("Context error: {}", e)))?;
 
         let rendered = self.tera.render("default.html", &context)
-            .map_err(|e| Error::msg(format!("Template rendering error: {}", e)))?;
+            .map_err(|e| {
+                eprintln!("Detailed error: {:?}", e);
+                Error::msg(format!("Template rendering error: {}", e))
+            })?;
 
         let mut file = File::create(output_file)
             .map_err(|e| Error::msg(format!("Failed to create output file: {}", e)))?;

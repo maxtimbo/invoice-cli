@@ -121,34 +121,14 @@
             <div id="header" class="header">
                 <div id="parties" class="header contact">
                     <div id="company" class="header">
-                        {% if template.company.logo %}
-                            <img src="{{ template.company.logo }}" />
-                        {% endif %}
+                        
                         <div id="company-contact">
-                            <h4>{{ template.company.name }}</h4>
-                            {% if template.company.contact.phone %}
-                                <p>{{ template.company.contact.phone }}</p>
-                            {% endif %}
-                            {% if template.company.contact.email %}
-                                <p>{{ template.company.contact.email }}</p>
-                            {% endif %}
-                            {% if template.company.contact.addr1 %}
-                                <p>{{ template.company.contact.addr1 }}</p>
-                            {% endif %}
-                            {% if template.company.contact.add2 %}
-                                <p>{{ template.company.contact.addr2 }}</p>
-                            {% endif %}
-                            {% if template.company.contact.city %}
-                                <p>
-                                    {{ template.company.contact.city }},
-                                    {% if template.company.contact.state %}
-                                        {{ template.company.contact.state }}&nbsp;
-                                    {% endif %}
-                                    {% if template.company.contact.zip %}
-                                        {{ template.company.contact.zip }}
-                                    {% endif %}
-                                </p>
-                            {% endif %}
+                            <h4>test</h4>
+                            
+                            
+                            
+                            
+                            
                         </div>
 
                     </div>
@@ -156,30 +136,12 @@
                     <div id="client">
                         <h5>Bill To:</h5>
                         <div id="client-contact">
-                            <h4>{{ template.client.name }}</h4>
-                            {% if template.client.contact.phone %}
-                                <p>{{ template.client.contact.phone }}</p>
-                            {% endif %}
-                            {% if template.client.contact.email %}
-                                <p>{{ template.client.contact.email }}</p>
-                            {% endif %}
-                            {% if template.client.contact.addr1 %}
-                                <p>{{ template.client.contact.addr1 }}</p>
-                            {% endif %}
-                            {% if template.client.contact.add2 %}
-                                <p>{{ template.client.contact.add2 }}</p>
-                            {% endif %}
-                            {% if template.client.contact.city %}
-                                <p>
-                                    {{ template.client.contact.city }},
-                                    {% if template.client.contact.state %}
-                                        {{ template.client.contact.state }}&nbsp;
-                                    {% endif %}
-                                    {% if template.client.contact.zip %}
-                                        {{ template.client.contact.zip }}
-                                    {% endif %}
-                                </p>
-                            {% endif %}
+                            <h4>test</h4>
+                            
+                            
+                            
+                            
+                            
                         </div>
                     </div> 
                 </div>
@@ -239,9 +201,11 @@
             <div id="to-pay">
                 <div id="payment-methods">
                     <h5>Payment Methods:</h5>
-                    {% for method in template.methods %}
-                        <p>{{ method.name }}</p>
-                    {% endfor %}
+                    
+                        <p>test</p>
+                    
+                        <p>tesdt</p>
+                    
                 </div>
                 <div id="totals">
                     <table id="totals-table">

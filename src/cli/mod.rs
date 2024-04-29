@@ -187,8 +187,18 @@ impl Cli {
                     db.create_entry(template.prepare())?;
                 },
                 GenerateCommands::Invoice(obj) => {
-                    let invoice = GenerateInvoice::generate(obj, &db)?;
-                    db.create_entry(invoice.prepare())?;
+                    match (&obj.id, &obj.output) {
+                        (Some(id),  Some(output))   => println!("Retreive invoice and output to file"),
+                        (None,      Some(output))   => {
+                            let invoice = GenerateInvoice::generate(obj, &db)?;
+                            let new_invoice = db.create_entry(invoice.prepare())?;
+                        },
+                        (Some(id),  None)           => println!("Retreive invoice and display on terminal {:?}", id),
+                        (None,      None)           => {
+                            let invoice = GenerateInvoice::generate(obj, &db)?;
+                            db.create_entry(invoice.prepare())?;
+                        },
+                    };
                 }
             }
         }

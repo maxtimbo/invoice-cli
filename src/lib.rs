@@ -3,8 +3,10 @@
 macro_rules! select_entity {
     ($prompt:expr, $db:expr, $table:expr) => {
         {
+            use inquire::{Select, InquireError};
+
             let list_result = $db.get_table($table)?;
-            let selection: Result<i64, inquire::InquireError> = inquire::Select::new(
+            let selection: Result<i64, InquireError> = Select::new(
                 $prompt,
                 list_result
                 .iter()
@@ -12,11 +14,6 @@ macro_rules! select_entity {
                 .collect::<Vec<_>>())
                 .prompt();
             selection
-            //let entity = Default::default();
-            //let query = $table(&entity);
-            //let list_result = query.list_table(&$db)?;
-            //let selection: Result<i64, inquire::InquireError> = inquire::Select::new($prompt, list_result).prompt();
-            //selection
         }
     }
 }
@@ -25,28 +22,33 @@ macro_rules! select_entity {
 macro_rules! select_multiple_entities {
     ($prompt:expr, $db:expr, $table:expr) => {
         {
+            use inquire::{
+                formatter::MultiOptionFormatter,
+                list_option::ListOption,
+                validator::{Validation, ErrorMessage},
+                InquireError,
+                MultiSelect
+            };
             let list_result = $db.get_table($table)?;
-            let formatter: inquire::formatter::MultiOptionFormatter<i64> = &|options: &[inquire::list_option::ListOption<&i64>]| {
+            let formatter: MultiOptionFormatter<i64> = &|options: &[ListOption<&i64>]| {
                 format!("{} items selected", options.len())
             };
-            let selection_result: Result<Vec<i64>, inquire::InquireError> = inquire::MultiSelect::new(
+            let validator = |a: &[ListOption<&i64>]| {
+                if a.len() > 1 {
+                    Ok(Validation::Valid)
+                } else {
+                    Ok(Validation::Invalid(ErrorMessage::Custom("Must make a selection".to_string())))
+                }
+            };
+            let selection_result: Result<Vec<i64>, InquireError> = MultiSelect::new(
                 $prompt,
                 list_result
                 .iter()
                 .map(|sl| sl.id)
                 .collect::<Vec<_>>())
                 .with_formatter(formatter)
+                .with_validator(validator)
                 .prompt();
-
-            //let entity = Default::default();
-            //let query = $table(&entity);
-            //let list_result = query.list_table(&$db)?;
-            //let formatter: inquire::formatter::MultiOptionFormatter<i64> = &|methods: &[inquire::list_option::ListOption<&i64>]| {
-            //    format!("{} payment methods", methods.len())
-            //};
-            //let selection_result: Result<Vec<i64>, inquire::InquireError> = inquire::MultiSelect::new($prompt, list_result)
-            //    .with_formatter(formatter)
-            //    .prompt();
             selection_result
         }
     };

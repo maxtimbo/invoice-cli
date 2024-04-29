@@ -38,8 +38,7 @@ impl GenerateTemplate {
 
 #[derive(Debug, Args)]
 pub struct GenerateInvoice {
-    //pub template: i64,
-    
+    pub id: Option<i64>,
     #[arg(long, short)]
     pub output: Option<PathBuf>,
 }
@@ -58,7 +57,6 @@ impl GenerateInvoice {
                 quantity: quantity,
             });
         }
-        //let quantities = todo!("Specify the quantity for item [x]");
         let new_invoice = CreateInvoice {
             template: template_selection,
             items: items,

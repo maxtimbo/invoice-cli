@@ -16,12 +16,12 @@ pub struct ShortList {
 }
 
 impl InvoiceDB {
-    pub fn create_entry(&self, cache: CachedStmt) -> Result<()> {
+    pub fn create_entry(&self, cache: CachedStmt) -> Result<i64> {
         let mut stmt = self.connection.prepare(&cache.query)?;
         stmt.execute(rusqlite::params_from_iter(&cache.params))?;
         let new_id = self.connection.last_insert_rowid();
         self.print_entry(&cache.table.as_str(), &new_id)?;
-        Ok(())
+        Ok(new_id)
     }
     pub fn update_entry(&self, cache: CachedStmt, id: &i64) -> Result<()> {
         let mut stmt = self.connection.prepare(&cache.query)?;

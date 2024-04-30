@@ -51,7 +51,8 @@ impl GenerateInvoice {
         let item_ids = select_multiple_entities!("Add items to the invoice:", db, "items")?;
         let mut items = Vec::new();
         for item_id in item_ids {
-            let quantity: i64 = inquire::CustomType::<i64>::new(&format!("Enter quantity for item ID {}:", item_id))
+            let item_short = &db.get_item(&item_id)?;
+            let quantity: i64 = inquire::CustomType::<i64>::new(&format!("Enter quantity for item {} - {}:", item_short.id, item_short.name))
                 .with_error_message("Please enter a valid integer")
                 .prompt()?;
             items.push(InvoiceItem {

@@ -6,8 +6,7 @@ use serde_json;
 use chrono::NaiveDate;
 
 use clap::{Args, Subcommand};
-use rusqlite::{types::Value, ToSql};
-use anyhow::Error;
+use rusqlite::types::Value;
 
 #[derive(Subcommand)]
 pub enum CreateCommands {
@@ -261,6 +260,8 @@ impl PrepValues for CreateInvoice {
     fn values(&self) -> Vec<Value> {
         let mut values: Vec<Value> = Vec::new();
         values.push(self.template.into());
+        let date_str = self.date.format("%Y%m%d").to_string();
+        values.push(Value::from(date_str));
         let items_json = serde_json::to_string(&self.items).expect("Failed to serialize to JSON");
         values.push(items_json.into());
         values

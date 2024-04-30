@@ -18,7 +18,7 @@ impl TemplateEngine {
             .map_err(|e| Error::msg(format!("Failed to initalize Tera: {}", e)))?;
         Ok(TemplateEngine { tera })
     }
-    pub fn to_file(&self, invoice: &Invoice, output_file: &PathBuf) -> Result<()> {
+    pub fn render(&self, invoice: &Invoice) -> Result<String> {
         let context = Context::from_serialize(invoice)
             .map_err(|e| Error::msg(format!("Context error: {}", e)))?;
 
@@ -27,7 +27,9 @@ impl TemplateEngine {
                 eprintln!("Detailed error: {:?}", e);
                 Error::msg(format!("Template rendering error: {}", e))
             })?;
-
+        Ok(rendered)
+    }
+    pub fn to_file(&self, rendered: &String, output_file: &PathBuf) -> Result<()> {
         let mut file = File::create(output_file)
             .map_err(|e| Error::msg(format!("Failed to create output file: {}", e)))?;
 

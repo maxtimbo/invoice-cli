@@ -6,8 +6,9 @@ use crate::models::client::Client;
 use crate::models::terms::Terms;
 use crate::models::methods::Methods;
 use crate::models::items::Items;
-use crate::models::invoice::{Invoice, Template};
+use crate::models::invoice::{Invoice, Template, InvoiceItem};
 use anyhow::Result;
+use std::collections::HashMap;
 
 impl InvoiceDB {
     pub fn get_company(&self, id: &i64) -> Result<Company, rusqlite::Error> {
@@ -115,10 +116,22 @@ impl InvoiceDB {
         let query = "SELECT * FROM invoices WHERE id = ?";
         let invoice = self.connection.query_row(query, &[id], |row| {
             let template_id: i64 = row.get(1)?;
+            let date: String = row.get(2)?;
+            let items_str: String = row.get(3)?;
+
+            let items_vec: Vec<InvoiceItem> = serde_json::from_str(&items_str)
+                .map_err(|_| rusqlite::Error::ExecuteReturnedResults)?;
+            let items: HashMap<Items, i64> = items_vec.into_iter()
+                .map(|item| {
+                    let item_data = self.get_item(&item.item)?;
+                    Ok((item_data, item.quantity))
+                })
+                .collect::<Result<HashMap<Items, i64>, rusqlite::Error>>()?;
             Ok(Invoice {
                 id: row.get(0)?,
                 template: self.get_template(&template_id)?,
-                items: row.get(2)?,
+                date: date,
+                items: items,
             })
         })?;
         Ok(invoice)

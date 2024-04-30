@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <style>
-            #wrapper {
+        <style type="text/css">
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .wrapper {
                 font-family: monospace;
                 margin: 0 auto;
                 padding:50px;
@@ -36,8 +40,6 @@
                 text-align: right;
                 float: right;
             }
-            
-            
             
             #itemized {
                 width: 100%;
@@ -117,7 +119,7 @@
         </style>
     </head>
     <body>
-        <div id="wrapper">
+        <div class="wrapper">
             <div id="header" class="header">
                 <div id="parties" class="header contact">
                     <div id="company" class="header">
@@ -140,13 +142,7 @@
                             {% endif %}
                             {% if template.company.contact.city %}
                                 <p>
-                                    {{ template.company.contact.city }},
-                                    {% if template.company.contact.state %}
-                                        {{ template.company.contact.state }}&nbsp;
-                                    {% endif %}
-                                    {% if template.company.contact.zip %}
-                                        {{ template.company.contact.zip }}
-                                    {% endif %}
+                                    {{ template.company.contact.city }},{% if template.company.contact.state %} {{ template.company.contact.state }}{% endif %}{% if template.company.contact.zip %} {{ template.company.contact.zip }}{% endif %}
                                 </p>
                             {% endif %}
                         </div>

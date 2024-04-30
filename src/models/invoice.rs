@@ -96,10 +96,6 @@ impl Serialize for Invoice {
             // Calculate due date
             let due_date = issue_date + Duration::days(self.template.terms.due);
             state.serialize_field("due_date", &due_date.format("%B %d, %Y").to_string())?;
-            //let items: HashMap<String, i64> = self.items.iter()
-            //    .map(|(key, &value)| (format!("{}: {}", key.name, key.rate), value))
-            //    .collect();
-            //state.serialize_field("items", &items)?;
             state.end()
         }
 }

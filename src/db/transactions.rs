@@ -1,12 +1,5 @@
 use crate::db::InvoiceDB;
 use crate::db::cached::CachedStmt;
-//use crate::models::company::Company;
-//use crate::models::client::Client;
-//use crate::models::methods::Methods;
-//use crate::models::terms::Terms;
-//use crate::models::items::Items;
-//use crate::models::contact::Contact;
-//use crate::models::invoice::Template;
 
 use anyhow::Result;
 

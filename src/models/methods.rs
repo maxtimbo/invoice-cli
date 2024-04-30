@@ -1,9 +1,16 @@
+use std::fmt;
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Methods {
     pub id: i64,
     pub name: String,
+}
+
+impl fmt::Display for Methods {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "ID: {} - Name: {}", self.id, self.name)
+    }
 }
 
 impl Methods {

@@ -144,6 +144,19 @@ impl Cli {
                         }
                     }
                 },
+                ListFlags::Invoices(opt) => {
+                    match &opt.id {
+                        Some(value) => {
+                            let res = db.get_invoice(value)?;
+                            res.display();
+                        },
+                        None => {
+                            let res = db.get_table("invoices")?;
+                            println!("Invoices:");
+                            print_entries!(res);
+                        }
+                    }
+                }
             },
             Commands::Edit(edit) => match edit {
                 EditCommands::Company(obj) => {

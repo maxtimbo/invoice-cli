@@ -4,7 +4,7 @@ use serde::{Serialize, Deserialize};
 pub struct Terms {
     pub id: i64,
     pub name: String,
-    pub due: i32,
+    pub due: i64,
 }
 
 impl Terms {

@@ -73,7 +73,7 @@ impl Serialize for Invoice {
             state.serialize_field("template", &self.template)?;
             let issue_date = NaiveDate::parse_from_str(&self.date, "%Y%m%d").unwrap();
 
-            state.serialize_field("date", &issue_date.format("%B, %d, %Y").to_string())?;
+            state.serialize_field("date", &issue_date.format("%B %d, %Y").to_string())?;
 
             // Calculate subtotals
             let items_details: Vec<ItemDetail> = self.items.iter()
@@ -94,7 +94,7 @@ impl Serialize for Invoice {
             state.serialize_field("total", &total)?;
 
             // Calculate due date
-            let due_date = issue_date + Duration::days(self.template.terms.due as i64);
+            let due_date = issue_date + Duration::days(self.template.terms.due);
             state.serialize_field("due_date", &due_date.format("%B %d, %Y").to_string())?;
             //let items: HashMap<String, i64> = self.items.iter()
             //    .map(|(key, &value)| (format!("{}: {}", key.name, key.rate), value))

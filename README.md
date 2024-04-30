@@ -31,6 +31,16 @@ I wanted to learn how to write in Rust. I'm using this project to practice. I do
 $ git clone https://github.com/maxtimbo/invoice-cli.git
 $ cd invoice-cli
 ```
+> [!NOTE]
+> Running this app will automatically create the following directory tree in `~/.local/share`
+> ```
+> ~/.local/share/invoice-cli
+> ├── imgs
+> ├── invoice-cli.db
+> └── templates
+>     └── default.html
+> ```
+
 
 2. Build with cargo:
 

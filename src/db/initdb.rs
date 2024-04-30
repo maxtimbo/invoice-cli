@@ -71,6 +71,7 @@ impl<'conn> InvoiceTx<'conn> {
             "CREATE TABLE IF NOT EXISTS invoices (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  template_id INTEGER NOT NULL,
+                 date TEXT NOT NULL,
                  items_json TEXT NOT NULL,
                  FOREIGN KEY (template_id)
                      REFERENCES templates (id)

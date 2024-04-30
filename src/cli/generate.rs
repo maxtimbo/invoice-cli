@@ -7,6 +7,7 @@ use anyhow::Result;
 
 use clap::{Args, Subcommand};
 use std::path::PathBuf;
+use inquire::DateSelect;
 
 #[derive(Debug, Subcommand)]
 pub enum GenerateCommands {
@@ -45,6 +46,7 @@ pub struct GenerateInvoice {
 
 impl GenerateInvoice {
     pub fn generate(&self, db: &InvoiceDB) -> Result<CreateInvoice> {
+        let date = DateSelect::new("Invoice date").prompt()?;
         let template_selection = select_entity!("Select Template:", db, "templates")?;
         let item_ids = select_multiple_entities!("Add items to the invoice:", db, "items")?;
         let mut items = Vec::new();
@@ -59,6 +61,7 @@ impl GenerateInvoice {
         }
         let new_invoice = CreateInvoice {
             template: template_selection,
+            date: date,
             items: items,
         };
 

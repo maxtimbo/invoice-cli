@@ -34,7 +34,7 @@ macro_rules! select_multiple_entities {
                 format!("{} items selected", options.len())
             };
             let validator = |a: &[ListOption<&i64>]| {
-                if a.len() > 1 {
+                if a.len() > 0 {
                     Ok(Validation::Valid)
                 } else {
                     Ok(Validation::Invalid(ErrorMessage::Custom("Must make a selection".to_string())))

@@ -3,8 +3,11 @@ use crate::models::invoice::InvoiceItem;
 use crate::db::prepare::{PrepFields, PrepValues, TableName, PrepCreate};
 use std::path::PathBuf;
 use serde_json;
+use chrono::NaiveDate;
 
 use clap::{Args, Subcommand};
+use rusqlite::{types::Value, ToSql};
+use anyhow::Error;
 
 #[derive(Subcommand)]
 pub enum CreateCommands {
@@ -67,6 +70,7 @@ pub struct CreateTemplate {
 #[derive(Debug)]
 pub struct CreateInvoice {
     pub template: i64,
+    pub date: NaiveDate,
     pub items: Vec<InvoiceItem>,
 }
 
@@ -184,6 +188,7 @@ impl PrepFields for CreateInvoice {
     fn fields(&self) -> Vec<std::string::String> {
         let mut fnames = Vec::new();
         fnames.push("template_id".to_string());
+        fnames.push("date".to_string());
         fnames.push("items_json".to_string());
         fnames
     }
@@ -191,11 +196,11 @@ impl PrepFields for CreateInvoice {
 
 // ~~ PrepValues ~~
 impl PrepValues for CreateCompany {
-    fn values(&self) -> Vec<rusqlite::types::Value> {
-        let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    fn values(&self) -> Vec<Value> {
+        let mut values: Vec<Value> = Vec::new();
         values.push(self.name.clone().into());
         if let Some(logo) = &self.logo {
-            values.push(rusqlite::types::Value::Blob(std::fs::read(logo).unwrap()));
+            values.push(Value::Blob(std::fs::read(logo).unwrap()));
             //values.push(self.logo.clone().into());
         }
         values.extend(self.contact.values());
@@ -204,8 +209,8 @@ impl PrepValues for CreateCompany {
 }
 
 impl PrepValues for CreateClient {
-    fn values(&self) -> Vec<rusqlite::types::Value> {
-        let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    fn values(&self) -> Vec<Value> {
+        let mut values: Vec<Value> = Vec::new();
         values.push(self.name.clone().into());
         values.extend(self.contact.values());
         values
@@ -213,8 +218,8 @@ impl PrepValues for CreateClient {
 }
 
 impl PrepValues for CreateTerms {
-    fn values(&self) -> Vec<rusqlite::types::Value> {
-        let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    fn values(&self) -> Vec<Value> {
+        let mut values: Vec<Value> = Vec::new();
         values.push(self.name.clone().into());
         values.push(self.due.into());
         values
@@ -222,16 +227,16 @@ impl PrepValues for CreateTerms {
 }
 
 impl PrepValues for CreateMethod {
-    fn values(&self) -> Vec<rusqlite::types::Value> {
-        let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    fn values(&self) -> Vec<Value> {
+        let mut values: Vec<Value> = Vec::new();
         values.push(self.name.clone().into());
         values
     }
 }
 
 impl PrepValues for CreateItem {
-    fn values(&self) -> Vec<rusqlite::types::Value> {
-        let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    fn values(&self) -> Vec<Value> {
+        let mut values: Vec<Value> = Vec::new();
         values.push(self.name.clone().into());
         values.push(self.rate.into());
         values
@@ -239,8 +244,8 @@ impl PrepValues for CreateItem {
 }
 
 impl PrepValues for CreateTemplate {
-    fn values(&self) -> Vec<rusqlite::types::Value> {
-        let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    fn values(&self) -> Vec<Value> {
+        let mut values: Vec<Value> = Vec::new();
         values.push(self.name.clone().into());
         values.push(self.company.into());
         values.push(self.client.into());
@@ -253,8 +258,8 @@ impl PrepValues for CreateTemplate {
 }
 
 impl PrepValues for CreateInvoice {
-    fn values(&self) -> Vec<rusqlite::types::Value> {
-        let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    fn values(&self) -> Vec<Value> {
+        let mut values: Vec<Value> = Vec::new();
         values.push(self.template.into());
         let items_json = serde_json::to_string(&self.items).expect("Failed to serialize to JSON");
         values.push(items_json.into());

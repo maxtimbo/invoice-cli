@@ -200,7 +200,6 @@ impl PrepValues for CreateCompany {
         values.push(self.name.clone().into());
         if let Some(logo) = &self.logo {
             values.push(Value::Blob(std::fs::read(logo).unwrap()));
-            //values.push(self.logo.clone().into());
         }
         values.extend(self.contact.values());
         values

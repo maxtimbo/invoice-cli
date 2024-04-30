@@ -121,34 +121,16 @@
             <div id="header" class="header">
                 <div id="parties" class="header contact">
                     <div id="company" class="header">
-                        {% if template.company.logo %}
-                            <img src="{{ template.company.logo }}" />
-                        {% endif %}
+                        
                         <div id="company-contact">
-                            <h4>{{ template.company.name }}</h4>
-                            {% if template.company.contact.phone %}
-                                <p>{{ template.company.contact.phone }}</p>
-                            {% endif %}
-                            {% if template.company.contact.email %}
-                                <p>{{ template.company.contact.email }}</p>
-                            {% endif %}
-                            {% if template.company.contact.addr1 %}
-                                <p>{{ template.company.contact.addr1 }}</p>
-                            {% endif %}
-                            {% if template.company.contact.add2 %}
-                                <p>{{ template.company.contact.addr2 }}</p>
-                            {% endif %}
-                            {% if template.company.contact.city %}
-                                <p>
-                                    {{ template.company.contact.city }},
-                                    {% if template.company.contact.state %}
-                                        {{ template.company.contact.state }}&nbsp;
-                                    {% endif %}
-                                    {% if template.company.contact.zip %}
-                                        {{ template.company.contact.zip }}
-                                    {% endif %}
-                                </p>
-                            {% endif %}
+                            <h4>Test</h4>
+                            
+                                <p>903</p>
+                            
+                            
+                            
+                            
+                            
                         </div>
 
                     </div>
@@ -156,30 +138,14 @@
                     <div id="client">
                         <h5>Bill To:</h5>
                         <div id="client-contact">
-                            <h4>{{ template.client.name }}</h4>
-                            {% if template.client.contact.phone %}
-                                <p>{{ template.client.contact.phone }}</p>
-                            {% endif %}
-                            {% if template.client.contact.email %}
-                                <p>{{ template.client.contact.email }}</p>
-                            {% endif %}
-                            {% if template.client.contact.addr1 %}
-                                <p>{{ template.client.contact.addr1 }}</p>
-                            {% endif %}
-                            {% if template.client.contact.add2 %}
-                                <p>{{ template.client.contact.add2 }}</p>
-                            {% endif %}
-                            {% if template.client.contact.city %}
-                                <p>
-                                    {{ template.client.contact.city }},
-                                    {% if template.client.contact.state %}
-                                        {{ template.client.contact.state }}&nbsp;
-                                    {% endif %}
-                                    {% if template.client.contact.zip %}
-                                        {{ template.client.contact.zip }}
-                                    {% endif %}
-                                </p>
-                            {% endif %}
+                            <h4>eree</h4>
+                            
+                            
+                                <p>tsds@sdf.sdf</p>
+                            
+                            
+                            
+                            
                         </div>
                     </div> 
                 </div>
@@ -192,7 +158,7 @@
                         <table id="summary-table">
                             <tr id="issued-date">
                                 <td>Date:</td>
-                                <td>{{ date }}</td>
+                                <td>April, 29, 2024</td>
                             </tr>
                             <tr id="terms">
                                 <td>Payment Terms:</td>
@@ -200,11 +166,11 @@
                             </tr>
                             <tr id="due-date">
                                 <td>Due Date:</td>
-                                <td>{{ due_date }}</td>
+                                <td>May 29, 2024</td>
                             </tr>
                             <tr id="balance-due">
                                 <td>Balance Due:</td>
-                                <td>${{ total }}</td>
+                                <td>$1078078</td>
                             </tr>
                         </table>
                     </div>
@@ -221,29 +187,36 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in items %}
+                        
                             <tr>
-                                <td class="col1">{{ item.name }}</td>
-                                <td class="col2">{{ item.quantity }}</td>
-                                <td class="col3">${{ item.rate }}</td>
-                                <td class="col4">${{ item.subtotal }}</td>
+                                <td class="col1">sadfassd</td>
+                                <td class="col2">3234</td>
+                                <td class="col3">$333</td>
+                                <td class="col4">$1076922</td>
                             </tr>
-                        {% endfor %}
+                        
+                            <tr>
+                                <td class="col1">sd</td>
+                                <td class="col2">34</td>
+                                <td class="col3">$34</td>
+                                <td class="col4">$1156</td>
+                            </tr>
+                        
                     </tbody>
                 </table>
             </div>
             <div id="to-pay">
                 <div id="payment-methods">
                     <h5>Payment Methods:</h5>
-                    {% for method in template.methods %}
-                        <p>{{ method.name }}</p>
-                    {% endfor %}
+                    
+                        <p>asdfasdf</p>
+                    
                 </div>
                 <div id="totals">
                     <table id="totals-table">
                         <tr>
                             <td>Total:</td>
-                            <td>${{ total }}</td>
+                            <td>$1078078</td>
                         </tr>
                     </table>
                 </div>

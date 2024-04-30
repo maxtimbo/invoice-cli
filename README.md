@@ -6,11 +6,17 @@ I wanted to learn how to write in Rust. I'm using this project to practice. I do
 - [x] Basic CLI elements using clap
 - [x] Database generation
 - [x] Basic CRUD for SQlite using rusqlite
-- [ ] More complex logic for generating invoices
+- [x] More complex logic for generating invoices
 - [ ] Figure out how to handle logo images for the company table
-- [ ] Generate HTML using Tera(?)
+- [x] Generate HTML using Tera
+- [ ] Refine default.html
 - [ ] Generate PDF from HTML
 - [ ] ?
+
+## Refactor Roadmap
+- [ ] Fix how the CRUD system is implemented
+- [ ] Remove the CachedStmt struct(?) and all the traits associated with it
+- [ ] Cleaner code...
 
 ## Maybe Features?
 - Automatically send generated pdf to company email and client email

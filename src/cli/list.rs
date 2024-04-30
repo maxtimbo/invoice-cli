@@ -95,6 +95,6 @@ impl TableName for ListMethods {
 }
 impl TableName for ListItems {
     fn table_name(&self) -> String {
-        "item".to_string()
+        "items".to_string()
     }
 }

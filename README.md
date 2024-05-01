@@ -7,6 +7,7 @@ I wanted to learn how to write in Rust. I'm using this project to practice. I do
 - [x] Database generation
 - [x] Basic CRUD for SQlite using rusqlite
 - [x] More complex logic for generating invoices
+- [x] Create tables by inputting a json
 - [ ] Figure out how to handle logo images for the company table
 - [x] Generate HTML using Tera
 - [ ] Refine default.html
@@ -51,3 +52,7 @@ Or just run:
 ```
 $ cargo run
 ```
+
+## Brief Usage
+
+Check out the `example.json` to see how a json file should be structured. Optional fields should be ommitted. You can create as many entities as you want with one json file.

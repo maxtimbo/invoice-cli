@@ -1,0 +1,48 @@
+{
+    "company": [
+        {
+            "name": "Required Name",
+            "logo": "/optional/path/to/image",
+            "contact": {
+                "phone": "optional",
+                "email": "optional@example.com",
+                "addr1": "44 Optional",
+                "addr2": "C/O Optional",
+                "city": "Optional",
+                "state": "Optional",
+                "zip": "optional"
+            }
+        }
+    ],
+    "client": [
+        {
+            "name": "Required Name",
+            "contact": {
+                "phone": "optional",
+                "email": "optional@example.com",
+                "addr1": "44 Optional",
+                "addr2": "C/O Optional",
+                "city": "Optional",
+                "state": "Optional",
+                "zip": "optional"
+            }
+        }
+    ],
+    "method": [
+        {
+            "name": "Required"
+        }
+    ],
+    "terms": [
+        {
+            "name": "Both fields require - [due] days",
+            "due": 0
+        }
+    ],
+    "item": [
+        {
+            "name": "Required Name - [rate] how much per item",
+            "rate": 120
+        }
+    ]
+}

@@ -1,12 +1,15 @@
+use std::fmt;
+use std::collections::HashMap;
+
+use serde::{Serialize, Serializer, ser::SerializeStruct, Deserialize};
+use chrono::{NaiveDate, Duration};
+
 use crate::models::company::Company;
 use crate::models::client::Client;
 use crate::models::terms::Terms;
 use crate::models::methods::Methods;
 use crate::models::items::Items;
-use serde::{Serialize, Serializer, ser::SerializeStruct, Deserialize};
-use chrono::{NaiveDate, Duration};
 
-use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Template {
@@ -18,23 +21,19 @@ pub struct Template {
     pub methods: Vec<Methods>,
 }
 
-impl Template {
-    pub fn display(&self) {
-        println!("Template\n\
-            ~~~~~~~~~~~~~~\n\
-            id:\t\t{}\n\
-            name:\t\t{}\n",
-            self.id,
-            self.name);
-        self.company.display();
-        println!("");
-        self.client.display();
-        println!("");
-        self.terms.display();
-        println!("");
+impl fmt::Display for Template {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "ID:\t\t{}\n", self.id)?;
+        write!(f, "Name:\t\t{}\n\n", self.name)?;
+        write!(f, "Company Information:\n{}\n", self.company)?;
+        write!(f, "Client Information:\n{}\n", self.client)?;
+        write!(f, "Template Terms:\n")?;
+        write!(f, "{}\n", self.terms)?;
+        write!(f, "Template Payment Methods:\n")?;
         for method in &self.methods {
-            method.display();
+            write!(f, "{}\n", method)?;
         }
+        Ok(())
     }
 }
 
@@ -46,20 +45,16 @@ pub struct Invoice {
     pub items: HashMap<Items, i64>,
 }
 
-impl Invoice {
-    pub fn display(&self) {
-        self.template.display();
-        println!("");
-        println!("Invoice\n\
-            ~~~~~~~~~~~~~\n\
-            id:\t\t{}\n\
-            date:\t\t{}\n\
-            items:",
-            self.id,
-            self.date);
+impl fmt::Display for Invoice {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "ID:\t\t{}\n", self.id)?;
+        write!(f, "Date:\t\t{}\n\n", self.date)?;
+        write!(f, "Template Information:\n{}\n", self.template)?;
+        write!(f, "Invoice Items:\n")?;
         for (item, quantity) in &self.items {
-            println!(" - {} - Quantity: {}", item, quantity);
+            write!(f, " - {} - Quantity: {}\n", item, quantity)?;
         }
+        Ok(())
     }
 }
 

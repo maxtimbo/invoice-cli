@@ -9,20 +9,6 @@ pub struct Items {
     pub rate: i32,
 }
 
-impl Items {
-    pub fn display(&self) {
-        println!("Item\n\
-            ~~~~~~~~~~~~\n\
-            id:\t\t{}\n\
-            name:\t\t{}\n\
-            rate:\t\t{}",
-            self.id,
-            self.name,
-            self.rate
-        );
-    }
-}
-
 impl fmt::Display for Items {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} (Rate: {})", self.name, self.rate)

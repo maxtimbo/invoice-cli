@@ -3,10 +3,6 @@ use crate::db::cached::CachedStmt;
 
 use anyhow::Result;
 
-pub struct ShortList {
-    pub id: i64,
-    pub name: String,
-}
 
 impl InvoiceDB {
     pub fn create_entry(&self, cache: CachedStmt) -> Result<i64> {
@@ -31,31 +27,31 @@ impl InvoiceDB {
         match table {
             "company" => {
                 let new_entry = self.get_company(&new_id)?;
-                new_entry.display();
+                println!("{}", new_entry);
             },
             "client" => {
                 let new_entry = self.get_client(&new_id)?;
-                new_entry.display();
+                println!("{}", new_entry);
             },
             "terms" => {
                 let new_entry = self.get_terms(&new_id)?;
-                new_entry.display();
+                println!("{}", new_entry);
             },
             "methods" => {
                 let new_entry = self.get_method(&new_id)?;
-                new_entry.display();
+                println!("{}", new_entry);
             },
             "items" => {
                 let new_entry = self.get_item(&new_id)?;
-                new_entry.display();
+                println!("{}", new_entry);
             },
             "templates" => {
                 let new_entry = self.get_template(&new_id)?;
-                new_entry.display();
+                println!("{}", new_entry);
             },
             "invoices" => {
                 let new_entry = self.get_invoice(&new_id)?;
-                new_entry.display();
+                println!("{}", new_entry);
             },
             _ => todo!("Something else!"),
         }

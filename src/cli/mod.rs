@@ -1,5 +1,4 @@
 use crate::db::prepare::{PrepCreate, PrepUpdate, PrepDelete};
-use invoice_cli::print_entries;
 use crate::db::InvoiceDB;
 mod contact;
 mod create;
@@ -70,12 +69,12 @@ impl Cli {
                     match &opt.id {
                         Some(value) => {
                             let res = db.get_company(value)?;
-                            res.display();
+                            println!("{}", res);
                         },
                         None => {
                             let res = db.get_table("company")?;
                             println!("Companies:");
-                            print_entries!(res);
+                            for entry in &res { println!("{}", entry); }
                         }
                     }
                 },
@@ -83,12 +82,12 @@ impl Cli {
                     match &opt.id {
                         Some(value) => {
                             let res = db.get_client(value)?;
-                            res.display();
+                            println!("{}", res);
                         },
                         None => {
                             let res = db.get_table("client")?;
                             println!("Clients:");
-                            print_entries!(res);
+                            for entry in &res { println!("{}", entry); }
                         }
                     }
                 },
@@ -96,12 +95,12 @@ impl Cli {
                     match &opt.id {
                         Some(value) => {
                             let res = db.get_method(value)?;
-                            res.display();
+                            println!("{}", res);
                         },
                         None => {
                             let res = db.get_table("methods")?;
                             println!("Methods:");
-                            print_entries!(res);
+                            for entry in &res { println!("{}", entry); }
                         }
                     }
                 },
@@ -109,12 +108,12 @@ impl Cli {
                     match &opt.id {
                         Some(value) => {
                             let res = db.get_terms(value)?;
-                            res.display();
+                            println!("{}", res);
                         },
                         None => {
                             let res = db.get_table("terms")?;
                             println!("Terms:");
-                            print_entries!(res);
+                            for entry in &res { println!("{}", entry); }
                         }
                     }
                 },
@@ -122,12 +121,12 @@ impl Cli {
                     match &opt.id {
                         Some(value) => {
                             let res = db.get_item(value)?;
-                            res.display();
+                            println!("{}", res);
                         },
                         None => {
                             let res = db.get_table("items")?;
                             println!("Items:");
-                            print_entries!(res);
+                            for entry in &res { println!("{}", entry); }
                         }
                     }
                 },
@@ -135,12 +134,12 @@ impl Cli {
                     match &opt.id {
                         Some(value) => {
                             let res = db.get_template(value)?;
-                            res.display();
+                            println!("{}", res);
                         },
                         None => {
                             let res = db.get_table("templates")?;
                             println!("Templates:");
-                            print_entries!(res);
+                            for entry in &res { println!("{}", entry); }
                         }
                     }
                 },
@@ -148,12 +147,12 @@ impl Cli {
                     match &opt.id {
                         Some(value) => {
                             let res = db.get_invoice(value)?;
-                            res.display();
+                            println!("{}", res);
                         },
                         None => {
                             let res = db.get_table("invoices")?;
                             println!("Invoices:");
-                            print_entries!(res);
+                            for entry in &res { println!("{}", entry); }
                         }
                     }
                 }
@@ -193,6 +192,9 @@ impl Cli {
                 },
                 DeleteCommands::Template(obj) => {
                     db.delete_entry(DeleteTemplate::prepare(obj), &obj.id)?;
+                },
+                DeleteCommands::Invoice(obj) => {
+                    db.delete_entry(DeleteInvoice::prepare(obj), &obj.id)?;
                 }
             },
             Commands::Generate(gen) => match gen {

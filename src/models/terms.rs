@@ -13,18 +13,3 @@ impl fmt::Display for Terms {
         write!(f, "ID: {} - Name: {}, Due: {}", self.id, self.name, self.due)
     }
 }
-
-impl Terms {
-    pub fn display(&self) {
-        println!("Terms\n\
-            ~~~~~~~~~~~~\n\
-            id:\t\t{}\n\
-            name:\t\t{}\n\
-            due:\t\t{}",
-            self.id,
-            self.name,
-            self.due
-        );
-    }
-}
-

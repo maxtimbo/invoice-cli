@@ -1,5 +1,4 @@
 use crate::db::InvoiceDB;
-use crate::db::transactions::ShortList;
 use crate::models::company::Company;
 use crate::models::contact::Contact;
 use crate::models::client::Client;
@@ -7,6 +6,7 @@ use crate::models::terms::Terms;
 use crate::models::methods::Methods;
 use crate::models::items::Items;
 use crate::models::invoice::{Invoice, Template, InvoiceItem};
+use crate::models::ShortList;
 use anyhow::Result;
 use std::collections::HashMap;
 

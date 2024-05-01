@@ -1,7 +1,7 @@
 use crate::db::prepare::{PrepCreate, PrepUpdate, PrepDelete};
 use crate::db::InvoiceDB;
 mod contact;
-mod create;
+pub mod create;
 use crate::cli::create::*;
 mod edit;
 use crate::cli::edit::*;
@@ -48,6 +48,38 @@ impl Cli {
         let cli = Cli::parse();
         match &cli.commands {
             Commands::Create(create) => match create {
+                CreateCommands::FromJson(obj) => {
+                    match FromJSON::from(obj) {
+                        Ok(entities) => {
+                            if let Some(companies) = entities.company {
+                                for company in companies {
+                                    db.create_entry(company.prepare())?;
+                                }
+                            }
+                            if let Some(clients) = entities.client {
+                                for client in clients {
+                                    db.create_entry(client.prepare())?;
+                                }
+                            }
+                            if let Some(terms) = entities.terms {
+                                for term in terms {
+                                    db.create_entry(term.prepare())?;
+                                }
+                            }
+                            if let Some(methods) = entities.method {
+                                for method in methods {
+                                    db.create_entry(method.prepare())?;
+                                }
+                            }
+                            if let Some(items) = entities.item {
+                                for item in items {
+                                    db.create_entry(item.prepare())?;
+                                }
+                            }
+                        },
+                        Err(e) => eprintln!("Failed to parse JSON: {}", e),
+                    }
+                }
                 CreateCommands::Company(obj) => {
                     db.create_entry(CreateCompany::prepare(obj))?;
                 },

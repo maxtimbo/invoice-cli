@@ -1,7 +1,8 @@
 use clap::Args;
 use crate::db::prepare::{PrepFields, PrepValues};
+use serde::Deserialize;
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Deserialize)]
 pub struct Contact {
     #[arg(long)]
     pub phone: Option<String>,

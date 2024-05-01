@@ -1,0 +1,22 @@
+{
+    "company": [
+        {
+            "name": "example",
+            "contact": {}
+        },
+        {
+            "name": "example2",
+            "contact": {
+                "phone": "912"
+            }
+        }
+    ],
+    "client": [
+        {
+            "name": "client1",
+            "contact": {
+                "phone": "912"
+            }
+        }
+    ]
+}

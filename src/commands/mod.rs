@@ -1,3 +1,5 @@
+pub mod json_input;
+
 use std::path::PathBuf;
 use anyhow::{Context, Result, Error};
 use directories::ProjectDirs;

@@ -1,15 +1,18 @@
+use std::path::PathBuf;
+
+use chrono::NaiveDate;
+use clap::{Args, Subcommand};
+use rusqlite::types::Value;
+use serde_json;
+use serde::Deserialize;
+
 use crate::cli::contact::Contact;
 use crate::models::invoice::InvoiceItem;
 use crate::db::prepare::{PrepFields, PrepValues, TableName, PrepCreate};
-use std::path::PathBuf;
-use serde_json;
-use chrono::NaiveDate;
-
-use clap::{Args, Subcommand};
-use rusqlite::types::Value;
 
 #[derive(Subcommand)]
 pub enum CreateCommands {
+    FromJson(FromJSON),
     Company(CreateCompany),
     Client(CreateClient),
     Terms(CreateTerms),
@@ -18,6 +21,11 @@ pub enum CreateCommands {
 }
 
 #[derive(Debug, Args)]
+pub struct FromJSON {
+    pub json_input: PathBuf,
+}
+
+#[derive(Debug, Args, Deserialize)]
 #[group(required = false)]
 pub struct CreateCompany {
     pub name: String,
@@ -29,7 +37,7 @@ pub struct CreateCompany {
     pub contact: Contact,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Deserialize)]
 #[group(required = false)]
 pub struct CreateClient {
     pub name: String,
@@ -38,19 +46,19 @@ pub struct CreateClient {
     pub contact: Contact,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Deserialize)]
 pub struct CreateTerms {
     pub name: String,
     #[arg(long)]
     pub due: u32,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Deserialize)]
 pub struct CreateMethod {
     pub name: String,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Deserialize)]
 pub struct CreateItem {
     pub name: String,
     #[arg(long)]

@@ -8,7 +8,6 @@ use directories::ProjectDirs;
 pub struct Paths {
     pub db: PathBuf,
     pub templates: PathBuf,
-    pub imgs: PathBuf,
 }
 
 impl Paths {
@@ -39,15 +38,9 @@ impl Paths {
 
         templates.pop();
 
-        // Create images path
-        let mut imgs: PathBuf = project_dirs.data_dir().into();
-        imgs.push("imgs");
-        std::fs::create_dir_all(&imgs).with_context(|| format!("Unable to create imgs dir: {:?}", &imgs))?;
-
         let paths = Paths {
             db: db_path,
             templates: templates,
-            imgs: imgs,
         };
         Ok(paths)
     }

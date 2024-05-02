@@ -9,6 +9,7 @@ use serde::Deserialize;
 use crate::cli::contact::Contact;
 use crate::models::invoice::InvoiceItem;
 use crate::db::prepare::{PrepFields, PrepValues, TableName, PrepCreate};
+use crate::validators::{ValidSize, ValidImage};
 
 #[derive(Subcommand)]
 pub enum CreateCommands {
@@ -88,6 +89,10 @@ impl PrepCreate for CreateMethod {}
 impl PrepCreate for CreateItem {}
 impl PrepCreate for CreateTemplate {}
 impl PrepCreate for CreateInvoice {}
+
+// --- Validators ---
+impl ValidSize for CreateCompany {}
+impl ValidImage for CreateCompany {}
 
 // --- TableNames ---
 impl TableName for CreateCompany {
@@ -207,7 +212,14 @@ impl PrepValues for CreateCompany {
         let mut values: Vec<Value> = Vec::new();
         values.push(self.name.clone().into());
         if let Some(logo) = &self.logo {
-            values.push(Value::Blob(std::fs::read(logo).unwrap()));
+            if self.is_valid_image(logo) {
+                match self.read_image(logo) {
+                    Ok(data) => values.push(Value::Blob(data)),
+                    Err(e) => eprintln!("Error reading image file: {}", e),
+                }
+            } else {
+                eprintln!("Invalid image file type.");
+            }
         }
         values.extend(self.contact.values());
         values

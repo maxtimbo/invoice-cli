@@ -3,6 +3,7 @@ pub mod db;
 pub mod models;
 pub mod commands;
 pub mod render;
+pub mod validators;
 pub use commands::Paths;
 pub use db::InvoiceDB;
 pub use cli::Cli;

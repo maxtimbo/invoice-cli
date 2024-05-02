@@ -1,7 +1,10 @@
+use std::path::PathBuf;
+use clap::{Args, Subcommand};
+use rusqlite::types::Value;
+
 use crate::cli::contact::Contact;
 use crate::db::prepare::{TableName, PrepFields, PrepValues, PrepUpdate};
-
-use clap::{Args, Subcommand};
+use crate::validators::{ValidSize, ValidImage};
 
 #[derive(Debug, Subcommand)]
 pub enum EditCommands {
@@ -22,8 +25,7 @@ pub struct EditCompany {
     pub name: Option<String>,
 
     #[arg(long)]
-    pub logo: Option<String>,
-    //logo: Option<PathBuf>,
+    pub logo: Option<PathBuf>,
 
     #[command(flatten)]
     pub contact: Contact,
@@ -76,6 +78,10 @@ impl PrepUpdate for EditClient {}
 impl PrepUpdate for EditTerms {}
 impl PrepUpdate for EditMethod {}
 impl PrepUpdate for EditItem {}
+
+// --- Validators ---
+impl ValidSize for EditCompany {}
+impl ValidImage for EditCompany {}
 
 // --- TableNames ---
 impl TableName for EditCompany {
@@ -177,13 +183,20 @@ impl PrepFields for EditItem {
 
 // ~~~ PrepValues ~~~
 impl PrepValues for EditCompany {
-    fn values(&self) -> Vec<rusqlite::types::Value> {
-       let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    fn values(&self) -> Vec<Value> {
+       let mut values: Vec<Value> = Vec::new();
        if self.name.is_some() {
            values.push(self.name.clone().into());
        }
-       if self.logo.is_some() {
-           values.push(self.logo.clone().into());
+       if let Some(logo) = &self.logo {
+            if self.is_valid_image(&logo) {
+                match self.read_image(&logo) {
+                    Ok(data) => values.push(Value::Blob(data)),
+                    Err(e) => eprintln!("Error reading image file: {}", e),
+                }
+            } else {
+                eprintln!("Invalid image file type.");
+            }
        }
        values.extend(self.contact.values());
        values
@@ -191,8 +204,8 @@ impl PrepValues for EditCompany {
 }
 
 impl PrepValues for EditClient {
-    fn values(&self) -> Vec<rusqlite::types::Value> {
-       let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    fn values(&self) -> Vec<Value> {
+       let mut values: Vec<Value> = Vec::new();
        if self.name.is_some() {
            values.push(self.name.clone().into());
        }
@@ -202,8 +215,8 @@ impl PrepValues for EditClient {
 }
 
 impl PrepValues for EditTerms {
-    fn values(&self) -> Vec<rusqlite::types::Value> {
-       let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    fn values(&self) -> Vec<Value> {
+       let mut values: Vec<Value> = Vec::new();
        if self.name.is_some() {
            values.push(self.name.clone().into());
        }
@@ -215,8 +228,8 @@ impl PrepValues for EditTerms {
 }
 
 impl PrepValues for EditMethod {
-    fn values(&self) -> Vec<rusqlite::types::Value> {
-       let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    fn values(&self) -> Vec<Value> {
+       let mut values: Vec<Value> = Vec::new();
        if self.name.is_some() {
            values.push(self.name.clone().into());
        }
@@ -225,8 +238,8 @@ impl PrepValues for EditMethod {
 }
 
 impl PrepValues for EditItem {
-    fn values(&self) -> Vec<rusqlite::types::Value> {
-       let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    fn values(&self) -> Vec<Value> {
+       let mut values: Vec<Value> = Vec::new();
        if self.name.is_some() {
            values.push(self.name.clone().into());
        }

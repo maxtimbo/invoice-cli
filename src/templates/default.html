@@ -5,14 +5,19 @@
             @media print {
                 body, .wrapper {
                     width: 100%;
+                    print-color-adjust: exact;
                 }
                 .header {
                     float: none;
                     display: block;
                 }
+                #parties {
+                    width: 35%;
+                }
                 #details {
                     text-align: left;
                     float: none;
+                    width: 65%;
                 }
                 #items tbody tr:nth-child(even) {
                     background-color: #a9a9a9 !important;

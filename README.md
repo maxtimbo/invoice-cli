@@ -8,7 +8,7 @@ I wanted to learn how to write in Rust. I'm using this project to practice. I do
 - [x] Basic CRUD for SQlite using rusqlite
 - [x] More complex logic for generating invoices
 - [x] Create tables by inputting a json
-- [ ] Figure out how to handle logo images for the company table
+- [x] Figure out how to handle logo images for the company table
 - [x] Generate HTML using Tera
 - [ ] Refine default.html
 - [ ] Generate PDF from HTML
@@ -16,7 +16,7 @@ I wanted to learn how to write in Rust. I'm using this project to practice. I do
 
 ## Refactor Roadmap
 - [ ] Fix how the CRUD system is implemented
-- [ ] Remove the CachedStmt struct(?) and all the traits associated with it
+- [ ] Remove the CachedStmt struct(?) and [x] all the traits associated with it
 - [ ] Cleaner code...
 
 ## Maybe Features?

@@ -18,15 +18,11 @@ pub enum EditCommands {
 #[derive(Debug, Args)]
 #[group(required = false)]
 pub struct EditCompany {
-    #[arg(short, long)]
     pub id: i64,
-
-    #[arg(long)]
+    #[arg(long, short)]
     pub name: Option<String>,
-
-    #[arg(long)]
+    #[arg(long, short)]
     pub logo: Option<PathBuf>,
-
     #[command(flatten)]
     pub contact: Contact,
 }
@@ -34,42 +30,35 @@ pub struct EditCompany {
 #[derive(Debug, Args)]
 #[group(required = false)]
 pub struct EditClient {
-    #[arg(short, long)]
     pub id: i64,
-
-    #[arg(long)]
+    #[arg(long, short)]
     pub name: Option<String>,
-
     #[command(flatten)]
     pub contact: Contact,
 }
 
 #[derive(Debug, Args)]
 pub struct EditTerms {
-    #[arg(short, long)]
     pub id: i64,
-
-    #[arg(long)]
+    #[arg(long, short)]
     pub name: Option<String>,
-
-    #[arg(long)]
+    #[arg(long, short)]
     pub due: Option<u32>,
 }
 
 #[derive(Debug, Args)]
 pub struct EditMethod {
-    #[arg(short, long)]
     pub id: i64,
-
-    #[arg(long)]
+    #[arg(long, short)]
     pub name: Option<String>,
 }
 
 #[derive(Debug, Args)]
 pub struct EditItem {
-    #[arg(short, long)]
     pub id: i64,
+    #[arg(long, short)]
     pub name: Option<String>,
+    #[arg(long, short)]
     pub rate: Option<i32>,
 }
 

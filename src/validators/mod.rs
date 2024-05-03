@@ -17,7 +17,7 @@ pub trait ValidImage {
 
 pub trait ValidSize {
     fn read_image(&self, file_path: &PathBuf) -> io::Result<Vec<u8>> {
-        const MAX_IMG_SIZE: u64 = 5_000_000;
+        const MAX_IMG_SIZE: u64 = 1_000_000;
         let metadata = fs::metadata(file_path)?;
         if metadata.len() > MAX_IMG_SIZE {
             Err(io::Error::new(io::ErrorKind::InvalidData, "File size exceeds limit"))

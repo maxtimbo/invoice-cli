@@ -4,25 +4,25 @@ use serde::Deserialize;
 
 #[derive(Debug, Args, Deserialize)]
 pub struct Contact {
-    #[arg(long)]
+    #[arg(long, short)]
     pub phone: Option<String>,
 
-    #[arg(long)]
+    #[arg(long, short)]
     pub email: Option<String>,
 
-    #[arg(long)]
+    #[arg(long, short)]
     pub addr1: Option<String>,
 
     #[arg(long)]
     pub addr2: Option<String>,
 
-    #[arg(long)]
+    #[arg(long, short)]
     pub city: Option<String>,
 
-    #[arg(long)]
+    #[arg(long, short)]
     pub state: Option<String>,
 
-    #[arg(long)]
+    #[arg(long, short)]
     pub zip: Option<String>,
 }
 

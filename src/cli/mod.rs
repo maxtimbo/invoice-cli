@@ -28,18 +28,23 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Commands {
     #[command(subcommand)]
+    /// Create an entity
     Create(CreateCommands),
 
     #[command(subcommand)]
+    /// List entities
     List(ListFlags),
 
     #[command(subcommand)]
+    /// Edit or Update entities
     Edit(EditCommands),
 
     #[command(subcommand)]
+    /// Delete entities
     Delete(DeleteCommands),
 
     #[command(subcommand)]
+    /// Generate a template or an invoice
     Generate(GenerateCommands),
 }
 

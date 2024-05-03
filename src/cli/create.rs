@@ -13,11 +13,18 @@ use crate::validators::{ValidSize, ValidImage};
 
 #[derive(Subcommand)]
 pub enum CreateCommands {
+    /// Supply a json file for entity creation.
+    /// Reference the example.json file to see the file structure.
     FromJson(FromJSON),
+    /// Create a company
     Company(CreateCompany),
+    /// Create a client
     Client(CreateClient),
+    /// Create payment terms
     Terms(CreateTerms),
+    /// Create payment methods
     Method(CreateMethod),
+    /// Create inventory items
     Item(CreateItem),
 }
 

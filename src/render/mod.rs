@@ -1,10 +1,10 @@
-use tera::{Tera, Context};
-use anyhow::{Result, Error};
 use crate::models::invoice::Invoice;
+use anyhow::{Error, Result};
+use tera::{Context, Tera};
 
-use std::path::PathBuf;
 use std::fs::File;
 use std::io::Write;
+use std::path::PathBuf;
 
 pub struct TemplateEngine {
     tera: Tera,
@@ -22,11 +22,10 @@ impl TemplateEngine {
         let context = Context::from_serialize(invoice)
             .map_err(|e| Error::msg(format!("Context error: {}", e)))?;
 
-        let rendered = self.tera.render("default.html", &context)
-            .map_err(|e| {
-                eprintln!("Detailed error: {:?}", e);
-                Error::msg(format!("Template rendering error: {}", e))
-            })?;
+        let rendered = self.tera.render("default.html", &context).map_err(|e| {
+            eprintln!("Detailed error: {:?}", e);
+            Error::msg(format!("Template rendering error: {}", e))
+        })?;
         Ok(rendered)
     }
     pub fn to_file(&self, rendered: &String, output_file: &PathBuf) -> Result<()> {

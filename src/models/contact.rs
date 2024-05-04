@@ -1,6 +1,6 @@
 use std::fmt;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Contact {
@@ -8,9 +8,9 @@ pub struct Contact {
     pub email: Option<String>,
     pub addr1: Option<String>,
     pub addr2: Option<String>,
-    pub city:  Option<String>,
+    pub city: Option<String>,
     pub state: Option<String>,
-    pub zip:   Option<String>,
+    pub zip: Option<String>,
 }
 
 impl fmt::Display for Contact {
@@ -39,4 +39,3 @@ impl fmt::Display for Contact {
         Ok(())
     }
 }
-

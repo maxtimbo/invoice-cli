@@ -1,9 +1,11 @@
 use std::fs;
 
-use serde::{Deserialize};
+use serde::Deserialize;
 use serde_json;
 
-use crate::cli::create::{CreateCompany, CreateClient, CreateTerms, CreateMethod, CreateItem, FromJSON};
+use crate::cli::create::{
+    CreateClient, CreateCompany, CreateItem, CreateMethod, CreateTerms, FromJSON,
+};
 
 #[derive(Deserialize, Debug)]
 pub struct Entities {

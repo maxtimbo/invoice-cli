@@ -15,4 +15,3 @@ impl CachedStmt {
         Ok(())
     }
 }
-

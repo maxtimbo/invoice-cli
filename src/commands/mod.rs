@@ -1,8 +1,8 @@
 pub mod json_input;
 
-use std::path::PathBuf;
-use anyhow::{Context, Result, Error};
+use anyhow::{Context, Error, Result};
 use directories::ProjectDirs;
+use std::path::PathBuf;
 
 #[derive(Debug)]
 pub struct Paths {
@@ -21,9 +21,8 @@ impl Paths {
             .with_context(|| format!("Unable to create project root dir: {:?}", &db_path))?;
         db_path.push("invoice-cli.db");
 
-        
         // Create templates path
-        let mut templates: PathBuf = project_dirs.data_dir().into(); 
+        let mut templates: PathBuf = project_dirs.data_dir().into();
         templates.push("templates");
         std::fs::create_dir_all(&templates)
             .with_context(|| format!("Unable to create templates dir: {:?}", &templates))?;
@@ -45,5 +44,3 @@ impl Paths {
         Ok(paths)
     }
 }
-
-

@@ -1,13 +1,13 @@
 //use crate::cli::list::*;
-use crate::cli::create::{CreateTemplate, CreateInvoice};
-use invoice_cli::{select_entity, select_multiple_entities};
+use crate::cli::create::{CreateInvoice, CreateTemplate};
 use crate::db::InvoiceDB;
 use crate::models::invoice::InvoiceItem;
 use anyhow::Result;
+use invoice_cli::{select_entity, select_multiple_entities};
 
 use clap::{Args, Subcommand};
-use std::path::PathBuf;
 use inquire::DateSelect;
+use std::path::PathBuf;
 
 #[derive(Debug, Subcommand)]
 pub enum GenerateCommands {
@@ -25,7 +25,8 @@ impl GenerateTemplate {
         let company_selection = select_entity!("Select Company:", db, "company")?;
         let client_selection = select_entity!("Select Client:", db, "client")?;
         let terms_selection = select_entity!("Select Payment Terms:", db, "terms")?;
-        let methods_selection = select_multiple_entities!("Select Payment Methods:", db, "methods")?;
+        let methods_selection =
+            select_multiple_entities!("Select Payment Methods:", db, "methods")?;
         let new_template = CreateTemplate {
             name: self.name.clone(),
             company: company_selection,
@@ -52,9 +53,12 @@ impl GenerateInvoice {
         let mut items = Vec::new();
         for item_id in item_ids {
             let item_short = &db.get_item(&item_id)?;
-            let quantity: i64 = inquire::CustomType::<i64>::new(&format!("Enter quantity for item {} - {}:", item_short.id, item_short.name))
-                .with_error_message("Please enter a valid integer")
-                .prompt()?;
+            let quantity: i64 = inquire::CustomType::<i64>::new(&format!(
+                "Enter quantity for item {} - {}:",
+                item_short.id, item_short.name
+            ))
+            .with_error_message("Please enter a valid integer")
+            .prompt()?;
             items.push(InvoiceItem {
                 item: item_id,
                 quantity: quantity,
@@ -69,4 +73,3 @@ impl GenerateInvoice {
         Ok(new_invoice)
     }
 }
-

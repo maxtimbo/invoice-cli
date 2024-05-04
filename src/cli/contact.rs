@@ -1,5 +1,5 @@
-use clap::Args;
 use crate::db::prepare::{PrepFields, PrepValues};
+use clap::Args;
 use serde::Deserialize;
 
 #[derive(Debug, Args, Deserialize)]
@@ -81,4 +81,3 @@ impl PrepValues for Contact {
         values
     }
 }
-

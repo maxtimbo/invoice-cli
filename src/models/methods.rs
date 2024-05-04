@@ -1,5 +1,5 @@
+use serde::{Deserialize, Serialize};
 use std::fmt;
-use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Methods {
@@ -15,13 +15,12 @@ impl fmt::Display for Methods {
 
 impl Methods {
     pub fn display(&self) {
-        println!("Payment Method\n\
+        println!(
+            "Payment Method\n\
             ~~~~~~~~~~~~\n\
             id:\t\t{}\n\
             name:\t\t{}",
-            self.id,
-            self.name,
+            self.id, self.name,
         );
     }
 }
-

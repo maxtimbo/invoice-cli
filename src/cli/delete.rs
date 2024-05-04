@@ -19,7 +19,7 @@ pub struct DeleteCompany {
 }
 
 #[derive(Debug, Args)]
-pub struct DeleteClient{
+pub struct DeleteClient {
     pub id: i64,
 }
 

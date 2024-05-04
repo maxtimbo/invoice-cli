@@ -1,12 +1,12 @@
 pub mod cli;
+pub mod commands;
 pub mod db;
 pub mod models;
-pub mod commands;
 pub mod render;
 pub mod validators;
+pub use cli::Cli;
 pub use commands::Paths;
 pub use db::InvoiceDB;
-pub use cli::Cli;
 pub use render::TemplateEngine;
 
 use anyhow::Result;

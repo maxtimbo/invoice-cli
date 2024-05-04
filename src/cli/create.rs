@@ -3,13 +3,13 @@ use std::path::PathBuf;
 use chrono::NaiveDate;
 use clap::{Args, Subcommand};
 use rusqlite::types::Value;
-use serde_json;
 use serde::Deserialize;
+use serde_json;
 
 use crate::cli::contact::Contact;
+use crate::db::prepare::{PrepCreate, PrepFields, PrepValues, TableName};
 use crate::models::invoice::InvoiceItem;
-use crate::db::prepare::{PrepFields, PrepValues, TableName, PrepCreate};
-use crate::validators::{ValidSize, ValidImage};
+use crate::validators::{ValidImage, ValidSize};
 
 #[derive(Subcommand)]
 pub enum CreateCommands {
@@ -275,7 +275,8 @@ impl PrepValues for CreateTemplate {
         values.push(self.company.into());
         values.push(self.client.into());
         values.push(self.terms.into());
-        let methods_json = serde_json::to_string(&self.methods).expect("Failed to serialize to JSON");
+        let methods_json =
+            serde_json::to_string(&self.methods).expect("Failed to serialize to JSON");
         println!("{:?}", methods_json);
         values.push(methods_json.into());
         values

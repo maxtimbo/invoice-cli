@@ -1,6 +1,6 @@
-use std::fmt;
 use crate::models::contact::Contact;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Client {

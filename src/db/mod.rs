@@ -1,8 +1,8 @@
-pub mod prepare;
 pub mod cached;
-pub mod transactions;
 pub mod getters;
 mod initdb;
+pub mod prepare;
+pub mod transactions;
 
 use std::path::PathBuf;
 
@@ -22,17 +22,14 @@ pub struct InvoiceTx<'conn> {
 impl<'conn> InvoiceTx<'conn> {
     pub fn commit(self) -> Result<()> {
         let tx = self.tx;
-        tx.commit()
-            .map_err(|e| e.into())
+        tx.commit().map_err(|e| e.into())
     }
 }
 
 impl InvoiceDB {
     pub fn transaction(&mut self) -> Result<InvoiceTx> {
         let transaction = self.connection.transaction()?;
-        let tx = InvoiceTx {
-            tx: transaction,
-        };
+        let tx = InvoiceTx { tx: transaction };
 
         Ok(tx)
     }
@@ -40,17 +37,17 @@ impl InvoiceDB {
     pub fn open(db_path: PathBuf) -> Result<InvoiceDB> {
         let existing_db = db_path.is_file();
         let connection = Connection::open(db_path)?;
-        connection.pragma_update(None, "foreign_keys", true)
+        connection
+            .pragma_update(None, "foreign_keys", true)
             .context("failed to enable foreign keys pragma")?;
 
         let mut db = InvoiceDB {
-            connection: connection
+            connection: connection,
         };
 
         if !existing_db {
             let initdb = db.transaction()?;
-            initdb.initdb()
-                .context("failed to create db tables")?;
+            initdb.initdb().context("failed to create db tables")?;
             initdb.commit()?;
         }
 

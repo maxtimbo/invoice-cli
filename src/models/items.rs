@@ -1,6 +1,6 @@
-use serde::{Serialize, Deserialize};
-use std::hash::{Hash, Hasher};
+use serde::{Deserialize, Serialize};
 use std::fmt;
+use std::hash::{Hash, Hasher};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Items {
@@ -28,4 +28,3 @@ impl Hash for Items {
         self.id.hash(state);
     }
 }
-

@@ -1,12 +1,12 @@
 use std::fmt;
 
-pub mod contact;
-pub mod company;
 pub mod client;
-pub mod terms;
-pub mod methods;
-pub mod items;
+pub mod company;
+pub mod contact;
 pub mod invoice;
+pub mod items;
+pub mod methods;
+pub mod terms;
 
 //enum InvoiceTables {
 //    Company,

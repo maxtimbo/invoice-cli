@@ -1,5 +1,5 @@
+use serde::{Deserialize, Serialize};
 use std::fmt;
-use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Terms {
@@ -10,6 +10,10 @@ pub struct Terms {
 
 impl fmt::Display for Terms {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "ID: {} - Name: {}, Due: {}", self.id, self.name, self.due)
+        write!(
+            f,
+            "ID: {} - Name: {}, Due: {}",
+            self.id, self.name, self.due
+        )
     }
 }

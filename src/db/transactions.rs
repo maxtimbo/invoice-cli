@@ -1,8 +1,7 @@
-use crate::db::InvoiceDB;
 use crate::db::cached::CachedStmt;
+use crate::db::InvoiceDB;
 
 use anyhow::Result;
-
 
 impl InvoiceDB {
     pub fn create_entry(&self, cache: CachedStmt) -> Result<i64> {
@@ -28,31 +27,31 @@ impl InvoiceDB {
             "company" => {
                 let new_entry = self.get_company(&new_id)?;
                 println!("{}", new_entry);
-            },
+            }
             "client" => {
                 let new_entry = self.get_client(&new_id)?;
                 println!("{}", new_entry);
-            },
+            }
             "terms" => {
                 let new_entry = self.get_terms(&new_id)?;
                 println!("{}", new_entry);
-            },
+            }
             "methods" => {
                 let new_entry = self.get_method(&new_id)?;
                 println!("{}", new_entry);
-            },
+            }
             "items" => {
                 let new_entry = self.get_item(&new_id)?;
                 println!("{}", new_entry);
-            },
+            }
             "templates" => {
                 let new_entry = self.get_template(&new_id)?;
                 println!("{}", new_entry);
-            },
+            }
             "invoices" => {
                 let new_entry = self.get_invoice(&new_id)?;
                 println!("{}", new_entry);
-            },
+            }
             _ => todo!("Something else!"),
         }
         Ok(())

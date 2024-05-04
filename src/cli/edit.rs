@@ -1,10 +1,10 @@
-use std::path::PathBuf;
 use clap::{Args, Subcommand};
 use rusqlite::types::Value;
+use std::path::PathBuf;
 
 use crate::cli::contact::Contact;
-use crate::db::prepare::{TableName, PrepFields, PrepValues, PrepUpdate};
-use crate::validators::{ValidSize, ValidImage};
+use crate::db::prepare::{PrepFields, PrepUpdate, PrepValues, TableName};
+use crate::validators::{ValidImage, ValidSize};
 
 #[derive(Debug, Subcommand)]
 pub enum EditCommands {
@@ -106,78 +106,78 @@ impl TableName for EditItem {
 // +++ PrepFields +++
 impl PrepFields for EditCompany {
     fn fields(&self) -> Vec<std::string::String> {
-       let mut fnames = Vec::new();
-       fnames.push(self.id.to_string());
-       if self.name.is_some() {
-           fnames.push("name".to_string());
-       }
-       if self.logo.is_some() {
-           fnames.push("logo".to_string());
-       }
-       fnames.extend(self.contact.fields());
-       fnames
+        let mut fnames = Vec::new();
+        fnames.push(self.id.to_string());
+        if self.name.is_some() {
+            fnames.push("name".to_string());
+        }
+        if self.logo.is_some() {
+            fnames.push("logo".to_string());
+        }
+        fnames.extend(self.contact.fields());
+        fnames
     }
 }
 
 impl PrepFields for EditClient {
     fn fields(&self) -> Vec<std::string::String> {
-       let mut fnames = Vec::new();
-       fnames.push(self.id.to_string());
-       if self.name.is_some() {
-           fnames.push("name".to_string());
-       }
-       fnames.extend(self.contact.fields());
-       fnames
+        let mut fnames = Vec::new();
+        fnames.push(self.id.to_string());
+        if self.name.is_some() {
+            fnames.push("name".to_string());
+        }
+        fnames.extend(self.contact.fields());
+        fnames
     }
 }
 
 impl PrepFields for EditTerms {
     fn fields(&self) -> Vec<std::string::String> {
-       let mut fnames = Vec::new();
-       fnames.push(self.id.to_string());
-       if self.name.is_some() {
-           fnames.push("name".to_string());
-       }
-       if self.due.is_some() {
-           fnames.push("due".to_string());
-       }
-       fnames
+        let mut fnames = Vec::new();
+        fnames.push(self.id.to_string());
+        if self.name.is_some() {
+            fnames.push("name".to_string());
+        }
+        if self.due.is_some() {
+            fnames.push("due".to_string());
+        }
+        fnames
     }
 }
 
 impl PrepFields for EditMethod {
     fn fields(&self) -> Vec<std::string::String> {
-       let mut fnames = Vec::new();
-       fnames.push(self.id.to_string());
-       if self.name.is_some() {
-           fnames.push("name".to_string());
-       }
-       fnames
+        let mut fnames = Vec::new();
+        fnames.push(self.id.to_string());
+        if self.name.is_some() {
+            fnames.push("name".to_string());
+        }
+        fnames
     }
 }
 
 impl PrepFields for EditItem {
     fn fields(&self) -> Vec<std::string::String> {
-       let mut fnames = Vec::new();
-       fnames.push(self.id.to_string());
-       if self.name.is_some() {
-           fnames.push("name".to_string());
-       }
-       if self.rate.is_some() {
-           fnames.push("rate".to_string());
-       }
-       fnames
+        let mut fnames = Vec::new();
+        fnames.push(self.id.to_string());
+        if self.name.is_some() {
+            fnames.push("name".to_string());
+        }
+        if self.rate.is_some() {
+            fnames.push("rate".to_string());
+        }
+        fnames
     }
 }
 
 // ~~~ PrepValues ~~~
 impl PrepValues for EditCompany {
     fn values(&self) -> Vec<Value> {
-       let mut values: Vec<Value> = Vec::new();
-       if self.name.is_some() {
-           values.push(self.name.clone().into());
-       }
-       if let Some(logo) = &self.logo {
+        let mut values: Vec<Value> = Vec::new();
+        if self.name.is_some() {
+            values.push(self.name.clone().into());
+        }
+        if let Some(logo) = &self.logo {
             if self.is_valid_image(&logo) {
                 match self.read_image(&logo) {
                     Ok(data) => values.push(Value::Blob(data)),
@@ -186,56 +186,55 @@ impl PrepValues for EditCompany {
             } else {
                 eprintln!("Invalid image file type.");
             }
-       }
-       values.extend(self.contact.values());
-       values
+        }
+        values.extend(self.contact.values());
+        values
     }
 }
 
 impl PrepValues for EditClient {
     fn values(&self) -> Vec<Value> {
-       let mut values: Vec<Value> = Vec::new();
-       if self.name.is_some() {
-           values.push(self.name.clone().into());
-       }
-       values.extend(self.contact.values());
-       values
+        let mut values: Vec<Value> = Vec::new();
+        if self.name.is_some() {
+            values.push(self.name.clone().into());
+        }
+        values.extend(self.contact.values());
+        values
     }
 }
 
 impl PrepValues for EditTerms {
     fn values(&self) -> Vec<Value> {
-       let mut values: Vec<Value> = Vec::new();
-       if self.name.is_some() {
-           values.push(self.name.clone().into());
-       }
-       if self.due.is_some() {
-           values.push(self.due.into());
-       }
-       values
+        let mut values: Vec<Value> = Vec::new();
+        if self.name.is_some() {
+            values.push(self.name.clone().into());
+        }
+        if self.due.is_some() {
+            values.push(self.due.into());
+        }
+        values
     }
 }
 
 impl PrepValues for EditMethod {
     fn values(&self) -> Vec<Value> {
-       let mut values: Vec<Value> = Vec::new();
-       if self.name.is_some() {
-           values.push(self.name.clone().into());
-       }
-       values
+        let mut values: Vec<Value> = Vec::new();
+        if self.name.is_some() {
+            values.push(self.name.clone().into());
+        }
+        values
     }
 }
 
 impl PrepValues for EditItem {
     fn values(&self) -> Vec<Value> {
-       let mut values: Vec<Value> = Vec::new();
-       if self.name.is_some() {
-           values.push(self.name.clone().into());
-       }
-       if self.rate.is_some() {
-           values.push(self.rate.into());
-       }
-       values
+        let mut values: Vec<Value> = Vec::new();
+        if self.name.is_some() {
+            values.push(self.name.clone().into());
+        }
+        if self.rate.is_some() {
+            values.push(self.rate.into());
+        }
+        values
     }
 }
-

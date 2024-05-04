@@ -1,15 +1,14 @@
-use std::fmt;
 use std::collections::HashMap;
+use std::fmt;
 
-use serde::{Serialize, Serializer, ser::SerializeStruct, Deserialize};
-use chrono::{NaiveDate, Duration};
+use chrono::{Duration, NaiveDate};
+use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 
-use crate::models::company::Company;
 use crate::models::client::Client;
-use crate::models::terms::Terms;
-use crate::models::methods::Methods;
+use crate::models::company::Company;
 use crate::models::items::Items;
-
+use crate::models::methods::Methods;
+use crate::models::terms::Terms;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Template {
@@ -60,39 +59,39 @@ impl fmt::Display for Invoice {
 
 impl Serialize for Invoice {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
-        {
-            let mut state = serializer.serialize_struct("Invoice", 4)?;
-            state.serialize_field("id", &self.id)?;
-            state.serialize_field("template", &self.template)?;
-            let issue_date = NaiveDate::parse_from_str(&self.date, "%Y%m%d").unwrap();
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("Invoice", 4)?;
+        state.serialize_field("id", &self.id)?;
+        state.serialize_field("template", &self.template)?;
+        let issue_date = NaiveDate::parse_from_str(&self.date, "%Y%m%d").unwrap();
 
-            state.serialize_field("date", &issue_date.format("%B %d, %Y").to_string())?;
+        state.serialize_field("date", &issue_date.format("%B %d, %Y").to_string())?;
 
-            // Calculate subtotals
-            let items_details: Vec<ItemDetail> = self.items.iter()
-                .map(|(item, &quantity)| ItemDetail {
-                    name: item.name.clone(),
-                    rate: item.rate,
-                    quantity,
-                    subtotal: (item.rate as i64) * quantity,
-                })
-                .collect();
+        // Calculate subtotals
+        let items_details: Vec<ItemDetail> = self
+            .items
+            .iter()
+            .map(|(item, &quantity)| ItemDetail {
+                name: item.name.clone(),
+                rate: item.rate,
+                quantity,
+                subtotal: (item.rate as i64) * quantity,
+            })
+            .collect();
 
-            state.serialize_field("items", &items_details)?;
+        state.serialize_field("items", &items_details)?;
 
-            // Calculate total
-            let total: i64 = items_details.iter()
-                .map(|item| item.subtotal)
-                .sum();
-            state.serialize_field("total", &total)?;
+        // Calculate total
+        let total: i64 = items_details.iter().map(|item| item.subtotal).sum();
+        state.serialize_field("total", &total)?;
 
-            // Calculate due date
-            let due_date = issue_date + Duration::days(self.template.terms.due);
-            state.serialize_field("due_date", &due_date.format("%B %d, %Y").to_string())?;
-            state.end()
-        }
+        // Calculate due date
+        let due_date = issue_date + Duration::days(self.template.terms.due);
+        state.serialize_field("due_date", &due_date.format("%B %d, %Y").to_string())?;
+        state.end()
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -1,8 +1,8 @@
-use std::fmt;
-use base64::{engine::general_purpose::STANDARD, Engine};
-use serde::{Serialize, Serializer, ser::SerializeStruct, Deserialize};
 use crate::models::contact::Contact;
+use base64::{engine::general_purpose::STANDARD, Engine};
 use infer;
+use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
+use std::fmt;
 
 #[derive(Debug, Deserialize)]
 pub struct Company {
@@ -23,25 +23,26 @@ impl fmt::Display for Company {
 
 impl Serialize for Company {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
-        {
-            let mut state = serializer.serialize_struct("Company", 4)?;
-            state.serialize_field("id", &self.id)?;
-            state.serialize_field("name", &self.name)?;
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("Company", 4)?;
+        state.serialize_field("id", &self.id)?;
+        state.serialize_field("name", &self.name)?;
 
-            if let Some(ref logo_data) = self.logo {
-                if let Some(kind) = infer::get(logo_data) {
-                    let mime_type = kind.mime_type();
-                    let logo_data_uri = format!("data:{};base64,{}", mime_type, STANDARD.encode(logo_data));
-                    state.serialize_field("logo", &logo_data_uri)?;
-                } else {
-                    state.serialize_field("logo", &None::<String>)?;
-                }
+        if let Some(ref logo_data) = self.logo {
+            if let Some(kind) = infer::get(logo_data) {
+                let mime_type = kind.mime_type();
+                let logo_data_uri =
+                    format!("data:{};base64,{}", mime_type, STANDARD.encode(logo_data));
+                state.serialize_field("logo", &logo_data_uri)?;
             } else {
                 state.serialize_field("logo", &None::<String>)?;
             }
-            state.serialize_field("contact", &self.contact)?;
-            state.end()
+        } else {
+            state.serialize_field("logo", &None::<String>)?;
         }
+        state.serialize_field("contact", &self.contact)?;
+        state.end()
+    }
 }

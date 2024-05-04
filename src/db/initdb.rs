@@ -4,8 +4,9 @@ use anyhow::{Context, Result};
 
 impl<'conn> InvoiceTx<'conn> {
     pub fn initdb(&self) -> Result<()> {
-        self.tx.execute(
-            "CREATE TABLE IF NOT EXISTS company (
+        self.tx
+            .execute(
+                "CREATE TABLE IF NOT EXISTS company (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL UNIQUE,
                 logo BLOB,
@@ -16,9 +17,13 @@ impl<'conn> InvoiceTx<'conn> {
                 city TEXT,
                 state TEXT,
                 zip TEXT
-            )", []).context("failed to create company table")?;
-        self.tx.execute(
-            "CREATE TABLE IF NOT EXISTS client (
+            )",
+                [],
+            )
+            .context("failed to create company table")?;
+        self.tx
+            .execute(
+                "CREATE TABLE IF NOT EXISTS client (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL UNIQUE,
                 phone TEXT,
@@ -28,26 +33,42 @@ impl<'conn> InvoiceTx<'conn> {
                 city TEXT,
                 state TEXT,
                 zip TEXT
-            )", []).context("failed to create client table")?;
-        self.tx.execute(
-            "CREATE TABLE IF NOT EXISTS items (
+            )",
+                [],
+            )
+            .context("failed to create client table")?;
+        self.tx
+            .execute(
+                "CREATE TABLE IF NOT EXISTS items (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  name TEXT NOT NULL UNIQUE,
                  rate INTEGER
-             )", []).context("failed to create item table")?;
-        self.tx.execute(
-            "CREATE TABLE IF NOT EXISTS terms (
+             )",
+                [],
+            )
+            .context("failed to create item table")?;
+        self.tx
+            .execute(
+                "CREATE TABLE IF NOT EXISTS terms (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  name TEXT NOT NULL UNIQUE,
                  due INTEGER NOT NULL UNIQUE
-             )", []).context("failed to create terms table")?;
-        self.tx.execute(
-            "CREATE TABLE IF NOT EXISTS methods (
+             )",
+                [],
+            )
+            .context("failed to create terms table")?;
+        self.tx
+            .execute(
+                "CREATE TABLE IF NOT EXISTS methods (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  name NOT NULL UNIQUE
-             )", []).context("failed to create methods table")?;
-        self.tx.execute(
-            "CREATE TABLE IF NOT EXISTS templates (
+             )",
+                [],
+            )
+            .context("failed to create methods table")?;
+        self.tx
+            .execute(
+                "CREATE TABLE IF NOT EXISTS templates (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 company_id INTEGER NOT NULL,
@@ -66,9 +87,13 @@ impl<'conn> InvoiceTx<'conn> {
                     REFERENCES terms (id)
                     ON DELETE NO ACTION
                     ON UPDATE NO ACTION
-            )", []).context("failed to create template table")?;
-        self.tx.execute(
-            "CREATE TABLE IF NOT EXISTS invoices (
+            )",
+                [],
+            )
+            .context("failed to create template table")?;
+        self.tx
+            .execute(
+                "CREATE TABLE IF NOT EXISTS invoices (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  template_id INTEGER NOT NULL,
                  date TEXT NOT NULL,
@@ -77,9 +102,11 @@ impl<'conn> InvoiceTx<'conn> {
                      REFERENCES templates (id)
                      ON DELETE NO ACTION
                      ON UPDATE NO ACTION
-             )", []).context("failed to create invoices table")?;
+             )",
+                [],
+            )
+            .context("failed to create invoices table")?;
 
         Ok(())
     }
 }
-

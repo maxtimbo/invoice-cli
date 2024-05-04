@@ -1,11 +1,11 @@
 use crate::db::InvoiceDB;
+use crate::models::client::Client;
 use crate::models::company::Company;
 use crate::models::contact::Contact;
-use crate::models::client::Client;
-use crate::models::terms::Terms;
-use crate::models::methods::Methods;
+use crate::models::invoice::{Invoice, InvoiceItem, Template};
 use crate::models::items::Items;
-use crate::models::invoice::{Invoice, Template, InvoiceItem};
+use crate::models::methods::Methods;
+use crate::models::terms::Terms;
 use crate::models::ShortList;
 use anyhow::Result;
 use std::collections::HashMap;
@@ -90,8 +90,8 @@ impl InvoiceDB {
             let terms_id: i64 = row.get(4)?;
             let methods_json: String = row.get(5)?;
 
-            let method_list: Vec<i64> = serde_json::from_str(&methods_json)
-                .expect("Failed to deserialize methods");
+            let method_list: Vec<i64> =
+                serde_json::from_str(&methods_json).expect("Failed to deserialize methods");
 
             let mut methods: Vec<Methods> = Vec::new();
 
@@ -99,7 +99,6 @@ impl InvoiceDB {
                 let obj = self.get_method(&method)?;
                 methods.push(obj);
             }
-
 
             Ok(Template {
                 id: row.get(0)?,
@@ -121,7 +120,8 @@ impl InvoiceDB {
 
             let items_vec: Vec<InvoiceItem> = serde_json::from_str(&items_str)
                 .map_err(|_| rusqlite::Error::ExecuteReturnedResults)?;
-            let items: HashMap<Items, i64> = items_vec.into_iter()
+            let items: HashMap<Items, i64> = items_vec
+                .into_iter()
                 .map(|item| {
                     let item_data = self.get_item(&item.item)?;
                     Ok((item_data, item.quantity))
@@ -140,7 +140,7 @@ impl InvoiceDB {
     pub fn get_table(&self, table_name: &str) -> Result<Vec<ShortList>, rusqlite::Error> {
         let query = match table_name {
             "invoices" => format!("SELECT id, date FROM {}", table_name),
-            _ => format!("SELECT id, name FROM {}", table_name)
+            _ => format!("SELECT id, name FROM {}", table_name),
         };
 
         let mut stmt = self.connection.prepare(&query)?;
@@ -154,6 +154,4 @@ impl InvoiceDB {
         let results = short_list_iter.collect::<Result<Vec<ShortList>, rusqlite::Error>>()?;
         Ok(results)
     }
-
 }
-

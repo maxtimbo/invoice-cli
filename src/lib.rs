@@ -32,6 +32,7 @@ macro_rules! select_multiple_entities {
 
         let formatter: MultiOptionFormatter<String> =
             &|options: &[ListOption<&String>]| format!("{} items selected", options.len());
+
         let validator = |a: &[ListOption<&String>]| {
             if a.len() > 0 {
                 Ok(Validation::Valid)

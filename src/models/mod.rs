@@ -1,5 +1,7 @@
 use std::fmt;
 
+use inquire::{Text, InquireError};
+
 pub mod client;
 pub mod company;
 pub mod contact;
@@ -28,3 +30,21 @@ impl fmt::Display for ShortList {
         write!(f, "ID: {}, Name: {}", self.id, self.name)
     }
 }
+
+pub trait EntityUpdater<T> {
+    type Output;
+    fn update(&self) -> Result<Self::Output, InquireError>;
+}
+
+pub fn prompt_optional(prompt: &str, default: &str) -> Result<Option<String>, InquireError> {
+    let input = Text::new(prompt)
+        .with_default(default)
+        .prompt()?;
+
+    if input.trim().eq_ignore_ascii_case("None") {
+        Ok(None)
+    } else {
+        Ok(Some(input))
+    }
+}
+

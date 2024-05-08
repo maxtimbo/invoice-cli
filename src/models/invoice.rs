@@ -77,7 +77,7 @@ impl Serialize for Invoice {
                 name: item.name.clone(),
                 rate: item.rate,
                 quantity,
-                subtotal: (item.rate as i64) * quantity,
+                subtotal: item.rate * quantity,
             })
             .collect();
 
@@ -103,7 +103,7 @@ pub struct InvoiceItem {
 #[derive(Debug, Serialize)]
 struct ItemDetail {
     name: String,
-    rate: i32,
+    rate: i64,
     quantity: i64,
     subtotal: i64,
 }

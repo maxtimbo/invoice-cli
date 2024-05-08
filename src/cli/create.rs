@@ -70,7 +70,7 @@ pub struct CreateMethod {
 pub struct CreateItem {
     pub name: String,
     #[arg(long)]
-    pub rate: i32,
+    pub rate: i64,
 }
 
 #[derive(Debug)]

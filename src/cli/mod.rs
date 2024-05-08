@@ -1,9 +1,9 @@
 use crate::db::prepare::{PrepCreate, PrepDelete, PrepUpdate};
 use crate::db::InvoiceDB;
-mod contact;
+pub mod contact;
 pub mod create;
 use crate::cli::create::*;
-mod edit;
+pub mod edit;
 use crate::cli::edit::*;
 mod list;
 use crate::cli::list::*;
@@ -12,6 +12,8 @@ use crate::cli::delete::*;
 mod generate;
 use crate::cli::generate::*;
 use crate::render::TemplateEngine;
+use invoice_cli::select_entity;
+use crate::models::EntityUpdater;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
@@ -192,20 +194,30 @@ impl Cli {
                 },
             },
             Commands::Edit(edit) => match edit {
-                EditCommands::Company(obj) => {
-                    db.update_entry(EditCompany::prepare(obj), &obj.id)?;
+                EditCommands::Company => {
+                    let id = select_entity!("Select Company:", db, "company")?;
+                    let entity = db.get_company(&id)?;
+                    db.update_entry(entity.update()?.prepare(), &id)?;
                 }
-                EditCommands::Client(obj) => {
-                    db.update_entry(EditClient::prepare(obj), &obj.id)?;
+                EditCommands::Client => {
+                    let id = select_entity!("Select Client:", db, "clients")?;
+                    let entity = db.get_company(&id)?;
+                    db.update_entry(entity.update()?.prepare(), &id)?;
                 }
-                EditCommands::Terms(obj) => {
-                    db.update_entry(EditTerms::prepare(obj), &obj.id)?;
+                EditCommands::Terms => {
+                    let id = select_entity!("Select Terms:", db, "terms")?;
+                    let entity = db.get_terms(&id)?;
+                    db.update_entry(entity.update()?.prepare(), &id)?;
+                },
+                EditCommands::Method => {
+                    let id = select_entity!("Select Payment Method:", db, "methods")?;
+                    let entity = db.get_method(&id)?;
+                    db.update_entry(entity.update()?.prepare(), &id)?;
                 }
-                EditCommands::Method(obj) => {
-                    db.update_entry(EditMethod::prepare(obj), &obj.id)?;
-                }
-                EditCommands::Item(obj) => {
-                    db.update_entry(EditItem::prepare(obj), &obj.id)?;
+                EditCommands::Item => {
+                    let id = select_entity!("Select Item:", db, "items")?;
+                    let entity = db.get_item(&id)?;
+                    db.update_entry(entity.update()?.prepare(), &id)?;
                 }
             },
             Commands::Delete(arg) => match arg {

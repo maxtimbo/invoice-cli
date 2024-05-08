@@ -1,4 +1,4 @@
-use clap::{Args, Subcommand};
+use clap::Subcommand;
 use rusqlite::types::Value;
 use std::path::PathBuf;
 
@@ -8,58 +8,47 @@ use crate::validators::{ValidImage, ValidSize};
 
 #[derive(Debug, Subcommand)]
 pub enum EditCommands {
-    Company(EditCompany),
-    Client(EditClient),
-    Terms(EditTerms),
-    Method(EditMethod),
-    Item(EditItem),
+    Company,
+    Client,
+    Terms,
+    Method,
+    Item,
 }
 
-#[derive(Debug, Args)]
-#[group(required = false)]
+
+#[derive(Debug)]
 pub struct EditCompany {
     pub id: i64,
-    #[arg(long, short)]
     pub name: Option<String>,
-    #[arg(long, short)]
     pub logo: Option<PathBuf>,
-    #[command(flatten)]
     pub contact: Contact,
 }
 
-#[derive(Debug, Args)]
-#[group(required = false)]
+#[derive(Debug)]
 pub struct EditClient {
     pub id: i64,
-    #[arg(long, short)]
     pub name: Option<String>,
-    #[command(flatten)]
     pub contact: Contact,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
 pub struct EditTerms {
     pub id: i64,
-    #[arg(long, short)]
     pub name: Option<String>,
-    #[arg(long, short)]
-    pub due: Option<u32>,
+    pub due: Option<i64>,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
 pub struct EditMethod {
     pub id: i64,
-    #[arg(long, short)]
     pub name: Option<String>,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
 pub struct EditItem {
     pub id: i64,
-    #[arg(long, short)]
     pub name: Option<String>,
-    #[arg(long, short)]
-    pub rate: Option<i32>,
+    pub rate: Option<i64>,
 }
 
 impl PrepUpdate for EditCompany {}
@@ -87,7 +76,7 @@ impl TableName for EditClient {
 
 impl TableName for EditTerms {
     fn table_name(&self) -> String {
-        "name".to_string()
+        "terms".to_string()
     }
 }
 
@@ -105,7 +94,7 @@ impl TableName for EditItem {
 
 // +++ PrepFields +++
 impl PrepFields for EditCompany {
-    fn fields(&self) -> Vec<std::string::String> {
+    fn fields(&self) -> Vec<String> {
         let mut fnames = Vec::new();
         fnames.push(self.id.to_string());
         if self.name.is_some() {
@@ -120,7 +109,7 @@ impl PrepFields for EditCompany {
 }
 
 impl PrepFields for EditClient {
-    fn fields(&self) -> Vec<std::string::String> {
+    fn fields(&self) -> Vec<String> {
         let mut fnames = Vec::new();
         fnames.push(self.id.to_string());
         if self.name.is_some() {
@@ -132,7 +121,7 @@ impl PrepFields for EditClient {
 }
 
 impl PrepFields for EditTerms {
-    fn fields(&self) -> Vec<std::string::String> {
+    fn fields(&self) -> Vec<String> {
         let mut fnames = Vec::new();
         fnames.push(self.id.to_string());
         if self.name.is_some() {
@@ -146,7 +135,7 @@ impl PrepFields for EditTerms {
 }
 
 impl PrepFields for EditMethod {
-    fn fields(&self) -> Vec<std::string::String> {
+    fn fields(&self) -> Vec<String> {
         let mut fnames = Vec::new();
         fnames.push(self.id.to_string());
         if self.name.is_some() {
@@ -157,7 +146,7 @@ impl PrepFields for EditMethod {
 }
 
 impl PrepFields for EditItem {
-    fn fields(&self) -> Vec<std::string::String> {
+    fn fields(&self) -> Vec<String> {
         let mut fnames = Vec::new();
         fnames.push(self.id.to_string());
         if self.name.is_some() {

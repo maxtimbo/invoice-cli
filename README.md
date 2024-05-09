@@ -10,7 +10,8 @@ I wanted to learn how to write in Rust. I'm using this project to practice. I do
 - [x] Create tables by inputting a json
 - [x] Figure out how to handle logo images for the company table
 - [x] Generate HTML using Tera
-- [ ] Refine default.html
+- [x] Refine default.html
+- [ ] Refactor how currency is handled
 - [ ] Generate PDF from HTML
 - [ ] ?
 

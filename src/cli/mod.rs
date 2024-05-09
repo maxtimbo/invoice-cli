@@ -7,13 +7,13 @@ pub mod edit;
 use crate::cli::edit::*;
 mod list;
 use crate::cli::list::*;
-mod delete;
+pub mod delete;
 use crate::cli::delete::*;
 mod generate;
 use crate::cli::generate::*;
 use crate::render::TemplateEngine;
 use invoice_cli::select_entity;
-use crate::models::EntityUpdater;
+use crate::models::{EntityDeleter, EntityUpdater};
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
@@ -101,96 +101,40 @@ impl Cli {
                 }
             },
             Commands::List(flags) => match flags {
-                ListFlags::Company(opt) => match &opt.id {
-                    Some(value) => {
-                        let res = db.get_company(value)?;
-                        println!("{}", res);
-                    }
-                    None => {
-                        let res = db.get_table("company")?;
-                        println!("Companies:");
-                        for entry in &res {
-                            println!("{}", entry);
-                        }
-                    }
+                ListFlags::Company => {
+                    let id = select_entity!("Select Company:", db, "company")?;
+                    let entity = db.get_company(&id)?;
+                    println!("{}", entity);
                 },
-                ListFlags::Client(opt) => match &opt.id {
-                    Some(value) => {
-                        let res = db.get_client(value)?;
-                        println!("{}", res);
-                    }
-                    None => {
-                        let res = db.get_table("client")?;
-                        println!("Clients:");
-                        for entry in &res {
-                            println!("{}", entry);
-                        }
-                    }
+                ListFlags::Client => {
+                    let id = select_entity!("Select Client:", db, "clients")?;
+                    let entity = db.get_client(&id)?;
+                    println!("{}", entity);
                 },
-                ListFlags::Methods(opt) => match &opt.id {
-                    Some(value) => {
-                        let res = db.get_method(value)?;
-                        println!("{}", res);
-                    }
-                    None => {
-                        let res = db.get_table("methods")?;
-                        println!("Methods:");
-                        for entry in &res {
-                            println!("{}", entry);
-                        }
-                    }
+                ListFlags::Methods => {
+                    let id = select_entity!("Select Payment Method:", db, "methods")?;
+                    let entity = db.get_method(&id)?;
+                    println!("{}", entity);
                 },
-                ListFlags::Terms(opt) => match &opt.id {
-                    Some(value) => {
-                        let res = db.get_terms(value)?;
-                        println!("{}", res);
-                    }
-                    None => {
-                        let res = db.get_table("terms")?;
-                        println!("Terms:");
-                        for entry in &res {
-                            println!("{}", entry);
-                        }
-                    }
+                ListFlags::Terms => {
+                    let id = select_entity!("Select Terms:", db, "terms")?;
+                    let entity = db.get_terms(&id)?;
+                    println!("{}", entity);
                 },
-                ListFlags::Items(opt) => match &opt.id {
-                    Some(value) => {
-                        let res = db.get_item(value)?;
-                        println!("{}", res);
-                    }
-                    None => {
-                        let res = db.get_table("items")?;
-                        println!("Items:");
-                        for entry in &res {
-                            println!("{}", entry);
-                        }
-                    }
+                ListFlags::Items => {
+                    let id = select_entity!("Select Item:", db, "items")?;
+                    let entity = db.get_item(&id)?;
+                    println!("{}", entity);
                 },
-                ListFlags::Templates(opt) => match &opt.id {
-                    Some(value) => {
-                        let res = db.get_template(value)?;
-                        println!("{}", res);
-                    }
-                    None => {
-                        let res = db.get_table("templates")?;
-                        println!("Templates:");
-                        for entry in &res {
-                            println!("{}", entry);
-                        }
-                    }
+                ListFlags::Templates => {
+                    let id = select_entity!("Select Template:", db, "templates")?;
+                    let entity = db.get_template(&id)?;
+                    println!("{}", entity);
                 },
-                ListFlags::Invoices(opt) => match &opt.id {
-                    Some(value) => {
-                        let res = db.get_invoice(value)?;
-                        println!("{}", res);
-                    }
-                    None => {
-                        let res = db.get_table("invoices")?;
-                        println!("Invoices:");
-                        for entry in &res {
-                            println!("{}", entry);
-                        }
-                    }
+                ListFlags::Invoices => {
+                    let id = select_entity!("Select Invoices:", db, "invoices")?;
+                    let entity = db.get_invoice(&id)?;
+                    println!("{}", entity);
                 },
             },
             Commands::Edit(edit) => match edit {
@@ -201,7 +145,7 @@ impl Cli {
                 }
                 EditCommands::Client => {
                     let id = select_entity!("Select Client:", db, "clients")?;
-                    let entity = db.get_company(&id)?;
+                    let entity = db.get_client(&id)?;
                     db.update_entry(entity.update()?.prepare(), &id)?;
                 }
                 EditCommands::Terms => {
@@ -221,26 +165,47 @@ impl Cli {
                 }
             },
             Commands::Delete(arg) => match arg {
-                DeleteCommands::Company(obj) => {
-                    db.delete_entry(DeleteCompany::prepare(obj), &obj.id)?;
+                DeleteCommands::Company => {
+                    let id = select_entity!("Select Company:", db, "company")?;
+                    let entity = db.get_company(&id)?;
+                    println!("{}", entity);
+                    db.delete_entry(entity.delete()?.prepare(), &id)?;
                 }
-                DeleteCommands::Client(obj) => {
-                    db.delete_entry(DeleteClient::prepare(obj), &obj.id)?;
+                DeleteCommands::Client => {
+                    let id = select_entity!("Select Client:", db, "clients")?;
+                    let entity = db.get_client(&id)?;
+                    println!("{}", entity);
+                    db.delete_entry(entity.delete()?.prepare(), &id)?;
                 }
-                DeleteCommands::Terms(obj) => {
-                    db.delete_entry(DeleteTerms::prepare(obj), &obj.id)?;
+                DeleteCommands::Terms => {
+                    let id = select_entity!("Select Terms:", db, "terms")?;
+                    let entity = db.get_terms(&id)?;
+                    println!("{}", entity);
+                    db.delete_entry(entity.delete()?.prepare(), &id)?;
                 }
-                DeleteCommands::Method(obj) => {
-                    db.delete_entry(DeleteMethod::prepare(obj), &obj.id)?;
+                DeleteCommands::Method => {
+                    let id = select_entity!("Select Payment Method:", db, "methods")?;
+                    let entity = db.get_method(&id)?;
+                    println!("{}", entity);
+                    db.delete_entry(entity.delete()?.prepare(), &id)?;
                 }
-                DeleteCommands::Item(obj) => {
-                    db.delete_entry(DeleteItem::prepare(obj), &obj.id)?;
+                DeleteCommands::Item => {
+                    let id = select_entity!("Select Item:", db, "items")?;
+                    let entity = db.get_item(&id)?;
+                    println!("{}", entity);
+                    db.delete_entry(entity.delete()?.prepare(), &id)?;
                 }
-                DeleteCommands::Template(obj) => {
-                    db.delete_entry(DeleteTemplate::prepare(obj), &obj.id)?;
+                DeleteCommands::Template => {
+                    let id = select_entity!("Select Template:", db, "templates")?;
+                    let entity = db.get_template(&id)?;
+                    println!("{}", entity);
+                    db.delete_entry(entity.delete()?.prepare(), &id)?;
                 }
-                DeleteCommands::Invoice(obj) => {
-                    db.delete_entry(DeleteInvoice::prepare(obj), &obj.id)?;
+                DeleteCommands::Invoice => {
+                    let id = select_entity!("Select Invoices:", db, "invoices")?;
+                    let entity = db.get_invoice(&id)?;
+                    println!("{}", entity);
+                    db.delete_entry(entity.delete()?.prepare(), &id)?;
                 }
             },
             Commands::Generate(gen) => match gen {

@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use crate::models::EntityUpdater;
+use crate::models::{EntityDeleter, EntityUpdater};
 use crate::cli::edit::EditItem;
+use crate::cli::delete::DeleteItem;
 use inquire::{MultiSelect, Text, InquireError};
 use rust_decimal::Decimal;
 
@@ -16,6 +17,13 @@ pub struct Items {
 impl fmt::Display for Items {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} (Rate: {})", self.name, self.rate)
+    }
+}
+
+impl EntityDeleter<Items> for Items {
+    type Output = DeleteItem;
+    fn delete(&self) -> Result<Self::Output, anyhow::Error> {
+        Ok(DeleteItem { id: self.id })
     }
 }
 

@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use crate::models::EntityUpdater;
+use crate::models::{EntityDeleter, EntityUpdater};
 use crate::cli::edit::EditTerms;
+use crate::cli::delete::DeleteTerms;
 use inquire::{MultiSelect, Text, InquireError};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,6 +19,13 @@ impl fmt::Display for Terms {
             "ID: {} - Name: {}, Due: {}",
             self.id, self.name, self.due
         )
+    }
+}
+
+impl EntityDeleter<Terms> for Terms {
+    type Output = DeleteTerms;
+    fn delete(&self) -> Result<Self::Output, anyhow::Error> {
+        Ok(DeleteTerms { id: self.id })
     }
 }
 

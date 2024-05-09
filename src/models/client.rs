@@ -1,8 +1,9 @@
 use crate::models::contact::Contact;
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use crate::models::{prompt_optional, EntityUpdater};
+use crate::models::{prompt_optional, EntityUpdater, EntityDeleter};
 use crate::cli::edit::EditClient;
+use crate::cli::delete::DeleteClient;
 use crate::cli::contact::Contact as cli_contact;
 use inquire::{MultiSelect, Text, InquireError};
 
@@ -18,6 +19,13 @@ impl fmt::Display for Client {
         write!(f, "ID:\t\t{}\n", self.id)?;
         write!(f, "Name:\t\t{}\n", self.name)?;
         write!(f, "Contact Information:\n{}", self.contact)
+    }
+}
+
+impl EntityDeleter<Client> for Client {
+    type Output = DeleteClient;
+    fn delete(&self) -> Result<Self::Output, anyhow::Error> {
+        Ok(DeleteClient { id: self.id })
     }
 }
 

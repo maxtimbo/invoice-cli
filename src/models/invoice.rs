@@ -5,11 +5,14 @@ use chrono::{Duration, NaiveDate};
 use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 use rust_decimal::Decimal;
 
+use crate::models::EntityDeleter;
 use crate::models::client::Client;
 use crate::models::company::Company;
 use crate::models::items::Items;
 use crate::models::methods::Methods;
 use crate::models::terms::Terms;
+
+use crate::cli::delete::{DeleteTemplate, DeleteInvoice};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Template {
@@ -37,6 +40,13 @@ impl fmt::Display for Template {
     }
 }
 
+impl EntityDeleter<Template> for Template {
+    type Output = DeleteTemplate;
+    fn delete(&self) -> Result<Self::Output, anyhow::Error> {
+        Ok(DeleteTemplate { id: self.id })
+    }
+}
+
 #[derive(Debug)]
 pub struct Invoice {
     pub id: i64,
@@ -55,6 +65,13 @@ impl fmt::Display for Invoice {
             write!(f, " - {} - Quantity: {}\n", item, quantity)?;
         }
         Ok(())
+    }
+}
+
+impl EntityDeleter<Invoice> for Invoice {
+    type Output = DeleteInvoice;
+    fn delete(&self) -> Result<Self::Output, anyhow::Error> {
+        Ok(DeleteInvoice { id: self.id })
     }
 }
 

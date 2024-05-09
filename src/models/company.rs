@@ -4,8 +4,9 @@ use infer;
 use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 use std::fmt;
 use std::path::PathBuf;
-use crate::models::{prompt_optional, EntityUpdater};
+use crate::models::{prompt_optional, EntityUpdater, EntityDeleter};
 use crate::cli::edit::EditCompany;
+use crate::cli::delete::DeleteCompany;
 use crate::cli::contact::Contact as cli_contact;
 use inquire::{MultiSelect, Text, InquireError};
 
@@ -26,7 +27,15 @@ impl fmt::Display for Company {
     }
 }
 
-impl EntityUpdater<Company> for Company{
+impl EntityDeleter<Company> for Company {
+    type Output = DeleteCompany;
+    fn delete(&self) -> Result<Self::Output, anyhow::Error> {
+        Ok(DeleteCompany { id: self.id })
+    }
+}
+
+
+impl EntityUpdater<Company> for Company {
     type Output = EditCompany;
     fn update(&self) -> Result<Self::Output, InquireError> {
         println!("{}", self);

@@ -1,47 +1,47 @@
 use crate::db::prepare::{PrepDelete, TableName};
 
-use clap::{Args, Subcommand};
+use clap::Subcommand;
 
 #[derive(Debug, Subcommand)]
 pub enum DeleteCommands {
-    Company(DeleteCompany),
-    Client(DeleteClient),
-    Terms(DeleteTerms),
-    Method(DeleteMethod),
-    Item(DeleteItem),
-    Template(DeleteTemplate),
-    Invoice(DeleteInvoice),
+    Company,
+    Client,
+    Terms,
+    Method,
+    Item,
+    Template,
+    Invoice,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
 pub struct DeleteCompany {
     pub id: i64,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
 pub struct DeleteClient {
     pub id: i64,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
 pub struct DeleteTerms {
     pub id: i64,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
 pub struct DeleteMethod {
     pub id: i64,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
 pub struct DeleteItem {
     pub id: i64,
 }
-#[derive(Debug, Args)]
+#[derive(Debug)]
 pub struct DeleteTemplate {
     pub id: i64,
 }
-#[derive(Debug, Args)]
+#[derive(Debug)]
 pub struct DeleteInvoice {
     pub id: i64,
 }

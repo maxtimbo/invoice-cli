@@ -36,6 +36,11 @@ pub trait EntityUpdater<T> {
     fn update(&self) -> Result<Self::Output, InquireError>;
 }
 
+pub trait EntityDeleter<T> {
+    type Output;
+    fn delete(&self) -> Result<Self::Output, anyhow::Error>;
+}
+
 pub fn prompt_optional(prompt: &str, default: &str) -> Result<Option<String>, InquireError> {
     let input = Text::new(prompt)
         .with_default(default)

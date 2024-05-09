@@ -5,7 +5,6 @@ use crate::models::EntityUpdater;
 use crate::cli::edit::EditItem;
 use inquire::{MultiSelect, Text, InquireError};
 use rust_decimal::Decimal;
-use invoice_cli::i64_to_decimal;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Items {
@@ -41,15 +40,12 @@ impl EntityUpdater<Items> for Items {
                     edit_item.name = Some(name);
                 },
                 "rate" => {
-                    let rate_i64 = Text::new("Enter new rate:")
+                    let rate = Text::new("Enter new rate:")
                         .with_default(&self.rate.to_string())
                         .prompt()?
-                        .parse::<i64>()
+                        .parse::<Decimal>()
                         .ok();
-                    if let Some(rate) = rate_i64 {
-                        edit_item.rate = (i64_to_decimal!(rate)).into();
-                    }
-                    //edit_item.rate = rate;
+                    edit_item.rate = rate;
                 },
                 _ => {}
             }

@@ -7,6 +7,7 @@ use crate::models::items::Items;
 use crate::models::methods::Methods;
 use crate::models::terms::Terms;
 use crate::models::ShortList;
+use invoice_cli::i64_to_decimal;
 use anyhow::Result;
 use std::collections::HashMap;
 
@@ -74,10 +75,11 @@ impl InvoiceDB {
     pub fn get_item(&self, id: &i64) -> Result<Items, rusqlite::Error> {
         let query = "SELECT * FROM items WHERE id = ?";
         let item = self.connection.query_row(query, &[id], |row| {
+            let rate: i64 = row.get(2)?;
             Ok(Items {
                 id: row.get(0)?,
                 name: row.get(1)?,
-                rate: row.get(2)?,
+                rate: i64_to_decimal!(rate),
             })
         })?;
         Ok(item)

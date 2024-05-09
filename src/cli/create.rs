@@ -5,11 +5,13 @@ use clap::{Args, Subcommand};
 use rusqlite::types::Value;
 use serde::Deserialize;
 use serde_json;
+use rust_decimal::Decimal;
 
 use crate::cli::contact::Contact;
 use crate::db::prepare::{PrepCreate, PrepFields, PrepValues, TableName};
 use crate::models::invoice::InvoiceItem;
 use crate::validators::{ValidImage, ValidSize};
+use invoice_cli::decimal_to_i64;
 
 #[derive(Subcommand)]
 pub enum CreateCommands {
@@ -70,7 +72,7 @@ pub struct CreateMethod {
 pub struct CreateItem {
     pub name: String,
     #[arg(long)]
-    pub rate: i64,
+    pub rate: Decimal,
 }
 
 #[derive(Debug)]
@@ -263,7 +265,7 @@ impl PrepValues for CreateItem {
     fn values(&self) -> Vec<Value> {
         let mut values: Vec<Value> = Vec::new();
         values.push(self.name.clone().into());
-        values.push(self.rate.into());
+        values.push(decimal_to_i64!(self.rate).into());
         values
     }
 }

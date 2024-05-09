@@ -5,6 +5,8 @@ use std::path::PathBuf;
 use crate::cli::contact::Contact;
 use crate::db::prepare::{PrepFields, PrepUpdate, PrepValues, TableName};
 use crate::validators::{ValidImage, ValidSize};
+use invoice_cli::decimal_to_i64;
+use rust_decimal::Decimal;
 
 #[derive(Debug, Subcommand)]
 pub enum EditCommands {
@@ -48,7 +50,7 @@ pub struct EditMethod {
 pub struct EditItem {
     pub id: i64,
     pub name: Option<String>,
-    pub rate: Option<i64>,
+    pub rate: Option<Decimal>,
 }
 
 impl PrepUpdate for EditCompany {}
@@ -221,8 +223,8 @@ impl PrepValues for EditItem {
         if self.name.is_some() {
             values.push(self.name.clone().into());
         }
-        if self.rate.is_some() {
-            values.push(self.rate.into());
+        if let Some(rate) = self.rate {
+            values.push(decimal_to_i64!(rate).into());
         }
         values
     }

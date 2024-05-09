@@ -3,6 +3,7 @@ use std::fmt;
 
 use chrono::{Duration, NaiveDate};
 use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
+use rust_decimal::Decimal;
 
 use crate::models::client::Client;
 use crate::models::company::Company;
@@ -77,14 +78,14 @@ impl Serialize for Invoice {
                 name: item.name.clone(),
                 rate: item.rate,
                 quantity,
-                subtotal: item.rate * quantity,
+                subtotal: item.rate * Decimal::from(quantity),
             })
             .collect();
 
         state.serialize_field("items", &items_details)?;
 
         // Calculate total
-        let total: i64 = items_details.iter().map(|item| item.subtotal).sum();
+        let total: Decimal = items_details.iter().map(|item| item.subtotal).sum();
         state.serialize_field("total", &total)?;
 
         // Calculate due date
@@ -103,7 +104,7 @@ pub struct InvoiceItem {
 #[derive(Debug, Serialize)]
 struct ItemDetail {
     name: String,
-    rate: i64,
+    rate: Decimal,
     quantity: i64,
-    subtotal: i64,
+    subtotal: Decimal,
 }

@@ -4,12 +4,14 @@ use std::hash::{Hash, Hasher};
 use crate::models::EntityUpdater;
 use crate::cli::edit::EditItem;
 use inquire::{MultiSelect, Text, InquireError};
+use rust_decimal::Decimal;
+use invoice_cli::i64_to_decimal;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Items {
     pub id: i64,
     pub name: String,
-    pub rate: i64,
+    pub rate: Decimal,
 }
 
 impl fmt::Display for Items {
@@ -39,12 +41,15 @@ impl EntityUpdater<Items> for Items {
                     edit_item.name = Some(name);
                 },
                 "rate" => {
-                    let rate = Text::new("Enter new rate:")
+                    let rate_i64 = Text::new("Enter new rate:")
                         .with_default(&self.rate.to_string())
                         .prompt()?
                         .parse::<i64>()
                         .ok();
-                    edit_item.rate = rate;
+                    if let Some(rate) = rate_i64 {
+                        edit_item.rate = (i64_to_decimal!(rate)).into();
+                    }
+                    //edit_item.rate = rate;
                 },
                 _ => {}
             }

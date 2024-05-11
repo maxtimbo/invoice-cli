@@ -107,7 +107,7 @@ impl Cli {
                     println!("{}", entity);
                 },
                 ListFlags::Client => {
-                    let id = select_entity!("Select Client:", db, "clients")?;
+                    let id = select_entity!("Select Client:", db, "client")?;
                     let entity = db.get_client(&id)?;
                     println!("{}", entity);
                 },
@@ -144,7 +144,7 @@ impl Cli {
                     db.update_entry(entity.update()?.prepare(), &id)?;
                 }
                 EditCommands::Client => {
-                    let id = select_entity!("Select Client:", db, "clients")?;
+                    let id = select_entity!("Select Client:", db, "client")?;
                     let entity = db.get_client(&id)?;
                     db.update_entry(entity.update()?.prepare(), &id)?;
                 }
@@ -172,7 +172,7 @@ impl Cli {
                     db.delete_entry(entity.delete()?.prepare(), &id)?;
                 }
                 DeleteCommands::Client => {
-                    let id = select_entity!("Select Client:", db, "clients")?;
+                    let id = select_entity!("Select Client:", db, "client")?;
                     let entity = db.get_client(&id)?;
                     println!("{}", entity);
                     db.delete_entry(entity.delete()?.prepare(), &id)?;

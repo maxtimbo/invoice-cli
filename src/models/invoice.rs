@@ -88,7 +88,7 @@ impl Serialize for Invoice {
         state.serialize_field("date", &issue_date.format("%B %d, %Y").to_string())?;
 
         // Calculate subtotals
-        let items_details: Vec<ItemDetail> = self
+        let mut items_details: Vec<ItemDetail> = self
             .items
             .iter()
             .map(|(item, &quantity)| ItemDetail {
@@ -99,6 +99,7 @@ impl Serialize for Invoice {
             })
             .collect();
 
+        items_details.sort_by(|a, b| a.name.cmp(&b.name));
         state.serialize_field("items", &items_details)?;
 
         // Calculate total

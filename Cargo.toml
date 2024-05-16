@@ -1,6 +1,6 @@
 [package]
 name = "invoice-cli"
-version = "0.1.0"
+version = "0.2.5"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -14,6 +14,7 @@ directories = "5.0.1"
 infer = "0.15.0"
 inquire = { version = "0.7.5", features = ["date"] }
 mime_guess = "2.0.4"
+open = "5.1.2"
 rusqlite = { version = "0.31.0", features = ["bundled", "blob", "chrono"] }
 rust_decimal = "1.35.0"
 serde = { version = "1.0.199", features = ["derive"] }

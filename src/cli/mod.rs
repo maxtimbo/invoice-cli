@@ -219,6 +219,7 @@ impl Cli {
                             let invoice_obj = db.get_invoice(id)?;
                             let render = renderer.render(&invoice_obj)?;
                             renderer.to_file(&render, output)?;
+                            open::that(output)?;
                         }
                         (None, Some(output)) => {
                             let invoice = GenerateInvoice::generate(obj, &db)?;
@@ -226,16 +227,34 @@ impl Cli {
                             let invoice_obj = db.get_invoice(&new_invoice)?;
                             let render = renderer.render(&invoice_obj)?;
                             renderer.to_file(&render, output)?;
+                            open::that(output)?;
                         }
                         (Some(id), None) => {
                             let invoice_obj = db.get_invoice(id)?;
-                            let serialized =
-                                serde_json::to_string(&invoice_obj).expect("Failed to serialize.");
-                            println!("Serialized Invoice: {}", serialized);
+                            let output = std::path::PathBuf::from(
+                                format!("Invoice{}_{}.html",
+                                        invoice_obj.id.to_string(),
+                                        invoice_obj.date.to_string()
+                                        )
+                                );
+                            let render = renderer.render(&invoice_obj)?;
+                            renderer.to_file(&render, &output)?;
+                            open::that(output)?;
                         }
                         (None, None) => {
                             let invoice = GenerateInvoice::generate(obj, &db)?;
-                            db.create_entry(invoice.prepare())?;
+                            let id = db.create_entry(invoice.prepare())?;
+                            let invoice_obj = db.get_invoice(&id)?;
+                            let output = std::path::PathBuf::from(
+                                format!("Invoice{}_{}.html",
+                                        invoice_obj.id.to_string(),
+                                        invoice_obj.date.to_string()
+                                        )
+                                );
+                            let render = renderer.render(&invoice_obj)?;
+                            renderer.to_file(&render, &output)?;
+                            open::that(output)?;
+
                         }
                     };
                 }

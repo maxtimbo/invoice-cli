@@ -55,15 +55,47 @@ pub struct Invoice {
     pub items: HashMap<Items, i64>,
 }
 
+impl Invoice {
+    fn calculate_subtotals(&self) -> Vec<ItemDetail> {
+        let mut item_details: Vec<ItemDetail> = self.items
+            .iter()
+            .map(|(item, &quantity)| ItemDetail {
+                name: item.name.clone(),
+                rate: item.rate,
+                quantity,
+                subtotal: item.rate * Decimal::from(quantity),
+            })
+            .collect();
+        item_details.sort_by(|a, b| a.name.cmp(&b.name));
+        item_details
+    }
+    fn calculate_total(&self) -> Decimal {
+        self.calculate_subtotals().iter().map(|item| item.subtotal).sum()
+    }
+    fn issue_date(&self) -> NaiveDate {
+        NaiveDate::parse_from_str(&self.date, "%Y%m%d").unwrap()
+    }
+    fn due_date(&self) -> NaiveDate {
+        self.issue_date() + Duration::days(self.template.terms.due)
+    }
+}
+
 impl fmt::Display for Invoice {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "ID:\t\t{}\n", self.id)?;
         write!(f, "Date:\t\t{}\n\n", self.date)?;
         write!(f, "Template Information:\n{}\n", self.template)?;
         write!(f, "Invoice Items:\n")?;
-        for (item, quantity) in &self.items {
-            write!(f, " - {} - Quantity: {}\n", item, quantity)?;
+        write!(f, "Item\t\t\t| Rate\t| Quantity\t| Subtotal\n")?;
+        for item in &self.calculate_subtotals() {
+            write!(f, "{}\t| ${}\t| {}\t\t| ${}\n",
+                        item.name,
+                        item.quantity,
+                        item.rate,
+                        item.subtotal)?;
         }
+        write!(f, "\t\t\t\t\tTotal:\t  ${}\n", &self.calculate_total())?;
+        write!(f, "Due Date: {}", &self.due_date().format("%B %d, %Y").to_string())?;
         Ok(())
     }
 }
@@ -83,32 +115,10 @@ impl Serialize for Invoice {
         let mut state = serializer.serialize_struct("Invoice", 4)?;
         state.serialize_field("id", &self.id)?;
         state.serialize_field("template", &self.template)?;
-        let issue_date = NaiveDate::parse_from_str(&self.date, "%Y%m%d").unwrap();
-
-        state.serialize_field("date", &issue_date.format("%B %d, %Y").to_string())?;
-
-        // Calculate subtotals
-        let mut items_details: Vec<ItemDetail> = self
-            .items
-            .iter()
-            .map(|(item, &quantity)| ItemDetail {
-                name: item.name.clone(),
-                rate: item.rate,
-                quantity,
-                subtotal: item.rate * Decimal::from(quantity),
-            })
-            .collect();
-
-        items_details.sort_by(|a, b| a.name.cmp(&b.name));
-        state.serialize_field("items", &items_details)?;
-
-        // Calculate total
-        let total: Decimal = items_details.iter().map(|item| item.subtotal).sum();
-        state.serialize_field("total", &total)?;
-
-        // Calculate due date
-        let due_date = issue_date + Duration::days(self.template.terms.due);
-        state.serialize_field("due_date", &due_date.format("%B %d, %Y").to_string())?;
+        state.serialize_field("date", &self.issue_date().format("%B %d, %Y").to_string())?;
+        state.serialize_field("items", &self.calculate_subtotals())?;
+        state.serialize_field("total", &self.calculate_total())?;
+        state.serialize_field("due_date", &self.due_date().format("%B %d, %Y").to_string())?;
         state.end()
     }
 }

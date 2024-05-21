@@ -88,7 +88,7 @@ impl fmt::Display for Invoice {
         write!(f, "Invoice Items:\n")?;
         write!(f, "Item\t\t\t| Rate\t| Quantity\t| Subtotal\n")?;
         for item in &self.calculate_subtotals() {
-            write!(f, "{}\t| ${}\t| {}\t\t| ${}\n",
+            write!(f, "{}\t| {}\t| ${}\t\t| ${}\n",
                         item.name,
                         item.quantity,
                         item.rate,

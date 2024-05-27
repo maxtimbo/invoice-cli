@@ -4,6 +4,8 @@ use crate::db::InvoiceDB;
 use crate::models::invoice::InvoiceItem;
 use anyhow::Result;
 use invoice_cli::{select_entity, select_multiple_entities};
+use crate::render::TemplateEngine;
+use crate::db::prepare::PrepCreate;
 
 use clap::{Args, Subcommand};
 use inquire::DateSelect;
@@ -13,6 +15,61 @@ use std::path::PathBuf;
 pub enum GenerateCommands {
     Template(GenerateTemplate),
     Invoice(GenerateInvoice),
+}
+
+pub fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &TemplateEngine) -> Result<(), anyhow::Error> {
+    match gen {
+        GenerateCommands::Template(obj) => {
+            let template = GenerateTemplate::generate(obj, &db)?;
+            db.create_entry(template.prepare())?;
+        }
+        GenerateCommands::Invoice(obj) => {
+            match (&obj.id, &obj.output) {
+                (Some(id), Some(output)) => {
+                    let invoice_obj = db.get_invoice(id)?;
+                    let render = renderer.render(&invoice_obj)?;
+                    renderer.to_file(&render, output)?;
+                    open::that(output)?;
+                }
+                (None, Some(output)) => {
+                    let invoice = GenerateInvoice::generate(obj, &db)?;
+                    let new_invoice = db.create_entry(invoice.prepare())?;
+                    let invoice_obj = db.get_invoice(&new_invoice)?;
+                    let render = renderer.render(&invoice_obj)?;
+                    renderer.to_file(&render, output)?;
+                    open::that(output)?;
+                }
+                (Some(id), None) => {
+                    let invoice_obj = db.get_invoice(id)?;
+                    let output = std::path::PathBuf::from(
+                        format!("Invoice{}_{}.html",
+                                invoice_obj.id.to_string(),
+                                invoice_obj.date.to_string()
+                                )
+                        );
+                    let render = renderer.render(&invoice_obj)?;
+                    renderer.to_file(&render, &output)?;
+                    open::that(output)?;
+                }
+                (None, None) => {
+                    let invoice = GenerateInvoice::generate(obj, &db)?;
+                    let id = db.create_entry(invoice.prepare())?;
+                    let invoice_obj = db.get_invoice(&id)?;
+                    let output = std::path::PathBuf::from(
+                        format!("Invoice{}_{}.html",
+                                invoice_obj.id.to_string(),
+                                invoice_obj.date.to_string()
+                                )
+                        );
+                    let render = renderer.render(&invoice_obj)?;
+                    renderer.to_file(&render, &output)?;
+                    open::that(output)?;
+
+                }
+            };
+        }
+    }
+    Ok(())
 }
 
 #[derive(Debug, Args)]

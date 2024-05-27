@@ -2,6 +2,9 @@ use clap::Subcommand;
 use rusqlite::types::Value;
 use std::path::PathBuf;
 
+use crate::db::InvoiceDB;
+use invoice_cli::select_entity;
+use crate::models::EntityUpdater;
 use crate::cli::contact::Contact;
 use crate::db::prepare::{PrepFields, PrepUpdate, PrepValues, TableName};
 use crate::validators::{ValidImage, ValidSize};
@@ -15,6 +18,37 @@ pub enum EditCommands {
     Terms,
     Method,
     Item,
+}
+
+pub fn handle_edit(edit: &EditCommands, db: &InvoiceDB) -> Result<(), anyhow::Error> {
+    match edit {
+        EditCommands::Company => {
+            let id = select_entity!("Select Company:", db, "company")?;
+            let entity = db.get_company(&id)?;
+            db.update_entry(entity.update()?.prepare(), &id)?;
+        }
+        EditCommands::Client => {
+            let id = select_entity!("Select Client:", db, "client")?;
+            let entity = db.get_client(&id)?;
+            db.update_entry(entity.update()?.prepare(), &id)?;
+        }
+        EditCommands::Terms => {
+            let id = select_entity!("Select Terms:", db, "terms")?;
+            let entity = db.get_terms(&id)?;
+            db.update_entry(entity.update()?.prepare(), &id)?;
+        },
+        EditCommands::Method => {
+            let id = select_entity!("Select Payment Method:", db, "methods")?;
+            let entity = db.get_method(&id)?;
+            db.update_entry(entity.update()?.prepare(), &id)?;
+        }
+        EditCommands::Item => {
+            let id = select_entity!("Select Item:", db, "items")?;
+            let entity = db.get_item(&id)?;
+            db.update_entry(entity.update()?.prepare(), &id)?;
+        }
+    }
+    Ok(())
 }
 
 

@@ -9,24 +9,25 @@ use rust_decimal::Decimal;
 
 use crate::db::InvoiceDB;
 use crate::cli::contact::Contact;
-use crate::db::prepare::{PrepCreate, PrepFields, PrepValues, TableName};
+use crate::db::prepare::{PrepCreate, PrepUpdate, PrepFields, PrepValues, TableName};
+use crate::models::EntityUpdater;
 use crate::models::invoice::InvoiceItem;
 use crate::validators::{ValidImage, ValidSize};
 use invoice_cli::decimal_to_i64;
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug, PartialEq)]
 pub enum CreateCommands {
     /// Supply a json file for entity creation.
     /// Reference the example.json file to see the file structure.
     FromJson(FromJSON),
     /// Create a company
-    Company(CreateCompany),
+    Company { name: String },
     /// Create a client
-    Client(CreateClient),
+    Client { name: String },
     /// Create payment terms
     Terms(CreateTerms),
     /// Create payment methods
-    Method(CreateMethod),
+    Method { name: String },
     /// Create inventory items
     Item(CreateItem),
 }
@@ -63,17 +64,26 @@ pub fn handle_create(create: &CreateCommands, db: &InvoiceDB) -> Result<(), anyh
             }
             Err(e) => eprintln!("Failed to parse JSON: {}", e),
         },
-        CreateCommands::Company(obj) => {
-            db.create_entry(CreateCompany::prepare(obj))?;
+        CreateCommands::Company{ name: obj } => {
+            let create_company = CreateCompany { name: obj.to_string(), logo: None, contact: None };
+            let id = db.create_entry(create_company.prepare())?;
+            let entity = db.get_company(&id)?;
+            db.update_entry(entity.update()?.prepare(), &id)?;
         }
-        CreateCommands::Client(obj) => {
-            db.create_entry(CreateClient::prepare(obj))?;
+        CreateCommands::Client { name: obj } => {
+            let create_client = CreateClient { name: obj.to_string(), contact: None };
+            let id = db.create_entry(create_client.prepare())?;
+            let entity = db.get_client(&id)?;
+            db.update_entry(entity.update()?.prepare(), &id)?;
         }
         CreateCommands::Terms(obj) => {
             db.create_entry(CreateTerms::prepare(obj))?;
         }
-        CreateCommands::Method(obj) => {
-            db.create_entry(CreateMethod::prepare(obj))?;
+        CreateCommands::Method { name: obj } => {
+            let create_method = CreateMethod { name: obj.to_string(), link: None, qr: None };
+            let id = db.create_entry(create_method.prepare())?;
+            let entity = db.get_method(&id)?;
+            db.update_entry(entity.update()?.prepare(), &id)?;
         }
         CreateCommands::Item(obj) => {
             db.create_entry(CreateItem::prepare(obj))?;
@@ -84,54 +94,46 @@ pub fn handle_create(create: &CreateCommands, db: &InvoiceDB) -> Result<(), anyh
         
 
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, PartialEq)]
 pub struct FromJSON {
     pub json_input: PathBuf,
 }
 
-#[derive(Debug, Args, Deserialize)]
-#[group(required = false)]
+#[derive(Debug, Deserialize, PartialEq)]
 pub struct CreateCompany {
     pub name: String,
-
-    #[arg(long)]
     pub logo: Option<PathBuf>,
-
-    #[command(flatten)]
-    pub contact: Contact,
+    pub contact: Option<Contact>,
 }
 
-#[derive(Debug, Args, Deserialize)]
-#[group(required = false)]
+#[derive(Debug, Deserialize, PartialEq)]
 pub struct CreateClient {
     pub name: String,
-
-    #[command(flatten)]
-    pub contact: Contact,
+    pub contact: Option<Contact>,
 }
 
-#[derive(Debug, Args, Deserialize)]
+#[derive(Debug, Args, Deserialize, PartialEq)]
 pub struct CreateTerms {
     pub name: String,
-    #[arg(long)]
+    #[arg(long, short)]
     pub due: u32,
 }
 
-#[derive(Debug, Args, Deserialize)]
+#[derive(Debug, Deserialize, PartialEq)]
 pub struct CreateMethod {
     pub name: String,
     pub link: Option<String>,
     pub qr: Option<PathBuf>,
 }
 
-#[derive(Debug, Args, Deserialize)]
+#[derive(Debug, Args, Deserialize, PartialEq)]
 pub struct CreateItem {
     pub name: String,
-    #[arg(long)]
+    #[arg(long, short)]
     pub rate: Decimal,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct CreateTemplate {
     pub name: String,
     pub company: i64,
@@ -140,7 +142,7 @@ pub struct CreateTemplate {
     pub methods: Vec<i64>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct CreateInvoice {
     pub template: i64,
     pub date: NaiveDate,
@@ -158,6 +160,7 @@ impl PrepCreate for CreateInvoice {}
 // --- Validators ---
 impl ValidSize for CreateCompany {}
 impl ValidImage for CreateCompany {}
+
 impl ValidSize for CreateMethod {}
 impl ValidImage for CreateMethod {}
 
@@ -211,7 +214,9 @@ impl PrepFields for CreateCompany {
         if self.logo.is_some() {
             fnames.push("logo".to_string());
         }
-        fnames.extend(self.contact.fields());
+        if let Some(contact) = &self.contact {
+            fnames.extend(contact.fields());
+        }
         fnames
     }
 }
@@ -220,7 +225,9 @@ impl PrepFields for CreateClient {
     fn fields(&self) -> Vec<std::string::String> {
         let mut fnames = Vec::new();
         fnames.push("name".to_string());
-        fnames.extend(self.contact.fields());
+        if let Some(contact) = &self.contact {
+            fnames.extend(contact.fields());
+        }
         fnames
     }
 }
@@ -294,7 +301,9 @@ impl PrepValues for CreateCompany {
                 eprintln!("Invalid image file type.");
             }
         }
-        values.extend(self.contact.values());
+        if let Some(contact) = &self.contact {
+            values.extend(contact.values());
+        }
         values
     }
 }
@@ -303,7 +312,9 @@ impl PrepValues for CreateClient {
     fn values(&self) -> Vec<Value> {
         let mut values: Vec<Value> = Vec::new();
         values.push(self.name.clone().into());
-        values.extend(self.contact.values());
+        if let Some(contact) = &self.contact {
+            values.extend(contact.values());
+        }
         values
     }
 }
@@ -322,7 +333,7 @@ impl PrepValues for CreateMethod {
         let mut values: Vec<Value> = Vec::new();
         values.push(self.name.clone().into());
         if self.link.is_some() {
-            values.push(self.name.clone().into());
+            values.push(self.link.clone().into());
         }
 
         if let Some(qr) = &self.qr{

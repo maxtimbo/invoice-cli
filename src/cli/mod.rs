@@ -12,18 +12,26 @@ use crate::cli::generate::*;
 use crate::render::TemplateEngine;
 use crate::db::InvoiceDB;
 
+use std::io;
+use clap_complete::{generate, Generator, Shell};
 use anyhow::Result;
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, Command, CommandFactory};
 
-#[derive(Parser)]
+#[derive(Parser, Debug, PartialEq)]
 #[command(version, about, long_about = None)]
-#[command(propagate_version = true)]
+#[command(name = "invoice-cli")]
 pub struct Cli {
+    #[arg(long = "generate", value_enum)]
+    pub generator: Option<Shell>,
     #[command(subcommand)]
-    pub commands: Commands,
+    pub command: Option<Commands>,
 }
 
-#[derive(Subcommand)]
+fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
+    generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
+}
+
+#[derive(Subcommand, Debug, PartialEq)]
 pub enum Commands {
     #[command(subcommand)]
     /// Create an entity
@@ -49,22 +57,31 @@ pub enum Commands {
 impl Cli {
     pub fn to_cmd(db: &mut InvoiceDB, renderer: &TemplateEngine) -> Result<()> {
         let cli = Cli::parse();
-        match &cli.commands {
-            Commands::Create(create) => {
-                handle_create(create, &db)?;
+        if let Some(generator) = cli.generator {
+            let mut cmd = Cli::command();
+            eprintln!("Generating competion file for {generator:?}...");
+            print_completions(generator, &mut cmd);
+        } else {
+            println!("{cli:#?}");
+        }
+        if let Some(commands) = cli.command { 
+            match commands {
+                Commands::Create(create) => {
+                    handle_create(&create, &db)?;
+                }
+                Commands::List(flags) => {
+                    handle_list(&flags, &db)?;
+                },
+                Commands::Edit(edit) => {
+                    handle_edit(&edit, &db)?;
+                },
+                Commands::Delete(arg) => {
+                    handle_delete(&arg, &db)?;
+                },
+                Commands::Generate(gen) => {
+                    handle_generate(&gen, &db, &renderer)?;
+                },
             }
-            Commands::List(flags) => {
-                handle_list(flags, &db)?;
-            },
-            Commands::Edit(edit) => {
-                handle_edit(edit, &db)?;
-            },
-            Commands::Delete(arg) => {
-                handle_delete(arg, &db)?;
-            },
-            Commands::Generate(gen) => {
-                handle_generate(gen, &db, &renderer)?;
-            },
         }
         Ok(())
     }

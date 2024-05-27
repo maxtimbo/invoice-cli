@@ -5,7 +5,7 @@ use crate::models::EntityDeleter;
 
 use clap::Subcommand;
 
-#[derive(Debug, Subcommand)]
+#[derive(Debug, Subcommand, PartialEq)]
 pub enum DeleteCommands {
     Company,
     Client,

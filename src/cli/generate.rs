@@ -11,7 +11,7 @@ use clap::{Args, Subcommand};
 use inquire::DateSelect;
 use std::path::PathBuf;
 
-#[derive(Debug, Subcommand)]
+#[derive(Debug, Subcommand, PartialEq)]
 pub enum GenerateCommands {
     Template(GenerateTemplate),
     Invoice(GenerateInvoice),
@@ -72,7 +72,7 @@ pub fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &Templa
     Ok(())
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, PartialEq)]
 pub struct GenerateTemplate {
     pub name: String,
 }
@@ -95,7 +95,7 @@ impl GenerateTemplate {
     }
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, PartialEq)]
 pub struct GenerateInvoice {
     pub id: Option<i64>,
     #[arg(long, short)]

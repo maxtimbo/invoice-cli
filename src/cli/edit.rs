@@ -11,7 +11,7 @@ use crate::validators::{ValidImage, ValidSize};
 use invoice_cli::decimal_to_i64;
 use rust_decimal::Decimal;
 
-#[derive(Debug, Subcommand)]
+#[derive(Debug, Subcommand, PartialEq)]
 pub enum EditCommands {
     Company,
     Client,

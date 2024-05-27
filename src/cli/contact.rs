@@ -2,7 +2,7 @@ use crate::db::prepare::{PrepFields, PrepValues};
 use clap::Args;
 use serde::Deserialize;
 
-#[derive(Debug, Args, Deserialize)]
+#[derive(Debug, Args, Deserialize, PartialEq)]
 pub struct Contact {
     #[arg(long, short)]
     pub phone: Option<String>,

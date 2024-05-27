@@ -63,7 +63,7 @@ impl EntityUpdater<Methods> for Methods {
                         )?;
                 }
                 "qr" => {
-                    let qr_str = Text::new("Enter new logo path:").prompt()?;
+                    let qr_str = Text::new("Enter new qr code image path (type 'None' to clear):").prompt()?;
                     if qr_str.trim().eq_ignore_ascii_case("None") {
                         edit_method.qr = None;
                     } else {

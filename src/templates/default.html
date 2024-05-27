@@ -296,13 +296,15 @@
                 <div id="payment-methods">
                     <h5>Payment Methods:</h5>
                     {% for method in template.methods %}
-                        {% if method.link %}
+                        {% if method.link and method.qr %}
+                            <a href="{{ method.link }}"><img src="{{ method.qr }}" /></a>
+                        {% elif method.link and not method.qr %}
                             <a href="{{ method.link }}">{{ method.name }}</a>
+                        {% elif method.qr and not method.link %}
+                            <p>{{ method.name }}</p>
+                            <img src="{{ method.qr }}" />
                         {% else %}
                             <p>{{ method.name }}</p>
-                        {% endif %}
-                        {% if method.qr %}
-                        <img src="{{ method.qr }}" />
                         {% endif %}
                     {% endfor %}
                 </div>

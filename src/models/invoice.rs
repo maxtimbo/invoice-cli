@@ -123,7 +123,7 @@ impl Serialize for Invoice {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct InvoiceItem {
     pub item: i64,
     pub quantity: i64,

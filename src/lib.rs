@@ -22,16 +22,21 @@ macro_rules! i64_to_decimal {
 macro_rules! select_entity {
     ($prompt:expr, $db:expr, $table:expr) => {{
         use inquire::{InquireError, Select};
+        use anyhow::{anyhow, Result};
 
         let list_result = $db.get_table($table)?;
-        let options = list_result
-            .iter()
-            .map(|sl| format!("{} - {}", sl.id, sl.name))
-            .collect::<Vec<_>>();
-        let selection: Result<i64, InquireError> = Select::new($prompt, options)
-            .prompt()
-            .map(|answer| answer.split(" - ").next().unwrap().parse::<i64>().unwrap());
-        selection
+        if list_result.is_empty() {
+            return Err(anyhow!("The {} table is empty. No options available.", $table));
+        } else {
+            let options = list_result
+                .iter()
+                .map(|sl| format!("{} - {}", sl.id, sl.name))
+                .collect::<Vec<_>>();
+            let selection: Result<i64, InquireError> = Select::new($prompt, options)
+                .prompt()
+                .map(|answer| answer.split(" - ").next().unwrap().parse::<i64>().unwrap());
+            selection
+        }
     }};
 }
 

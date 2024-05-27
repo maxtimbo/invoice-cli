@@ -2,7 +2,7 @@ use clap::Subcommand;
 use invoice_cli::select_entity;
 use crate::db::InvoiceDB;
 
-#[derive(Debug, Subcommand)]
+#[derive(Debug, Subcommand, PartialEq)]
 #[group(required = true, multiple = false)]
 pub enum ListFlags {
     Company,

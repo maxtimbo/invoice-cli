@@ -68,6 +68,8 @@ impl InvoiceDB {
             Ok(Methods {
                 id: row.get(0)?,
                 name: row.get(1)?,
+                link: row.get(2)?,
+                qr: row.get(3)?,
             })
         })?;
         Ok(method)

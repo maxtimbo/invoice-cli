@@ -44,6 +44,8 @@ pub struct EditTerms {
 pub struct EditMethod {
     pub id: i64,
     pub name: Option<String>,
+    pub link: Option<String>,
+    pub qr: Option<PathBuf>,
 }
 
 #[derive(Debug)]
@@ -62,6 +64,8 @@ impl PrepUpdate for EditItem {}
 // --- Validators ---
 impl ValidSize for EditCompany {}
 impl ValidImage for EditCompany {}
+impl ValidSize for EditMethod {}
+impl ValidImage for EditMethod {}
 
 // --- TableNames ---
 impl TableName for EditCompany {
@@ -143,6 +147,12 @@ impl PrepFields for EditMethod {
         if self.name.is_some() {
             fnames.push("name".to_string());
         }
+        if self.link.is_some() {
+            fnames.push("link".to_string());
+        }
+        if self.qr.is_some() {
+            fnames.push("qr".to_string());
+        }
         fnames
     }
 }
@@ -212,6 +222,19 @@ impl PrepValues for EditMethod {
         let mut values: Vec<Value> = Vec::new();
         if self.name.is_some() {
             values.push(self.name.clone().into());
+        }
+        if self.link.is_some() {
+            values.push(self.link.clone().into());
+        }
+        if let Some(qr) = &self.qr {
+            if self.is_valid_image(&qr) {
+                match self.read_image(&qr) {
+                    Ok(data) => values.push(Value::Blob(data)),
+                    Err(e) => eprintln!("Error reading image file: {}", e),
+                }
+            } else {
+                eprintln!("Invalid image file type.");
+            }
         }
         values
     }

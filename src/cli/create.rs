@@ -7,6 +7,7 @@ use serde::Deserialize;
 use serde_json;
 use rust_decimal::Decimal;
 
+use crate::db::InvoiceDB;
 use crate::cli::contact::Contact;
 use crate::db::prepare::{PrepCreate, PrepFields, PrepValues, TableName};
 use crate::models::invoice::InvoiceItem;
@@ -29,6 +30,59 @@ pub enum CreateCommands {
     /// Create inventory items
     Item(CreateItem),
 }
+
+pub fn handle_create(create: &CreateCommands, db: &InvoiceDB) -> Result<(), anyhow::Error> {
+    match create {
+        CreateCommands::FromJson(obj) => match FromJSON::from(obj) {
+            Ok(entities) => {
+                if let Some(companies) = entities.company {
+                    for company in companies {
+                        db.create_entry(company.prepare())?;
+                    }
+                }
+                if let Some(clients) = entities.client {
+                    for client in clients {
+                        db.create_entry(client.prepare())?;
+                    }
+                }
+                if let Some(terms) = entities.terms {
+                    for term in terms {
+                        db.create_entry(term.prepare())?;
+                    }
+                }
+                if let Some(methods) = entities.method {
+                    for method in methods {
+                        db.create_entry(method.prepare())?;
+                    }
+                }
+                if let Some(items) = entities.item {
+                    for item in items {
+                        db.create_entry(item.prepare())?;
+                    }
+                }
+            }
+            Err(e) => eprintln!("Failed to parse JSON: {}", e),
+        },
+        CreateCommands::Company(obj) => {
+            db.create_entry(CreateCompany::prepare(obj))?;
+        }
+        CreateCommands::Client(obj) => {
+            db.create_entry(CreateClient::prepare(obj))?;
+        }
+        CreateCommands::Terms(obj) => {
+            db.create_entry(CreateTerms::prepare(obj))?;
+        }
+        CreateCommands::Method(obj) => {
+            db.create_entry(CreateMethod::prepare(obj))?;
+        }
+        CreateCommands::Item(obj) => {
+            db.create_entry(CreateItem::prepare(obj))?;
+        }
+    }
+    Ok(())
+}
+        
+
 
 #[derive(Debug, Args)]
 pub struct FromJSON {
@@ -66,6 +120,8 @@ pub struct CreateTerms {
 #[derive(Debug, Args, Deserialize)]
 pub struct CreateMethod {
     pub name: String,
+    pub link: Option<String>,
+    pub qr: Option<PathBuf>,
 }
 
 #[derive(Debug, Args, Deserialize)]
@@ -102,6 +158,8 @@ impl PrepCreate for CreateInvoice {}
 // --- Validators ---
 impl ValidSize for CreateCompany {}
 impl ValidImage for CreateCompany {}
+impl ValidSize for CreateMethod {}
+impl ValidImage for CreateMethod {}
 
 // --- TableNames ---
 impl TableName for CreateCompany {
@@ -180,6 +238,12 @@ impl PrepFields for CreateMethod {
     fn fields(&self) -> Vec<std::string::String> {
         let mut fnames = Vec::new();
         fnames.push("name".to_string());
+        if self.link.is_some() {
+            fnames.push("link".to_string());
+        }
+        if self.qr.is_some() {
+            fnames.push("qr".to_string());
+        }
         fnames
     }
 }
@@ -257,6 +321,20 @@ impl PrepValues for CreateMethod {
     fn values(&self) -> Vec<Value> {
         let mut values: Vec<Value> = Vec::new();
         values.push(self.name.clone().into());
+        if self.link.is_some() {
+            values.push(self.name.clone().into());
+        }
+
+        if let Some(qr) = &self.qr{
+            if self.is_valid_image(qr) {
+                match self.read_image(qr) {
+                    Ok(data) => values.push(Value::Blob(data)),
+                    Err(e) => eprintln!("Error reading image file: {}", e),
+                }
+            } else {
+                eprintln!("Invalid image file type.");
+            }
+        }
         values
     }
 }

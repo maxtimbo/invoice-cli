@@ -53,53 +53,56 @@ impl Cli {
     pub fn to_cmd(db: &mut InvoiceDB, renderer: &TemplateEngine) -> Result<()> {
         let cli = Cli::parse();
         match &cli.commands {
-            Commands::Create(create) => match create {
-                CreateCommands::FromJson(obj) => match FromJSON::from(obj) {
-                    Ok(entities) => {
-                        if let Some(companies) = entities.company {
-                            for company in companies {
-                                db.create_entry(company.prepare())?;
-                            }
-                        }
-                        if let Some(clients) = entities.client {
-                            for client in clients {
-                                db.create_entry(client.prepare())?;
-                            }
-                        }
-                        if let Some(terms) = entities.terms {
-                            for term in terms {
-                                db.create_entry(term.prepare())?;
-                            }
-                        }
-                        if let Some(methods) = entities.method {
-                            for method in methods {
-                                db.create_entry(method.prepare())?;
-                            }
-                        }
-                        if let Some(items) = entities.item {
-                            for item in items {
-                                db.create_entry(item.prepare())?;
-                            }
-                        }
-                    }
-                    Err(e) => eprintln!("Failed to parse JSON: {}", e),
-                },
-                CreateCommands::Company(obj) => {
-                    db.create_entry(CreateCompany::prepare(obj))?;
-                }
-                CreateCommands::Client(obj) => {
-                    db.create_entry(CreateClient::prepare(obj))?;
-                }
-                CreateCommands::Terms(obj) => {
-                    db.create_entry(CreateTerms::prepare(obj))?;
-                }
-                CreateCommands::Method(obj) => {
-                    db.create_entry(CreateMethod::prepare(obj))?;
-                }
-                CreateCommands::Item(obj) => {
-                    db.create_entry(CreateItem::prepare(obj))?;
-                }
-            },
+            Commands::Create(create) => {
+                handle_create(create, &db)?;
+            }
+            //Commands::Create(create) => match create {
+            //    CreateCommands::FromJson(obj) => match FromJSON::from(obj) {
+            //        Ok(entities) => {
+            //            if let Some(companies) = entities.company {
+            //                for company in companies {
+            //                    db.create_entry(company.prepare())?;
+            //                }
+            //            }
+            //            if let Some(clients) = entities.client {
+            //                for client in clients {
+            //                    db.create_entry(client.prepare())?;
+            //                }
+            //            }
+            //            if let Some(terms) = entities.terms {
+            //                for term in terms {
+            //                    db.create_entry(term.prepare())?;
+            //                }
+            //            }
+            //            if let Some(methods) = entities.method {
+            //                for method in methods {
+            //                    db.create_entry(method.prepare())?;
+            //                }
+            //            }
+            //            if let Some(items) = entities.item {
+            //                for item in items {
+            //                    db.create_entry(item.prepare())?;
+            //                }
+            //            }
+            //        }
+            //        Err(e) => eprintln!("Failed to parse JSON: {}", e),
+            //    },
+            //    CreateCommands::Company(obj) => {
+            //        db.create_entry(CreateCompany::prepare(obj))?;
+            //    }
+            //    CreateCommands::Client(obj) => {
+            //        db.create_entry(CreateClient::prepare(obj))?;
+            //    }
+            //    CreateCommands::Terms(obj) => {
+            //        db.create_entry(CreateTerms::prepare(obj))?;
+            //    }
+            //    CreateCommands::Method(obj) => {
+            //        db.create_entry(CreateMethod::prepare(obj))?;
+            //    }
+            //    CreateCommands::Item(obj) => {
+            //        db.create_entry(CreateItem::prepare(obj))?;
+            //    }
+            //},
             Commands::List(flags) => match flags {
                 ListFlags::Company => {
                     let id = select_entity!("Select Company:", db, "company")?;

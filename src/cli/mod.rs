@@ -61,8 +61,6 @@ impl Cli {
             let mut cmd = Cli::command();
             eprintln!("Generating competion file for {generator:?}...");
             print_completions(generator, &mut cmd);
-        } else {
-            println!("{cli:#?}");
         }
         if let Some(commands) = cli.command { 
             match commands {

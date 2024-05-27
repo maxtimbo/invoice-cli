@@ -61,7 +61,9 @@ impl<'conn> InvoiceTx<'conn> {
             .execute(
                 "CREATE TABLE IF NOT EXISTS methods (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
-                 name NOT NULL UNIQUE
+                 name NOT NULL UNIQUE,
+                 link TEXT,
+                 qr BLOB
              )",
                 [],
             )

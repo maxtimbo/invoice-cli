@@ -61,6 +61,7 @@ impl InvoiceDB {
                 ).optional();
             match current_version {
                 Ok(Some(version)) if version < 1 => {
+                    println!("SOME");
                     let tx = db.transaction()?;
                     tx.migrate01().context("failed to run migration 01")?;
                     tx.commit()?;
@@ -68,16 +69,20 @@ impl InvoiceDB {
                     db.connection.execute("INSERT OR REPLACE INTO migrations (version) VALUES (1)", [])?;
                 }
                 Ok(None) => {
+                    println!("NONE");
                     let tx = db.transaction()?;
                     tx.migrate01().context("failed to run migration 01")?;
                     tx.commit()?;
                     db.connection.execute("CREATE TABLE IF NOT EXISTS migrations (
                         version INTEGER PRIMARY KEY);", [])
                         .context("failed to insert migrations table")?;
-                    db.connection.execute("INSERT INTO migrations (version) VALUES (1)", [])?;
+                    db.connection.execute("INSERT OR REPLACE INTO migrations (version) VALUES (1)", [])?;
                 }
-                _ => {
-                    println!("Database current");
+                Ok(Some(version)) => {
+                    println!("Databasae current. Version: {}", version);
+                }
+                Err(err) => {
+                    return Err(anyhow::Error::new(err).context("failed to query migrations table"));
                 }
             }
         }

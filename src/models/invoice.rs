@@ -118,21 +118,28 @@ impl fmt::Display for Invoice {
                 write!(f, "Stage:\t\tInvoice\n")?;
             }
         }
+
+        write!(f, "Payment status:\t")?;
         match &self.attributes.status {
             PaidStatus::Waiting => {
-                write!(f, "Waiting for payment")?;
+                write!(f, "Waiting for payment\n")?;
             },
             PaidStatus::Paid { date, check } => {
-                write!(f, "Paid - Date: {}, Check number: {}", date, check.is_some())?; 
+                write!(f, "Paid - Date: {}, Check number: {}\n", date, check.is_some())?; 
             },
             PaidStatus::Failed { date } => {
-                write!(f, "Failed - Date: {}", date)?;
+                write!(f, "Failed - Date: {}\n", date)?;
             },
             PaidStatus::Refunded { date } => {
-                write!(f, "Refunded - Date: {}", date)?;
+                write!(f, "Refunded - Date: {}\n", date)?;
             }
         }
-        write!(f, "Notes:\n{}\n", self.notes.is_some())?;
+        write!(f, "Notes:\n{}\n\n", self.notes.is_some())?;
+
+        write!(f, "Invoice attributes:\n")?;
+        write!(f, "Show notes:\t\t{}\n", self.attributes.show_notes)?;
+        write!(f, "Show payment methods:\t{}\n\n", self.attributes.show_methods)?;
+
         write!(f, "Invoice Items:\n")?;
         write!(f, "Item\t\t\t| Rate\t| Quantity\t| Subtotal\n")?;
         for item in &self.calculate_subtotals() {

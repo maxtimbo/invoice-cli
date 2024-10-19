@@ -6,7 +6,7 @@ impl<'conn> InvoiceTx<'conn> {
     pub fn migrate01(&self) -> Result<()> {
         self.tx.execute(
             "CREATE TABLE IF NOT EXISTS invoice_backup AS
-             SELECT id, template_id, date, show_methods, show_notes, notes, items_json
+             SELECT id, template_id, date, items_json
              FROM invoices;", [])
             .context("failed to create backup")?;
         self.tx.execute(
@@ -25,7 +25,7 @@ impl<'conn> InvoiceTx<'conn> {
                 status_check TEXT,
                 notes TEXT,
                 items_json TEXT NOT NULL,
-                FOREIGN KEY (tempplate_id)
+                FOREIGN KEY (template_id)
                     REFERENCES templates (id)
                     ON DELETE NO ACTION
                     ON UPDATE NO ACTION

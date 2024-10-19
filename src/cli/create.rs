@@ -11,7 +11,7 @@ use crate::db::InvoiceDB;
 use crate::cli::contact::Contact;
 use crate::db::prepare::{PrepCreate, PrepUpdate, PrepFields, PrepValues, TableName};
 use crate::models::EntityUpdater;
-use crate::models::invoice::InvoiceItem;
+use crate::models::invoice::{InvoiceItem, InvoiceAttrs};
 use crate::validators::{ValidImage, ValidSize};
 use invoice_cli::decimal_to_i64;
 
@@ -91,8 +91,6 @@ pub fn handle_create(create: &CreateCommands, db: &InvoiceDB) -> Result<(), anyh
     }
     Ok(())
 }
-        
-
 
 #[derive(Debug, Args, PartialEq)]
 pub struct FromJSON {
@@ -146,6 +144,8 @@ pub struct CreateTemplate {
 pub struct CreateInvoice {
     pub template: i64,
     pub date: NaiveDate,
+    pub attributes: InvoiceAttrs,
+    pub notes: Option<String>,
     pub items: Vec<InvoiceItem>,
 }
 

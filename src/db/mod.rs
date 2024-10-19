@@ -1,13 +1,14 @@
 pub mod cached;
 pub mod getters;
 mod initdb;
+mod migrate;
 pub mod prepare;
 pub mod transactions;
 
 use std::path::PathBuf;
 
 use anyhow::{Context, Result};
-use rusqlite::{Connection, Transaction};
+use rusqlite::{Connection, Transaction, OptionalExtension};
 //use directories::ProjectDirs;
 
 #[derive(Debug)]
@@ -41,14 +42,44 @@ impl InvoiceDB {
             .pragma_update(None, "foreign_keys", true)
             .context("failed to enable foreign keys pragma")?;
 
-        let mut db = InvoiceDB {
-            connection: connection,
-        };
+        let mut db = InvoiceDB { connection };
 
         if !existing_db {
             let initdb = db.transaction()?;
             initdb.initdb().context("failed to create db tables")?;
-            initdb.commit()?;
+            initdb.tx
+                .execute("INSERT INTO migrations (version) VALUES (1);", [])
+                .context("failed to set initial migration version")?;
+            initdb.commit().context("failed to commit transaction")?;
+        } else {
+            let current_version: Result<Option<i32>, rusqlite::Error> = db
+                .connection
+                .query_row(
+                    "SELECT version FROM migrations LIMIT 1",
+                    [],
+                    |row| row.get(0)
+                ).optional();
+            match current_version {
+                Ok(Some(version)) if version < 1 => {
+                    let tx = db.transaction()?;
+                    tx.migrate01().context("failed to run migration 01")?;
+                    tx.commit()?;
+
+                    db.connection.execute("INSERT OR REPLACE INTO migrations (version) VALUES (1)", [])?;
+                }
+                Ok(None) => {
+                    let tx = db.transaction()?;
+                    tx.migrate01().context("failed to run migration 01")?;
+                    tx.commit()?;
+                    db.connection.execute("CREATE TABLE IF NOT EXISTS migrations (
+                        version INTEGER PRIMARY KEY);", [])
+                        .context("failed to insert migrations table")?;
+                    db.connection.execute("INSERT INTO migrations (version) VALUES (1)", [])?;
+                }
+                _ => {
+                    println!("Database current");
+                }
+            }
         }
 
         Ok(db)

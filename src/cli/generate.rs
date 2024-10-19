@@ -1,14 +1,15 @@
 //use crate::cli::list::*;
 use crate::cli::create::{CreateInvoice, CreateTemplate};
 use crate::db::InvoiceDB;
-use crate::models::invoice::InvoiceItem;
+use crate::models::prompt_optional;
+use crate::models::invoice::{InvoiceItem, InvoiceAttrs, InvoiceStage, PaidStatus};
 use anyhow::Result;
 use invoice_cli::{select_entity, select_multiple_entities};
 use crate::render::TemplateEngine;
 use crate::db::prepare::PrepCreate;
 
 use clap::{Args, Subcommand};
-use inquire::DateSelect;
+use inquire::{DateSelect, Confirm, Select};
 use std::path::PathBuf;
 
 #[derive(Debug, Subcommand, PartialEq)]
@@ -105,7 +106,57 @@ pub struct GenerateInvoice {
 impl GenerateInvoice {
     pub fn generate(&self, db: &InvoiceDB) -> Result<CreateInvoice> {
         let date = DateSelect::new("Invoice date").prompt()?;
-        let template_selection = select_entity!("Select Template:", db, "templates")?;
+        let template = select_entity!("Select Template:", db, "templates")?;
+        let show_methods = Confirm::new("Show payment method?")
+            .with_default(false)
+            .prompt()?;
+        let show_notes = Confirm::new("Show notes?")
+            .with_default(true)
+            .prompt()?;
+        let stages = vec!["Quote", "Invoice"];
+        let selected_stage = Select::new("Select invoice stage:", stages).prompt()?;
+        
+        let stage = match selected_stage {
+            "Quote" => InvoiceStage::Quote,
+            "Invoice" => InvoiceStage::Invoice,
+            _ => {
+                println!("Error: Invalid stage");
+                return Err(anyhow::anyhow!("Invalid stage selected"));
+            }
+        };
+
+        let statuses = vec!["Waiting", "Paid", "Failed", "Refunded"];
+        let selected_status = Select::new("Select payment status:", statuses).prompt()?;
+
+        let status = match selected_status {
+            "Waiting" => PaidStatus::Waiting,
+            "Paid" => {
+                let date = DateSelect::new("Select payment date").prompt()?;
+                let check = prompt_optional("Enter check number if acclicable or enter 'None':", "")?;
+                PaidStatus::Paid{ date: date.format("%Y%m%d").to_string(), check }
+            },
+            "Failed" => {
+                let date = DateSelect::new("Select failed payment date").prompt()?;
+                PaidStatus::Failed{ date: date.format("%Y%m%d").to_string() }
+            },
+            "Refunded" => {
+                let date = DateSelect::new("Select payment refunded date:").prompt()?;
+                PaidStatus::Refunded{ date: date.format("%Y%m%d").to_string() }
+            },
+            _ => {
+                println!("Error: Invalid payment status");
+                return Err(anyhow::anyhow!("Invalid status selected"));
+            }
+        };
+
+
+        let attributes = InvoiceAttrs {
+            show_methods,
+            show_notes,
+            stage,
+            status,
+        };
+        let notes = prompt_optional("Enter notes about the invoice, or enter None to leave it blank:", "")?;
         let item_ids = select_multiple_entities!("Add items to the invoice:", db, "items")?;
         let mut items = Vec::new();
         for item_id in item_ids {
@@ -122,9 +173,11 @@ impl GenerateInvoice {
             });
         }
         let new_invoice = CreateInvoice {
-            template: template_selection,
-            date: date,
-            items: items,
+            template,
+            attributes,
+            notes,
+            date,
+            items,
         };
 
         Ok(new_invoice)

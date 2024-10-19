@@ -4,6 +4,11 @@ use anyhow::{Context, Result};
 
 impl<'conn> InvoiceTx<'conn> {
     pub fn initdb(&self) -> Result<()> {
+        self.tx.execute(
+            "CREATE TABLE IF NOT EXISTS migrations (
+                version INTEGER PRIMARY KEY
+            );", [])
+            .context("Failed to create migrations")?;
         self.tx
             .execute(
                 "CREATE TABLE IF NOT EXISTS company (
@@ -99,6 +104,13 @@ impl<'conn> InvoiceTx<'conn> {
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  template_id INTEGER NOT NULL,
                  date TEXT NOT NULL,
+                 show_methods INTEGER NOT NULL,
+                 show_notes INTEGER NOT NULL,
+                 stage TEXT NOT NULL,
+                 status TEXT NOT NULL,
+                 status_date TEXT,
+                 status_check TEXT,
+                 notes TEXT,
                  items_json TEXT NOT NULL,
                  FOREIGN KEY (template_id)
                      REFERENCES templates (id)

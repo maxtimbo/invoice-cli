@@ -32,6 +32,7 @@ impl fmt::Display for Template {
         write!(f, "Client Information:\n{}\n", self.client)?;
         write!(f, "Template Terms:\n")?;
         write!(f, "{}\n", self.terms)?;
+        write!(f, "Payment Status:\n")?;
         write!(f, "Template Payment Methods:\n")?;
         for method in &self.methods {
             write!(f, "{}\n", method)?;
@@ -51,8 +52,32 @@ impl EntityDeleter<Template> for Template {
 pub struct Invoice {
     pub id: i64,
     pub template: Template,
+    pub attributes: InvoiceAttrs,
     pub date: String,
+    pub notes: Option<String>,
     pub items: HashMap<Items, i64>,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct InvoiceAttrs {
+    pub show_methods: bool,
+    pub show_notes: bool,
+    pub stage: InvoiceStage,
+    pub status: PaidStatus,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub enum InvoiceStage {
+    Quote,
+    Invoice,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub enum PaidStatus {
+    Waiting,
+    Paid { date: String, check: Option<String> },
+    Failed { date: String},
+    Refunded { date: String},
 }
 
 impl Invoice {
@@ -85,6 +110,29 @@ impl fmt::Display for Invoice {
         write!(f, "ID:\t\t{}\n", self.id)?;
         write!(f, "Date:\t\t{}\n\n", self.date)?;
         write!(f, "Template Information:\n{}\n", self.template)?;
+        match self.attributes.stage {
+            InvoiceStage::Quote => {
+                write!(f, "Stage:\t\tQuote\n")?;
+            },
+            InvoiceStage::Invoice => {
+                write!(f, "Stage:\t\tInvoice\n")?;
+            }
+        }
+        match &self.attributes.status {
+            PaidStatus::Waiting => {
+                write!(f, "Waiting for payment")?;
+            },
+            PaidStatus::Paid { date, check } => {
+                write!(f, "Paid - Date: {}, Check number: {}", date, check.is_some())?; 
+            },
+            PaidStatus::Failed { date } => {
+                write!(f, "Failed - Date: {}", date)?;
+            },
+            PaidStatus::Refunded { date } => {
+                write!(f, "Refunded - Date: {}", date)?;
+            }
+        }
+        write!(f, "Notes:\n{}\n", self.notes.is_some())?;
         write!(f, "Invoice Items:\n")?;
         write!(f, "Item\t\t\t| Rate\t| Quantity\t| Subtotal\n")?;
         for item in &self.calculate_subtotals() {

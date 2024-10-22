@@ -11,6 +11,7 @@ use crate::db::prepare::PrepCreate;
 use clap::{Args, Subcommand};
 use inquire::{DateSelect, Confirm, Select};
 use std::path::PathBuf;
+use std::str::FromStr;
 
 #[derive(Debug, Subcommand, PartialEq)]
 pub enum GenerateCommands {
@@ -116,39 +117,14 @@ impl GenerateInvoice {
         let stages = vec!["Quote", "Invoice"];
         let selected_stage = Select::new("Select invoice stage:", stages).prompt()?;
         
-        let stage = match selected_stage {
-            "Quote" => InvoiceStage::Quote,
-            "Invoice" => InvoiceStage::Invoice,
-            _ => {
-                println!("Error: Invalid stage");
-                return Err(anyhow::anyhow!("Invalid stage selected"));
-            }
-        };
+        let stage = InvoiceStage::from_str(&selected_stage)
+            .map_err(|err| anyhow::anyhow!(err))?;
 
         let statuses = vec!["Waiting", "Paid", "Failed", "Refunded"];
         let selected_status = Select::new("Select payment status:", statuses).prompt()?;
 
-        let status = match selected_status {
-            "Waiting" => PaidStatus::Waiting,
-            "Paid" => {
-                let date = DateSelect::new("Select payment date").prompt()?;
-                let check = prompt_optional("Enter check number if acclicable or enter 'None':", "")?;
-                PaidStatus::Paid{ date: date.format("%Y%m%d").to_string(), check }
-            },
-            "Failed" => {
-                let date = DateSelect::new("Select failed payment date").prompt()?;
-                PaidStatus::Failed{ date: date.format("%Y%m%d").to_string() }
-            },
-            "Refunded" => {
-                let date = DateSelect::new("Select payment refunded date:").prompt()?;
-                PaidStatus::Refunded{ date: date.format("%Y%m%d").to_string() }
-            },
-            _ => {
-                println!("Error: Invalid payment status");
-                return Err(anyhow::anyhow!("Invalid status selected"));
-            }
-        };
-
+        let status = PaidStatus::from_str(&selected_status)
+            .map_err(|err| anyhow::anyhow!(err))?;
 
         let attributes = InvoiceAttrs {
             show_methods,
@@ -156,6 +132,7 @@ impl GenerateInvoice {
             stage,
             status,
         };
+
         let notes = prompt_optional("Enter notes about the invoice, or enter None to leave it blank:", "")?;
         let item_ids = select_multiple_entities!("Add items to the invoice:", db, "items")?;
         let mut items = Vec::new();

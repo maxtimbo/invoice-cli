@@ -13,9 +13,10 @@ clap = { version = "4.5.4", features = ["derive"] }
 clap_complete = "4.5.2"
 directories = "5.0.1"
 infer = "0.15.0"
-inquire = { version = "0.7.5", features = ["date"] }
+inquire = { version = "0.7.5", features = ["date", "editor"] }
 mime_guess = "2.0.4"
 open = "5.1.2"
+pulldown-cmark = { version = "0.12.2", default-features = false, features = ["html"] }
 rusqlite = { version = "0.31.0", features = ["bundled", "blob", "chrono"] }
 rust_decimal = "1.35.0"
 serde = { version = "1.0.199", features = ["derive"] }

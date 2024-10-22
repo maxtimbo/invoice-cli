@@ -78,9 +78,7 @@ impl InvoiceDB {
                         .context("failed to insert migrations table")?;
                     db.connection.execute("INSERT OR REPLACE INTO migrations (version) VALUES (1)", [])?;
                 }
-                Ok(Some(version)) => {
-                    println!("Databasae current. Version: {}", version);
-                }
+                Ok(Some(version)) => { println!("db v{}", version); }
                 Err(err) => {
                     return Err(anyhow::Error::new(err).context("failed to query migrations table"));
                 }

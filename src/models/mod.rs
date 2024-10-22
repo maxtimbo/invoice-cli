@@ -1,6 +1,6 @@
 use std::fmt;
 
-use inquire::{Text, InquireError};
+use inquire::{Text, InquireError, Editor};
 
 pub mod client;
 pub mod company;
@@ -53,3 +53,16 @@ pub fn prompt_optional(prompt: &str, default: &str) -> Result<Option<String>, In
     }
 }
 
+pub fn editor_optional(prompt: &str, default: &str) -> Result<Option<String>, InquireError> {
+    let input = Editor::new(prompt)
+        .with_help_message("Use standard markdown syntax")
+        .with_file_extension("md")
+        .with_predefined_text(default)
+        .prompt()?;
+
+    if input.trim().eq_ignore_ascii_case("None") {
+        Ok(None)
+    } else {
+        Ok(Some(input))
+    }
+}

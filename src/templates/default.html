@@ -26,6 +26,13 @@
                 #items tbody tr:nth-child(odd) {
                     background-color: #f2f2f2 !important;
                 }
+                #footer, #itemized, #header {
+                    break-inside: avoid;
+                }
+                .wrapper {
+                    max-height: 100vh;
+                    overflow: hidden;
+                }
             }
             @page {
                 size: auto;
@@ -140,13 +147,20 @@
             }
             
             #payment-methods {
-                width: 50%;
+                width: 100%;
                 float: left;
                 margin-left: 30px;
             }
             
             #payment-methods p, h5 {
                 line-height: 1px;
+            }
+
+            #payment-methods img {
+                padding: .5em;
+                width: 100%;
+                max-width: 150px;
+                max-height: 150px;
             }
             
             #totals {
@@ -170,6 +184,14 @@
                 padding-right: 30px;
             }
 
+            #footer {
+                display: flex;
+            }
+
+            #notes {
+                width: 100%;
+            }
+
             #to-pay {
                 display: flex;
                 width: 100%;
@@ -179,6 +201,11 @@
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 20px;
+            }
+            @media print {
+                body {
+                    zoom: 0.95;
+                }
             }
         </style>
     </head>
@@ -245,7 +272,7 @@
                 </div>
                 <div id="details">
                     <div id="invoice-id">
-                        <h1>Invoice</h1>
+                        <h1>{{ invoice_stage }}</h1>
                         <h5>#{{ id }}</h5>
                     </div>
                     <div id="summary">
@@ -289,34 +316,45 @@
                                 <td class="col4">${{ item.subtotal }}</td>
                             </tr>
                         {% endfor %}
+                        <tr>
+                            <td class="col1"></td>
+                            <td class="col2"></td>
+                            <td class="col3">Total:</td>
+                            <td class="col4">${{ total }}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-            <div id="to-pay">
-                <div id="payment-methods">
-                    <h5>Payment Methods:</h5>
-                    {% for method in template.methods %}
-                        {% if method.link and method.qr %}
-                            <a href="{{ method.link }}"><img src="{{ method.qr }}" /></a>
-                        {% elif method.link and not method.qr %}
-                            <a href="{{ method.link }}">{{ method.name }}</a>
-                        {% elif method.qr and not method.link %}
-                            <p>{{ method.name }}</p>
-                            <img src="{{ method.qr }}" />
-                        {% else %}
-                            <p>{{ method.name }}</p>
-                        {% endif %}
-                    {% endfor %}
+            
+            <div id="footer">
+                {% if show_methods %}
+                <div id="to-pay">
+                    <div id="payment-methods">
+                        <h3>Payment Methods:</h3>
+                        {% for method in template.methods %}
+                            {% if method.link and method.qr %}
+                                <a href="{{ method.link }}"><img src="{{ method.qr }}" /></a>
+                            {% elif method.link and not method.qr %}
+                                <a href="{{ method.link }}">{{ method.name }}</a>
+                            {% elif method.qr and not method.link %}
+                                <p>{{ method.name }}</p>
+                                <img src="{{ method.qr }}" />
+                            {% else %}
+                                <p>{{ method.name }}</p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
-                <div id="totals">
-                    <table id="totals-table">
-                        <tr>
-                            <td>Total:</td>
-                            <td>${{ total }}</td>
-                        </tr>
-                    </table>
+                {% endif %}
+
+                {% if show_notes %}
+                <div id="notes">
+                    <h3>Notes:</h3>
+                    {{ notes | safe }}
                 </div>
+                {% endif %}
             </div>
+
         </div>
     </body>
     <script type="text/javascript">

@@ -167,7 +167,6 @@ impl InvoiceDB {
                 status
             };
 
-
             let items_vec: Vec<InvoiceItem> = serde_json::from_str(&items_str)
                 .map_err(|_| rusqlite::Error::ExecuteReturnedResults)?;
             let items: HashMap<Items, i64> = items_vec

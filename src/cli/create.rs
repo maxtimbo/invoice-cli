@@ -11,7 +11,7 @@ use crate::db::InvoiceDB;
 use crate::cli::contact::Contact;
 use crate::db::prepare::{PrepCreate, PrepUpdate, PrepFields, PrepValues, TableName};
 use crate::models::EntityUpdater;
-use crate::models::invoice::{InvoiceItem, InvoiceAttrs};
+use crate::models::invoice::{InvoiceItem, InvoiceAttrs, InvoiceStage, PaidStatus};
 use crate::validators::{ValidImage, ValidSize};
 use invoice_cli::decimal_to_i64;
 
@@ -281,6 +281,13 @@ impl PrepFields for CreateInvoice {
         let mut fnames = Vec::new();
         fnames.push("template_id".to_string());
         fnames.push("date".to_string());
+        fnames.push("show_methods".to_string());
+        fnames.push("show_notes".to_string());
+        fnames.push("stage".to_string());
+        fnames.push("status".to_string());
+        fnames.push("status_date".to_string());
+        fnames.push("status_check".to_string());
+        fnames.push("notes".to_string());
         fnames.push("items_json".to_string());
         fnames
     }
@@ -380,6 +387,38 @@ impl PrepValues for CreateInvoice {
         values.push(self.template.into());
         let date_str = self.date.format("%Y%m%d").to_string();
         values.push(Value::from(date_str));
+        values.push(self.attributes.show_methods.into());
+        values.push(self.attributes.show_notes.into());
+
+        let stage_str = match self.attributes.stage {
+            InvoiceStage::Quote => "Quote".to_string(),
+            InvoiceStage::Invoice => "Invoice".to_string(),
+        };
+        values.push(Value::from(stage_str));
+
+        let status_str = match &self.attributes.status {
+            PaidStatus::Waiting => "Waiting".to_string(),
+            PaidStatus::Paid { .. } => "Paid".to_string(),
+            PaidStatus::Failed { .. } => "Failed".to_string(),
+            PaidStatus::Refunded { .. } => "Refunded".to_string(),
+        };
+        values.push(Value::from(status_str));
+
+        let status_date = match &self.attributes.status {
+            PaidStatus::Paid { date, .. }
+            | PaidStatus::Failed { date }
+            | PaidStatus::Refunded { date } => Some(date.clone()),
+            _ => None,
+        };
+        values.push(status_date.unwrap_or_default().into());
+
+        let status_check = match &self.attributes.status {
+            PaidStatus::Paid { check, .. } => check.clone(),
+            _ => None,
+        };
+        values.push(status_check.unwrap_or_default().into());
+
+        values.push(self.notes.clone().into());
         let items_json = serde_json::to_string(&self.items).expect("Failed to serialize to JSON");
         values.push(items_json.into());
         values

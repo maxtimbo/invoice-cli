@@ -1,11 +1,15 @@
 use std::collections::HashMap;
 use std::fmt;
+use std::str::FromStr;
 
 use chrono::{Duration, NaiveDate};
 use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 use rust_decimal::Decimal;
+use inquire::{MultiSelect, InquireError, Text, Confirm, Select, DateSelect};
+use pulldown_cmark::{html, Parser};
 
-use crate::models::EntityDeleter;
+use crate::models::{prompt_optional, editor_optional};
+use crate::models::{EntityDeleter, EntityUpdater};
 use crate::models::client::Client;
 use crate::models::company::Company;
 use crate::models::items::Items;
@@ -13,6 +17,7 @@ use crate::models::methods::Methods;
 use crate::models::terms::Terms;
 
 use crate::cli::delete::{DeleteTemplate, DeleteInvoice};
+use crate::cli::edit::{EditTemplate, EditInvoice};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Template {
@@ -32,8 +37,8 @@ impl fmt::Display for Template {
         write!(f, "Client Information:\n{}\n", self.client)?;
         write!(f, "Template Terms:\n")?;
         write!(f, "{}\n", self.terms)?;
-        write!(f, "Payment Status:\n")?;
-        write!(f, "Template Payment Methods:\n")?;
+write!(f, "Payment Status:\n")?;
+write!(f, "Template Payment Methods:\n")?;
         for method in &self.methods {
             write!(f, "{}\n", method)?;
         }
@@ -45,6 +50,41 @@ impl EntityDeleter<Template> for Template {
     type Output = DeleteTemplate;
     fn delete(&self) -> Result<Self::Output, anyhow::Error> {
         Ok(DeleteTemplate { id: self.id })
+    }
+}
+
+impl EntityUpdater<Template> for Template {
+    type Output = EditTemplate;
+    fn update(&self) -> Result<Self::Output, InquireError> {
+        println!("{}", self);
+        let fields = vec!["name", "company", "client", "terms", "methods"];
+        let mut edit_template = EditTemplate {
+            id: self.id,
+            name: None,
+            company: None,
+            client: None,
+            terms: None,
+            methods: None
+        };
+        let selected_fields = MultiSelect::new("Select fields to update:", fields).prompt()?;
+        for field in selected_fields {
+            match field {
+                "name" => {
+                    let name = Text::new("Enter new name:")
+                        .with_default(&self.name)
+                        .prompt()?;
+                    edit_template.name = Some(name);
+                }
+                "company" => {
+                    // let company_selection = select_entity!("Select Company:", db
+                }
+                "client" => {}
+                "terms" => {}
+                "methods" => {}
+                _ => {}
+            }
+        }
+        Ok(edit_template)
     }
 }
 
@@ -72,12 +112,60 @@ pub enum InvoiceStage {
     Invoice,
 }
 
+impl FromStr for InvoiceStage {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "Quote" => Ok(InvoiceStage::Quote),
+            "Invoice" => Ok(InvoiceStage::Invoice),
+            _ => Err(format!("Invalid InvoiceStage: {}", s)),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub enum PaidStatus {
     Waiting,
     Paid { date: String, check: Option<String> },
     Failed { date: String},
     Refunded { date: String},
+}
+
+impl FromStr for PaidStatus {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "Waiting" => Ok(PaidStatus::Waiting),
+            "Paid" => {
+                let date = DateSelect::new("Select payment date").prompt().unwrap();
+                let check = prompt_optional("Enter check number if applicable or enter 'None':", "").unwrap();
+                Ok(PaidStatus::Paid { date: date.format("%Y%m%d").to_string(), check })
+            }
+            "Failed" => {
+                let date = DateSelect::new("Select failed payment date").prompt().unwrap();
+                Ok(PaidStatus::Failed { date: date.format("%Y%m%d").to_string() })
+            }
+            "Refunded" => {
+                let date = DateSelect::new("Select refunded payment date").prompt().unwrap();
+                Ok(PaidStatus::Refunded { date: date.format("%Y%m%d").to_string() })
+            }
+            _ => Err(format!("Invalid PaidStatus: {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub struct InvoiceItem {
+    pub item: i64,
+    pub quantity: i64,
+}
+
+#[derive(Debug, Serialize)]
+struct ItemDetail {
+    name: String,
+    rate: Decimal,
+    quantity: i64,
+    subtotal: Decimal,
 }
 
 impl Invoice {
@@ -125,16 +213,21 @@ impl fmt::Display for Invoice {
                 write!(f, "Waiting for payment\n")?;
             },
             PaidStatus::Paid { date, check } => {
-                write!(f, "Paid - Date: {}, Check number: {}\n", date, check.is_some())?; 
+                write!(f, "Paid\nDate:\t\t{}\n", date)?; 
+                if let Some(check_str) = check {
+                    write!(f, "Check:\t\t{}\n\n", check_str)?;
+                }
             },
             PaidStatus::Failed { date } => {
-                write!(f, "Failed - Date: {}\n", date)?;
+                write!(f, "Failed\nDate:\t\t{}\n", date)?;
             },
             PaidStatus::Refunded { date } => {
-                write!(f, "Refunded - Date: {}\n", date)?;
+                write!(f, "Refunded\nDate:\t\t{}\n", date)?;
             }
         }
-        write!(f, "Notes:\n{}\n\n", self.notes.is_some())?;
+        if let Some(notes) = &self.notes {
+            write!(f, "Notes:\n{}\n\n", notes.to_string())?;
+        }
 
         write!(f, "Invoice attributes:\n")?;
         write!(f, "Show notes:\t\t{}\n", self.attributes.show_notes)?;
@@ -174,20 +267,77 @@ impl Serialize for Invoice {
         state.serialize_field("items", &self.calculate_subtotals())?;
         state.serialize_field("total", &self.calculate_total())?;
         state.serialize_field("due_date", &self.due_date().format("%B %d, %Y").to_string())?;
+        state.serialize_field("show_methods", &self.attributes.show_methods)?;
+        state.serialize_field("show_notes", &self.attributes.show_notes)?;
+        let stage_str = match &self.attributes.stage {
+            InvoiceStage::Quote => "Quote",
+            InvoiceStage::Invoice => "Invoice",
+        };
+        state.serialize_field("invoice_stage", &stage_str)?;
+        if let Some(notes) = &self.notes {
+            let parser = Parser::new(notes);
+            let mut html_output = String::new();
+            html::push_html(&mut html_output, parser);
+            state.serialize_field("notes", &html_output)?;
+        }
         state.end()
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
-pub struct InvoiceItem {
-    pub item: i64,
-    pub quantity: i64,
-}
-
-#[derive(Debug, Serialize)]
-struct ItemDetail {
-    name: String,
-    rate: Decimal,
-    quantity: i64,
-    subtotal: Decimal,
+impl EntityUpdater<Invoice> for Invoice {
+    type Output = EditInvoice;
+    fn update(&self) -> Result<Self::Output, InquireError> {
+        println!("{}", self);
+        let fields = vec!["show methods", "show notes", "invoice stage", "payment status", "notes"];
+        let mut edit_invoice = EditInvoice {
+            id: self.id,
+            show_methods: None,
+            show_notes: None,
+            stage: None,
+            status: None,
+            notes: None,
+        };
+        let selected_fields = MultiSelect::new("Select fields to update:", fields).prompt()?;
+        for field in selected_fields {
+            match field {
+                "show methods" => {
+                    let show_methods = Confirm::new("Show payment methods?")
+                        .with_default(self.attributes.show_methods)
+                        .prompt()?;
+                    edit_invoice.show_methods = Some(show_methods);
+                }
+                "show notes" => {
+                    let show_notes = Confirm::new("Show notes?")
+                        .with_default(self.attributes.show_notes)
+                        .prompt()?;
+                    edit_invoice.show_notes = Some(show_notes);
+                }
+                "invoice stage" => {
+                    let stage_select = Select::new("Select invoice stage:", vec!["Quote", "Invoice"]).prompt()?;
+                    let stage = InvoiceStage::from_str(&stage_select)
+                        .map_err(|err| InquireError::Custom(err.to_string().into()))?;
+                    edit_invoice.stage = Some(stage);
+                }
+                "payment status" => {
+                    let statuses = vec!["Waiting", "Paid", "Failed", "Refunded"];
+                    let selected_status = Select::new("Select payment status:", statuses).prompt()?;
+                    let status = PaidStatus::from_str(&selected_status)
+                        .map_err(|err| InquireError::Custom(err.to_string().into()))?;
+                    edit_invoice.status = Some(status)
+                }
+                "notes" => {
+                    let notes = editor_optional("Enter new notes, or write 'None' to clear", &self.notes.clone().unwrap_or_default())?;
+                    //let notes = Editor::new("Enter new notes")
+                    //    .with_help_message("Use standard markdown syntax")
+                    //    .with_file_extension("md")
+                    //    .prompt()?;
+                    //let notes = prompt_optional("Enter new notes, or leave blank for no change:", &self.notes.clone().unwrap_or_default())?;
+                    
+                    edit_invoice.notes = notes;
+                }
+                _ => {}
+            }
+        }
+        Ok(edit_invoice)
+    }
 }

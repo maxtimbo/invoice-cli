@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use crate::db::InvoiceDB;
 use invoice_cli::select_entity;
 use crate::models::EntityUpdater;
+use crate::models::invoice::{InvoiceStage, PaidStatus};
 use crate::cli::contact::Contact;
 use crate::db::prepare::{PrepFields, PrepUpdate, PrepValues, TableName};
 use crate::validators::{ValidImage, ValidSize};
@@ -18,6 +19,8 @@ pub enum EditCommands {
     Terms,
     Method,
     Item,
+    Template,
+    Invoice,
 }
 
 pub fn handle_edit(edit: &EditCommands, db: &InvoiceDB) -> Result<(), anyhow::Error> {
@@ -45,6 +48,16 @@ pub fn handle_edit(edit: &EditCommands, db: &InvoiceDB) -> Result<(), anyhow::Er
         EditCommands::Item => {
             let id = select_entity!("Select Item:", db, "items")?;
             let entity = db.get_item(&id)?;
+            db.update_entry(entity.update()?.prepare(), &id)?;
+        }
+        EditCommands::Template => {
+            let id = select_entity!("Select template:", db, "templates")?;
+            let entity = db.get_template(&id)?;
+            db.update_entry(entity.update()?.prepare(), &id)?;
+        }
+        EditCommands::Invoice => {
+            let id = select_entity!("Select invoice:", db, "invoices")?;
+            let entity = db.get_invoice(&id)?;
             db.update_entry(entity.update()?.prepare(), &id)?;
         }
     }
@@ -89,11 +102,33 @@ pub struct EditItem {
     pub rate: Option<Decimal>,
 }
 
+#[derive(Debug)]
+pub struct EditTemplate {
+    pub id: i64,
+    pub name: Option<String>,
+    pub company: Option<i64>,
+    pub client: Option<i64>,
+    pub terms: Option<i64>,
+    pub methods: Option<Vec<i64>>,
+}
+
+#[derive(Debug)]
+pub struct EditInvoice {
+    pub id: i64,
+    pub show_methods: Option<bool>,
+    pub show_notes: Option<bool>,
+    pub stage: Option<InvoiceStage>,
+    pub status: Option<PaidStatus>,
+    pub notes: Option<String>,
+}
+
 impl PrepUpdate for EditCompany {}
 impl PrepUpdate for EditClient {}
 impl PrepUpdate for EditTerms {}
 impl PrepUpdate for EditMethod {}
 impl PrepUpdate for EditItem {}
+impl PrepUpdate for EditTemplate {}
+impl PrepUpdate for EditInvoice {}
 
 // --- Validators ---
 impl ValidSize for EditCompany {}
@@ -129,6 +164,18 @@ impl TableName for EditMethod {
 impl TableName for EditItem {
     fn table_name(&self) -> String {
         "items".to_string()
+    }
+}
+
+impl TableName for EditTemplate {
+    fn table_name(&self) -> String {
+        "templates".to_string()
+    }
+}
+
+impl TableName for EditInvoice {
+    fn table_name(&self) -> String {
+        "invoices".to_string()
     }
 }
 
@@ -204,6 +251,62 @@ impl PrepFields for EditItem {
         fnames
     }
 }
+
+impl PrepFields for EditTemplate {
+    fn fields(&self) -> Vec<String> {
+        let mut fnames = Vec::new();
+        fnames.push(self.id.to_string());
+        if self.name.is_some() {
+            fnames.push("name".to_string());
+        }
+        if self.company.is_some() {
+            fnames.push("company_id".to_string());
+        }
+        if self.client.is_some() {
+            fnames.push("client_id".to_string());
+        }
+        if self.terms.is_some() {
+            fnames.push("terms_id".to_string());
+        }
+        if self.methods.is_some() {
+            fnames.push("methods_json".to_string());
+        }
+        fnames
+    }
+}
+
+impl PrepFields for EditInvoice {
+    fn fields(&self) -> Vec<String> {
+        let mut fnames = Vec::new();
+        fnames.push(self.id.to_string());
+        if self.show_methods.is_some() {
+            fnames.push("show_methods".to_string());
+        }
+        if self.show_notes.is_some() {
+            fnames.push("show_notes".to_string());
+        }
+        if self.stage.is_some() {
+            fnames.push("stage".to_string());
+        }
+
+        if self.status.is_some() {
+            fnames.push("status".to_string());
+            if let Some(PaidStatus::Paid { .. }) = &self.status {
+                fnames.push("status_date".to_string());
+                fnames.push("status_check".to_string());
+            }
+            if let Some(PaidStatus::Failed { .. }) | Some(PaidStatus::Refunded { .. }) = &self.status{
+                fnames.push("status_date".to_string());
+            }
+        }
+
+        if self.notes.is_some() {
+            fnames.push("notes".to_string());
+        }
+        fnames
+    }
+}
+
 
 // ~~~ PrepValues ~~~
 impl PrepValues for EditCompany {
@@ -283,6 +386,64 @@ impl PrepValues for EditItem {
         if let Some(rate) = self.rate {
             values.push(decimal_to_i64!(rate).into());
         }
+        values
+    }
+}
+
+impl PrepValues for EditTemplate {
+    fn values(&self) -> Vec<Value> {
+        let mut values: Vec<Value> = Vec::new();
+        if self.name.is_some() {
+            values.push(self.name.clone().into());
+        }
+        if self.company.is_some() {
+            values.push(self.company.into());
+        }
+        values
+    }
+}
+
+impl PrepValues for EditInvoice {
+    fn values(&self) -> Vec<Value> {
+        let mut values: Vec<Value> = Vec::new();
+        if self.show_methods.is_some() {
+            values.push(self.show_methods.into());
+        }
+        if self.show_notes.is_some() {
+            values.push(self.show_notes.into());
+        }
+        if let Some(stage) = &self.stage {
+            match stage {
+                InvoiceStage::Quote => { values.push("Quote".to_string().into()) }
+                InvoiceStage::Invoice => { values.push("Invoice".to_string().into()) }
+            }
+        }
+        if let Some(status) = &self.status {
+            match status {
+                PaidStatus::Waiting => { values.push("Waiting".to_string().into()) }
+                PaidStatus::Paid { date, check } => {
+                    values.push("Paid".to_string().into());
+                    values.push(date.to_string().into());
+                    if let Some(check_str) = check {
+                        values.push(check_str.to_string().into());
+                    } else {
+                        values.push("None".to_string().into());
+                    }
+                }
+                PaidStatus::Failed { date } => {
+                    values.push("Failed".to_string().into());
+                    values.push(date.to_string().into());
+                }
+                PaidStatus::Refunded { date } => {
+                    values.push("Refunded".to_string().into());
+                    values.push(date.to_string().into());
+                }
+            }
+        }
+        if let Some(notes) = &self.notes {
+            values.push(notes.to_string().into());
+        }
+            
         values
     }
 }

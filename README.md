@@ -17,7 +17,7 @@ I wanted to learn how to write in Rust. I'm using this project to practice. I do
 - [x] Add item creation during invoice generation
 - [ ] Add configuration settings
 - [ ] Add automatic emails
-- [ ] Generate PDF from HTML
+- [x] Generate PDF from HTML
 - [ ] ?
 
 ## Refactor Roadmap

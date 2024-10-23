@@ -31,7 +31,8 @@ pub fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &Templa
                     let invoice_obj = db.get_invoice(id)?;
                     let render = renderer.render(&invoice_obj)?;
                     renderer.to_file(&render, output)?;
-                    open::that(output)?;
+                    let pdf = renderer.to_pdf(&output)?;
+                    open::that(pdf)?;
                 }
                 (None, Some(output)) => {
                     let invoice = GenerateInvoice::generate(obj, &db)?;
@@ -39,7 +40,8 @@ pub fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &Templa
                     let invoice_obj = db.get_invoice(&new_invoice)?;
                     let render = renderer.render(&invoice_obj)?;
                     renderer.to_file(&render, output)?;
-                    open::that(output)?;
+                    let pdf = renderer.to_pdf(&output)?;
+                    open::that(pdf)?;
                 }
                 (Some(id), None) => {
                     let invoice_obj = db.get_invoice(id)?;
@@ -51,7 +53,8 @@ pub fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &Templa
                         );
                     let render = renderer.render(&invoice_obj)?;
                     renderer.to_file(&render, &output)?;
-                    open::that(output)?;
+                    let pdf = renderer.to_pdf(&output)?;
+                    open::that(pdf)?;
                 }
                 (None, None) => {
                     let invoice = GenerateInvoice::generate(obj, &db)?;
@@ -65,8 +68,8 @@ pub fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &Templa
                         );
                     let render = renderer.render(&invoice_obj)?;
                     renderer.to_file(&render, &output)?;
-                    open::that(output)?;
-
+                    let pdf = renderer.to_pdf(&output)?;
+                    open::that(pdf)?;
                 }
             };
         }

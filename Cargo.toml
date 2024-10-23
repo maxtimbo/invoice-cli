@@ -1,6 +1,6 @@
 [package]
 name = "invoice-cli"
-version = "1.0.2"
+version = "1.1.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -12,6 +12,7 @@ chrono = "0.4.38"
 clap = { version = "4.5.4", features = ["derive"] }
 clap_complete = "4.5.2"
 directories = "5.0.1"
+headless_chrome = "1.0.15"
 infer = "0.15.0"
 inquire = { version = "0.7.5", features = ["date", "editor"] }
 mime_guess = "2.0.4"

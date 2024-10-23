@@ -13,8 +13,8 @@ I wanted to learn how to write in Rust. I'm using this project to practice. I do
 - [x] Refine default.html
 - [x] Refactor how currency is handled
 - [ ] Fix template editor
-- [ ] Fix generate invoice notes editor
-- [ ] Add item creation during invoice generation
+- [x] Fix generate invoice notes editor
+- [x] Add item creation during invoice generation
 - [ ] Add configuration settings
 - [ ] Add automatic emails
 - [ ] Generate PDF from HTML

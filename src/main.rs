@@ -5,7 +5,7 @@ pub mod models;
 pub mod render;
 pub mod validators;
 pub use cli::Cli;
-pub use commands::Paths;
+pub use commands::paths::Paths;
 pub use db::InvoiceDB;
 pub use render::TemplateEngine;
 

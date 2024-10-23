@@ -1,12 +1,12 @@
 //use crate::cli::list::*;
 use crate::cli::create::{CreateInvoice, CreateTemplate};
 use crate::db::InvoiceDB;
-use crate::models::prompt_optional;
+use crate::models::editor_optional;
 use crate::models::invoice::{InvoiceItem, InvoiceAttrs, InvoiceStage, PaidStatus};
 use anyhow::Result;
-use invoice_cli::{select_entity, select_multiple_entities};
 use crate::render::TemplateEngine;
 use crate::db::prepare::PrepCreate;
+use crate::commands::selectors::EntitySelector;
 
 use clap::{Args, Subcommand};
 use inquire::{DateSelect, Confirm, Select};
@@ -81,11 +81,11 @@ pub struct GenerateTemplate {
 
 impl GenerateTemplate {
     pub fn generate(&self, db: &InvoiceDB) -> Result<CreateTemplate> {
-        let company_selection = select_entity!("Select Company:", db, "company")?;
-        let client_selection = select_entity!("Select Client:", db, "client")?;
-        let terms_selection = select_entity!("Select Payment Terms:", db, "terms")?;
-        let methods_selection =
-            select_multiple_entities!("Select Payment Methods:", db, "methods")?;
+        //let company_selection = select_entity!("Select Company:", db, "company")?;
+        let company_selection = EntitySelector::new(db, "company", "Select Company:", true).select_entity()?;
+        let client_selection = EntitySelector::new(db, "client", "Select Client:", true).select_entity()?;
+        let terms_selection = EntitySelector::new(db, "terms", "Select Payment Terms:", true).select_entity()?;
+        let methods_selection = EntitySelector::new(db, "methods", "Select Payment Methods:", true).multi_select_entity()?;
         let new_template = CreateTemplate {
             name: self.name.clone(),
             company: company_selection,
@@ -107,7 +107,7 @@ pub struct GenerateInvoice {
 impl GenerateInvoice {
     pub fn generate(&self, db: &InvoiceDB) -> Result<CreateInvoice> {
         let date = DateSelect::new("Invoice date").prompt()?;
-        let template = select_entity!("Select Template:", db, "templates")?;
+        let template = EntitySelector::new(db, "templates", "Select Template:", false).select_entity()?;
         let show_methods = Confirm::new("Show payment method?")
             .with_default(false)
             .prompt()?;
@@ -133,8 +133,8 @@ impl GenerateInvoice {
             status,
         };
 
-        let notes = prompt_optional("Enter notes about the invoice, or enter None to leave it blank:", "")?;
-        let item_ids = select_multiple_entities!("Add items to the invoice:", db, "items")?;
+        let notes = editor_optional("Enter notes about the invoice, or enter None to leave it blank:", "")?;
+        let item_ids = EntitySelector::new(db, "items", "Add items to the invoice:", true).multi_select_entity()?;
         let mut items = Vec::new();
         for item_id in item_ids {
             let item_short = &db.get_item(&item_id)?;

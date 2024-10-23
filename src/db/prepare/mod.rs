@@ -1,5 +1,10 @@
 use crate::db::cached::CachedStmt;
 
+pub mod tables;
+pub mod fields;
+pub mod values;
+pub mod prep;
+
 pub trait PrepFields {
     fn fields(&self) -> Vec<std::string::String>;
 }

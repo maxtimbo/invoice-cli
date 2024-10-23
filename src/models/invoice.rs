@@ -327,12 +327,6 @@ impl EntityUpdater<Invoice> for Invoice {
                 }
                 "notes" => {
                     let notes = editor_optional("Enter new notes, or write 'None' to clear", &self.notes.clone().unwrap_or_default())?;
-                    //let notes = Editor::new("Enter new notes")
-                    //    .with_help_message("Use standard markdown syntax")
-                    //    .with_file_extension("md")
-                    //    .prompt()?;
-                    //let notes = prompt_optional("Enter new notes, or leave blank for no change:", &self.notes.clone().unwrap_or_default())?;
-                    
                     edit_invoice.notes = notes;
                 }
                 _ => {}

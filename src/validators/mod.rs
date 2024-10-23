@@ -2,6 +2,9 @@ use std::fs;
 use std::io::{self};
 use std::path::PathBuf;
 
+pub mod create;
+pub mod edit;
+
 pub trait ValidImage {
     fn is_valid_image(&self, file_path: &PathBuf) -> bool {
         match mime_guess::from_path(file_path).first() {

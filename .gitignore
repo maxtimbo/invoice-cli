@@ -15,3 +15,4 @@ target/
 
 # Ignore any invoices created in the root dir during testing
 /*.html
+/*.pdf

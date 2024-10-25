@@ -120,6 +120,7 @@ impl PrepValues for EditInvoice {
         if let Some(status) = &self.status {
             match status {
                 PaidStatus::Waiting => { values.push("Waiting".to_string().into()) }
+                PaidStatus::PastDue => { values.push("Past Due".to_string().into()) }
                 PaidStatus::Paid { date, check } => {
                     values.push("Paid".to_string().into());
                     values.push(date.to_string().into());

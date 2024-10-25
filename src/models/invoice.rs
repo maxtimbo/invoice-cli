@@ -54,6 +54,7 @@ impl FromStr for InvoiceStage {
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub enum PaidStatus {
     Waiting,
+    PastDue,
     Paid { date: String, check: Option<String> },
     Failed { date: String},
     Refunded { date: String},
@@ -64,6 +65,7 @@ impl FromStr for PaidStatus {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "Waiting" => Ok(PaidStatus::Waiting),
+            "Past Due" => Ok(PaidStatus::PastDue),
             "Paid" => {
                 let date = DateSelect::new("Select payment date").prompt().unwrap();
                 let check = prompt_optional("Enter check number if applicable or enter 'None':", "").unwrap();
@@ -140,6 +142,9 @@ impl fmt::Display for Invoice {
             PaidStatus::Waiting => {
                 write!(f, "Waiting for payment\n")?;
             },
+            PaidStatus::PastDue => {
+                write!(f, "Payment is past due\n")?;
+            }
             PaidStatus::Paid { date, check } => {
                 write!(f, "Paid\nDate:\t\t{}\n", date)?; 
                 if let Some(check_str) = check {

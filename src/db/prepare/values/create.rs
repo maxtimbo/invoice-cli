@@ -112,6 +112,7 @@ impl PrepValues for CreateInvoice {
 
         let status_str = match &self.attributes.status {
             PaidStatus::Waiting => "Waiting".to_string(),
+            PaidStatus::PastDue => "Past Due".to_string(),
             PaidStatus::Paid { .. } => "Paid".to_string(),
             PaidStatus::Failed { .. } => "Failed".to_string(),
             PaidStatus::Refunded { .. } => "Refunded".to_string(),

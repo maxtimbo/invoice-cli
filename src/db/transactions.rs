@@ -1,5 +1,6 @@
 use crate::db::cached::CachedStmt;
 use crate::db::InvoiceDB;
+use crate::models::TableName;
 
 use anyhow::Result;
 
@@ -14,7 +15,7 @@ impl InvoiceDB {
     pub fn update_entry(&self, cache: CachedStmt, id: &i64) -> Result<()> {
         let mut stmt = self.connection.prepare(&cache.query)?;
         stmt.execute(rusqlite::params_from_iter(&cache.params))?;
-        self.print_entry(&cache.table.as_str(), &id)?;
+        self.print_entry(cache.table, &id)?;
         Ok(())
     }
     pub fn delete_entry(&self, cache: CachedStmt, id: &i64) -> Result<()> {
@@ -22,38 +23,70 @@ impl InvoiceDB {
         stmt.execute(&[id])?;
         Ok(())
     }
-    pub fn print_entry(&self, table: &str, new_id: &i64) -> Result<()> {
+    pub fn print_entry(&self, table: TableName, new_id: &i64) -> Result<()> {
         match table {
-            "company" => {
+            TableName::Config => {}
+            TableName::Company => {
                 let new_entry = self.get_company(&new_id)?;
                 println!("{}", new_entry);
             }
-            "client" => {
+            TableName::Client => {
                 let new_entry = self.get_client(&new_id)?;
                 println!("{}", new_entry);
             }
-            "terms" => {
+            TableName::Terms => {
                 let new_entry = self.get_terms(&new_id)?;
                 println!("{}", new_entry);
             }
-            "methods" => {
+            TableName::Methods => {
                 let new_entry = self.get_method(&new_id)?;
                 println!("{}", new_entry);
             }
-            "items" => {
+            TableName::Items => {
                 let new_entry = self.get_item(&new_id)?;
                 println!("{}", new_entry);
             }
-            "templates" => {
+            TableName::Templates => {
                 let new_entry = self.get_template(&new_id)?;
                 println!("{}", new_entry);
             }
-            "invoices" => {
+            TableName::Invoices => {
                 let new_entry = self.get_invoice(&new_id)?;
                 println!("{}", new_entry);
             }
-            _ => todo!("Something else!"),
+            //_ => todo!("Something else!"),
         }
+        //match table {
+        //    "company" => {
+        //        let new_entry = self.get_company(&new_id)?;
+        //        println!("{}", new_entry);
+        //    }
+        //    "client" => {
+        //        let new_entry = self.get_client(&new_id)?;
+        //        println!("{}", new_entry);
+        //    }
+        //    "terms" => {
+        //        let new_entry = self.get_terms(&new_id)?;
+        //        println!("{}", new_entry);
+        //    }
+        //    "methods" => {
+        //        let new_entry = self.get_method(&new_id)?;
+        //        println!("{}", new_entry);
+        //    }
+        //    "items" => {
+        //        let new_entry = self.get_item(&new_id)?;
+        //        println!("{}", new_entry);
+        //    }
+        //    "templates" => {
+        //        let new_entry = self.get_template(&new_id)?;
+        //        println!("{}", new_entry);
+        //    }
+        //    "invoices" => {
+        //        let new_entry = self.get_invoice(&new_id)?;
+        //        println!("{}", new_entry);
+        //    }
+        //    _ => todo!("Something else!"),
+        //}
         Ok(())
     }
 }

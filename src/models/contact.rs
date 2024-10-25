@@ -2,6 +2,8 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
+use crate::db::prepare::ModelActions;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Contact {
     pub phone: Option<String>,
@@ -11,6 +13,73 @@ pub struct Contact {
     pub city: Option<String>,
     pub state: Option<String>,
     pub zip: Option<String>,
+}
+
+impl Contact {
+    pub fn default() -> Self {
+        Self {
+            phone: None,
+            email: None,
+            addr1: None,
+            addr2: None,
+            city: None,
+            state: None,
+            zip: None,
+        }
+    }
+}
+
+impl ModelActions for Contact {
+    fn fields(&self) -> Vec<String> {
+        let mut fnames = Vec::new();
+        if self.phone.is_some() {
+            fnames.push("phone".to_string());
+        }
+        if self.email.is_some() {
+            fnames.push("email".to_string());
+        }
+        if self.addr1.is_some() {
+            fnames.push("addr1".to_string());
+        }
+        if self.addr2.is_some() {
+            fnames.push("addr2".to_string());
+        }
+        if self.city.is_some() {
+            fnames.push("city".to_string());
+        }
+        if self.state.is_some() {
+            fnames.push("state".to_string());
+        }
+        if self.zip.is_some() {
+            fnames.push("zip".to_string());
+        }
+        fnames
+    }
+    fn values(&self) -> Vec<rusqlite::types::Value> {
+        let mut values: Vec<rusqlite::types::Value> = Vec::new();
+        if self.phone.is_some() {
+            values.push(self.phone.clone().into());
+        }
+        if self.email.is_some() {
+            values.push(self.email.clone().into());
+        }
+        if self.addr1.is_some() {
+            values.push(self.addr1.clone().into());
+        }
+        if self.addr2.is_some() {
+            values.push(self.addr2.clone().into());
+        }
+        if self.city.is_some() {
+            values.push(self.city.clone().into());
+        }
+        if self.state.is_some() {
+            values.push(self.state.clone().into());
+        }
+        if self.zip.is_some() {
+            values.push(self.zip.clone().into());
+        }
+        values
+    }
 }
 
 impl fmt::Display for Contact {

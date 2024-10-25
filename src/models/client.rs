@@ -1,17 +1,48 @@
-use crate::models::contact::Contact;
-use serde::{Deserialize, Serialize};
 use std::fmt;
+use serde::{Deserialize, Serialize};
+use inquire::{MultiSelect, Text, InquireError};
+use rusqlite::types::Value;
+
 use crate::models::{prompt_optional, EntityUpdater, EntityDeleter};
+use crate::models::contact::Contact;
+use crate::models::Models;
+use crate::db::prepare::ModelActions;
 use crate::cli::edit::EditClient;
 use crate::cli::delete::DeleteClient;
 use crate::cli::contact::Contact as cli_contact;
-use inquire::{MultiSelect, Text, InquireError};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Client {
+    pub table: Models,
     pub id: i64,
     pub name: String,
     pub contact: Contact,
+}
+
+impl Client {
+    pub fn new() -> Self {
+        Self {
+            table: Models::Client,
+            id: -1,
+            name: String::new(),
+            contact: Contact::default(),
+        }
+    }
+}
+
+impl ModelActions for Client {
+    fn fields(&self) -> Vec<std::string::String> {
+        let mut fnames = Vec::new();
+        fnames.push("name".to_string());
+        fnames.extend(self.contact.fields());
+        fnames
+    }
+    fn values(&self) -> Vec<Value> {
+        let mut values: Vec<Value> = Vec::new();
+        values.push(self.name.clone().into());
+        values.extend(self.contact.values());
+        values
+    }
 }
 
 impl fmt::Display for Client {

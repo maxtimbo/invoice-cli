@@ -3,6 +3,19 @@ use crate::db::InvoiceTx;
 use anyhow::{Context, Result};
 
 impl<'conn> InvoiceTx<'conn> {
+    pub fn create_migration_table(&self) -> Result<()> {
+        self.tx.execute(
+            "CREATE TABLE IF NOT EXISTS migrations (
+                version INTEGER PRIMARY KEY
+            );", [])
+            .context("failed to insert migrations table")?;
+        Ok(())
+    }
+    pub fn update_migration_table(&self, version: i32) -> Result<()> {
+        let stmt = format!("INSERT OR REPLACE INTO migrations (version) VALUES ({});", version);
+        self.tx.execute(&stmt, []).context("failed to update version")?;
+        Ok(())
+    }
     pub fn migrate01(&self) -> Result<()> {
         self.tx.execute(
             "CREATE TABLE IF NOT EXISTS invoice_backup AS
@@ -39,6 +52,22 @@ impl<'conn> InvoiceTx<'conn> {
             .context("failed to restore backup")?;
 
         self.tx.execute("DROP TABLE IF EXISTS invoice_backup;", []).context("failed to delete backup")?;
+        Ok(())
+    }
+    pub fn migrate02(&self) -> Result<()> {
+        self.tx.execute(
+            "CREATE TABLE IF NOT EXISTS email_config (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                smtp_server TEXT NOT NULL,
+                port INTEGER NOT NULL,
+                tls INTEGER NOT NULL,
+                username TEXT NOT NULL,
+                password TEXT NOT NULL,
+                fromname TEXT NOT NULL,
+                fromemail TEXT NOT NULL,
+                signature TEXT NOT NULL
+            );", [])
+            .context("failed to create email_config")?;
         Ok(())
     }
 }

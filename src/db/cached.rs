@@ -1,9 +1,10 @@
 use crate::db::InvoiceDB;
+use crate::models::TableName;
 
 use anyhow::Result;
 
 pub struct CachedStmt {
-    pub table: String,
+    pub table: TableName,
     pub query: String,
     pub params: Vec<rusqlite::types::Value>,
 }

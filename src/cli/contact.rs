@@ -1,6 +1,7 @@
-use crate::db::prepare::{PrepFields, PrepValues};
 use clap::Args;
 use serde::Deserialize;
+
+use crate::db::prepare::{PrepFields, PrepValues};
 
 #[derive(Debug, Args, Deserialize, PartialEq)]
 pub struct Contact {

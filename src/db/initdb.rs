@@ -9,6 +9,19 @@ impl<'conn> InvoiceTx<'conn> {
                 version INTEGER PRIMARY KEY
             );", [])
             .context("Failed to create migrations")?;
+        self.tx.execute(
+            "CREATE TABLE IF NOT EXISTS email_config (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                smtp_server TEXT NOT NULL,
+                port INTEGER NOT NULL,
+                tls INTEGER NOT NULL,
+                username TEXT NOT NULL,
+                password TEXT NOT NULL,
+                fromname TEXT NOT NULL,
+                fromemail TEXT NOT NULL,
+                signature TEXT NOT NULL
+            )", [])
+            .context("failed to create email_config")?;
         self.tx
             .execute(
                 "CREATE TABLE IF NOT EXISTS company (

@@ -1,21 +1,27 @@
-pub mod contact;
-pub mod create;
-use crate::cli::create::*;
-pub mod edit;
-use crate::cli::edit::*;
-mod list;
-use crate::cli::list::*;
-pub mod delete;
-use crate::cli::delete::*;
-mod generate;
-use crate::cli::generate::*;
-use crate::render::TemplateEngine;
-use crate::db::InvoiceDB;
-
 use std::io;
 use clap_complete::{generate, Generator, Shell};
 use anyhow::Result;
 use clap::{Parser, Subcommand, Command, CommandFactory};
+
+use crate::cli::econf::*;
+use crate::cli::create::*;
+use crate::cli::edit::*;
+use crate::cli::list::*;
+use crate::cli::delete::*;
+use crate::cli::generate::*;
+
+use crate::render::TemplateEngine;
+use crate::db::InvoiceDB;
+
+pub mod contact;
+pub mod create;
+pub mod edit;
+pub mod delete;
+
+mod list;
+mod generate;
+mod econf;
+
 
 #[derive(Parser, Debug, PartialEq)]
 #[command(version, about, long_about = None)]
@@ -33,6 +39,9 @@ fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
 
 #[derive(Subcommand, Debug, PartialEq)]
 pub enum Commands {
+    /// Edit email configuration
+    EmailConfig(EmailConfig),
+
     #[command(subcommand)]
     /// Create an entity
     Create(CreateCommands),
@@ -64,6 +73,9 @@ impl Cli {
         }
         if let Some(commands) = cli.command { 
             match commands {
+                Commands::EmailConfig(conf) => {
+                    EmailConfig::new(&conf, &db)?;
+                }
                 Commands::Create(create) => {
                     handle_create(&create, &db)?;
                 }

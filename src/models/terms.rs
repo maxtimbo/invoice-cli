@@ -1,15 +1,30 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use inquire::{MultiSelect, Text, InquireError};
+
+use crate::models::Models;
+use crate::db::prepare::ModelActions;
 use crate::models::{EntityDeleter, EntityUpdater};
 use crate::cli::edit::EditTerms;
 use crate::cli::delete::DeleteTerms;
-use inquire::{MultiSelect, Text, InquireError};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Terms {
+    pub table: Models,
     pub id: i64,
     pub name: String,
     pub due: i64,
+}
+
+impl Terms {
+    pub fn new() -> Self {
+        Self {
+            table: Models::Terms,
+            id: -1,
+            name: String::new(),
+            due: -1,
+        }
+    }
 }
 
 impl fmt::Display for Terms {

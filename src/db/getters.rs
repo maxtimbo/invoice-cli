@@ -144,6 +144,7 @@ impl InvoiceDB {
 
             let status = match status_str.as_str() {
                 "Waiting" => PaidStatus::Waiting,
+                "Past Due" => PaidStatus::PastDue,
                 "Paid" => PaidStatus::Paid {
                     date: status_date.unwrap_or_else(|| "Unknown".to_string()),
                     check: status_check
@@ -187,7 +188,6 @@ impl InvoiceDB {
         })?;
         Ok(invoice)
     }
-
     pub fn get_table(&self, table_name: &str) -> Result<Vec<ShortList>, rusqlite::Error> {
         let query = match table_name {
             "invoices" => format!("SELECT id, date FROM {}", table_name),

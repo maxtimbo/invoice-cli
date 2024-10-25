@@ -6,10 +6,10 @@ use serde::Deserialize;
 use rust_decimal::Decimal;
 
 use crate::db::InvoiceDB;
-use crate::cli::contact::Contact;
-use crate::models::EntityUpdater;
-use crate::models::invoice::{InvoiceItem, InvoiceAttrs};
 use crate::db::prepare::{PrepUpdate, PrepCreate};
+use crate::cli::contact::Contact;
+use crate::models::{TableName, EntityUpdater};
+use crate::models::invoice::{InvoiceItem, InvoiceAttrs};
 
 #[derive(Subcommand, Debug, PartialEq)]
 pub enum CreateCommands {
@@ -21,11 +21,12 @@ pub enum CreateCommands {
     /// Create a client
     Client { name: String },
     /// Create payment terms
-    Terms(CreateTerms),
+    Terms { name: String },
     /// Create payment methods
     Method { name: String },
     /// Create inventory items
-    Item(CreateItem),
+    Item { name: String },
+
 }
 
 pub fn handle_create(create: &CreateCommands, db: &InvoiceDB) -> Result<i64, anyhow::Error> {
@@ -62,32 +63,37 @@ pub fn handle_create(create: &CreateCommands, db: &InvoiceDB) -> Result<i64, any
             Err(e) => Err(anyhow::anyhow!("Failed to parse JSON: {}", e)),
         },
         CreateCommands::Company{ name: obj } => {
-            let create_company = CreateCompany { name: obj.to_string(), logo: None, contact: None };
-            let id = db.create_entry(create_company.prepare())?;
-            let entity = db.get_company(&id)?;
-            db.update_entry(entity.update()?.prepare(), &id)?;
+            let create_company = CreateCompany::new(obj.to_string());
+            //let create_company = CreateCompany { name: obj.to_string(), logo: None, contact: None };
+            //let id = db.create_entry(create_company.prepare())?;
+            //let entity = db.get_company(&id)?;
+            //db.update_entry(entity.update()?.prepare(), &id)?;
             Ok(id)
         }
         CreateCommands::Client { name: obj } => {
-            let create_client = CreateClient { name: obj.to_string(), contact: None };
-            let id = db.create_entry(create_client.prepare())?;
-            let entity = db.get_client(&id)?;
-            db.update_entry(entity.update()?.prepare(), &id)?;
+            let create_client = CreateClient::new(obj.to_string());
+            //let create_client = CreateClient { name: obj.to_string(), contact: None };
+            //let id = db.create_entry(create_client.prepare())?;
+            //let entity = db.get_client(&id)?;
+            //db.update_entry(entity.update()?.prepare(), &id)?;
             Ok(id)
         }
-        CreateCommands::Terms(obj) => {
-            let id = db.create_entry(CreateTerms::prepare(obj))?;
+        CreateCommands::Terms {name: obj } => {
+            //let id = db.create_entry(CreateTerms::prepare(obj))?;
+            let create_terms = CreateTerms::new(obj.to_string());
             Ok(id)
         }
         CreateCommands::Method { name: obj } => {
-            let create_method = CreateMethod { name: obj.to_string(), link: None, qr: None };
-            let id = db.create_entry(create_method.prepare())?;
-            let entity = db.get_method(&id)?;
-            db.update_entry(entity.update()?.prepare(), &id)?;
+            let create_methods = CreateMethod::new(obj.to_string());
+            // let create_method = CreateMethod { name: obj.to_string(), link: None, qr: None };
+            // let id = db.create_entry(create_method.prepare())?;
+            // let entity = db.get_method(&id)?;
+            // db.update_entry(entity.update()?.prepare(), &id)?;
             Ok(id)
         }
-        CreateCommands::Item(obj) => {
-            let id = db.create_entry(CreateItem::prepare(obj))?;
+        CreateCommands::Item { name: obj } => {
+            let create_items = CreateItem::new(obj.to_string());
+            //let id = db.create_entry(CreateItem::prepare(obj))?;
             Ok(id)
         }
     }
@@ -100,52 +106,104 @@ pub struct FromJSON {
 
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct CreateCompany {
+    pub table_name: TableName,
     pub name: String,
-    pub logo: Option<PathBuf>,
-    pub contact: Option<Contact>,
 }
+
+impl CreateCompany {
+    fn new(name: String) -> Self {
+        Self {
+            table_name: TableName::Company,
+            name,
+        }
+    }
+}
+
 
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct CreateClient {
+    pub table_name: TableName,
     pub name: String,
-    pub contact: Option<Contact>,
 }
 
-#[derive(Debug, Args, Deserialize, PartialEq)]
+impl CreateClient {
+    fn new(name: String) -> Self {
+        Self {
+            table_name: TableName::Client,
+            name,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
 pub struct CreateTerms {
+    pub table_name: TableName,
     pub name: String,
-    #[arg(long, short)]
-    pub due: u32,
+}
+
+impl CreateTerms {
+    fn new(name: String) -> Self {
+        Self {
+            table_name: TableName::Terms,
+            name,
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct CreateMethod {
+    pub table_name: TableName,
     pub name: String,
-    pub link: Option<String>,
-    pub qr: Option<PathBuf>,
 }
 
-#[derive(Debug, Args, Deserialize, PartialEq)]
+impl CreateMethod {
+    fn new(name: String) -> Self {
+        Self {
+            table_name: TableName::Methods,
+            name,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
 pub struct CreateItem {
+    pub table_name: TableName,
     pub name: String,
-    #[arg(long, short)]
-    pub rate: Decimal,
+}
+
+impl CreateItem {
+    fn new(name: String) -> Self {
+        Self {
+            table_name: TableName::Items,
+            name,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
 pub struct CreateTemplate {
+    pub table_name: TableName,
     pub name: String,
-    pub company: i64,
-    pub client: i64,
-    pub terms: i64,
-    pub methods: Vec<i64>,
+}
+
+impl CreateTemplate {
+    fn new(name: String) -> Self {
+        Self {
+            table_name: TableName::Templates,
+            name,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
 pub struct CreateInvoice {
-    pub template: i64,
-    pub date: NaiveDate,
-    pub attributes: InvoiceAttrs,
-    pub notes: Option<String>,
-    pub items: Vec<InvoiceItem>,
+    pub table_name: TableName,
+}
+
+impl CreateInvoice {
+    fn new() -> Self {
+        Self {
+            table_name: TableName::Invoices,
+        }
+    }
 }

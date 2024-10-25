@@ -1,17 +1,33 @@
-use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::hash::{Hash, Hasher};
+
+use inquire::{MultiSelect, Text, InquireError};
+use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
+
+use crate::models::Models;
+use crate::db::prepare::ModelActions;
 use crate::models::{EntityDeleter, EntityUpdater};
 use crate::cli::edit::EditItem;
 use crate::cli::delete::DeleteItem;
-use inquire::{MultiSelect, Text, InquireError};
-use rust_decimal::Decimal;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Items {
+    pub table: Models,
     pub id: i64,
     pub name: String,
     pub rate: Decimal,
+}
+
+impl Items {
+    pub fn new() -> Self {
+        Self {
+            table: Models::Items,
+            id: -1,
+            name: String::new(),
+            rate: Decimal::new(-1,0),
+        }
+    }
 }
 
 impl fmt::Display for Items {

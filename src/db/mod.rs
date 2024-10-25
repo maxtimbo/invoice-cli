@@ -35,7 +35,7 @@ impl InvoiceDB {
         Ok(tx)
     }
 
-    pub fn open(db_path: PathBuf) -> Result<InvoiceDB> {
+    pub fn open(db_path: PathBuf, version: i32) -> Result<InvoiceDB> {
         let existing_db = db_path.is_file();
         let connection = Connection::open(db_path)?;
         connection
@@ -60,25 +60,9 @@ impl InvoiceDB {
                     |row| row.get(0)
                 ).optional();
             match current_version {
-                Ok(Some(version)) if version < 1 => {
-                    println!("SOME");
-                    let tx = db.transaction()?;
-                    tx.migrate01().context("failed to run migration 01")?;
-                    tx.commit()?;
-
-                    db.connection.execute("INSERT OR REPLACE INTO migrations (version) VALUES (1)", [])?;
-                }
-                Ok(None) => {
-                    println!("NONE");
-                    let tx = db.transaction()?;
-                    tx.migrate01().context("failed to run migration 01")?;
-                    tx.commit()?;
-                    db.connection.execute("CREATE TABLE IF NOT EXISTS migrations (
-                        version INTEGER PRIMARY KEY);", [])
-                        .context("failed to insert migrations table")?;
-                    db.connection.execute("INSERT OR REPLACE INTO migrations (version) VALUES (1)", [])?;
-                }
-                Ok(Some(version)) => { println!("db v{}", version); }
+                Ok(Some(ver)) if ver < version => { db.run_migrations(version)?; }
+                Ok(None) => { db.run_migrations(version)?; }
+                Ok(Some(_)) => {}
                 Err(err) => {
                     return Err(anyhow::Error::new(err).context("failed to query migrations table"));
                 }
@@ -86,5 +70,25 @@ impl InvoiceDB {
         }
 
         Ok(db)
+    }
+    pub fn run_migrations(&mut self, version: i32) -> Result<()> {
+        let tx = self.transaction()?;
+        tx.migrate01()?;
+        tx.commit()?;
+        println!("migration 01 complete");
+
+        let tx = self.transaction()?;
+        tx.migrate02()?;
+        tx.commit()?;
+        println!("migration 02 complete");
+
+        let tx = self.transaction()?;
+        tx.create_migration_table()?;
+        tx.commit()?;
+
+        let tx = self.transaction()?;
+        tx.update_migration_table(version)?;
+        tx.commit()?;
+        Ok(())
     }
 }

@@ -1,22 +1,72 @@
-use crate::models::contact::Contact;
-use base64::{engine::general_purpose::STANDARD, Engine};
-use infer;
-use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 use std::fmt;
 use std::path::PathBuf;
+
+use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
+use infer;
+use inquire::{MultiSelect, Text, InquireError};
+use base64::{engine::general_purpose::STANDARD, Engine};
+use rusqlite::types::Value;
+
+use crate::models::Models;
+use crate::db::prepare::ModelActions;
+use crate::models::contact::Contact;
 use crate::models::{prompt_optional, EntityUpdater, EntityDeleter};
 use crate::cli::edit::EditCompany;
 use crate::cli::delete::DeleteCompany;
 use crate::cli::contact::Contact as cli_contact;
-use inquire::{MultiSelect, Text, InquireError};
+use crate::validators::{ValidSize, ValidImage};
 
 #[derive(Debug, Deserialize)]
 pub struct Company {
+    pub table: Models,
     pub id: i64,
     pub name: String,
     pub logo: Option<Vec<u8>>,
     pub contact: Contact,
 }
+
+impl Company {
+    pub fn new() -> Self {
+        Self {
+            table: Models::Company,
+            id: -1,
+            name: String::new(),
+            logo: None,
+            contact: Contact::default(),
+        }
+    }
+}
+
+impl ModelActions for Company {
+    fn fields(&self) -> Vec<std::string::String> {
+        let mut fnames = Vec::new();
+        fnames.push("name".to_string());
+        if self.logo.is_some() {
+            fnames.push("logo".to_string());
+        }
+        fnames.extend(self.contact.fields());
+        fnames
+    }
+    fn values(&self) -> Vec<Value> {
+        let mut values: Vec<Value> = Vec::new();
+        values.push(self.name.clone().into());
+        if let Some(logo) = &self.logo {
+            if self.is_valid_image(&logo) {
+                match self.read_image(&logo) {
+                    Ok(data) => values.push(Value::Blob(data)),
+                    Err(e) => eprintln!("Error reading image file: {}", e),
+                }
+            } else {
+                eprintln!("Invalid image file type.");
+            }
+        }
+        values.extend(self.contact.values());
+        values
+    }
+}
+
+impl ValidSize for Company {}
+impl ValidImage for Company {}
 
 impl fmt::Display for Company {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

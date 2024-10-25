@@ -1,19 +1,36 @@
+use std::fmt;
+use std::path::PathBuf;
+
 use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 use base64::{engine::general_purpose::STANDARD, Engine};
 use infer;
-use std::fmt;
-use std::path::PathBuf;
+use inquire::{Text, InquireError, MultiSelect};
+
+use crate::models::Models;
+use crate::db::prepare::ModelActions;
 use crate::models::{prompt_optional, EntityDeleter, EntityUpdater};
 use crate::cli::edit::EditMethod;
 use crate::cli::delete::DeleteMethod;
-use inquire::{Text, InquireError, MultiSelect};
 
 #[derive(Debug, Deserialize)]
 pub struct Methods {
+    pub table: Models,
     pub id: i64,
     pub name: String,
     pub link: Option<String>,
     pub qr: Option<Vec<u8>>,
+}
+
+impl Methods {
+    pub fn new() -> Self {
+        Self {
+            table: Models::Methods,
+            id: -1,
+            name: String::new(),
+            link: None,
+            qr: None,
+        }
+    }
 }
 
 impl fmt::Display for Methods {

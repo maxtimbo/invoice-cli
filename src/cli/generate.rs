@@ -1,17 +1,17 @@
-//use crate::cli::list::*;
-use crate::cli::create::{CreateInvoice, CreateTemplate};
-use crate::db::InvoiceDB;
-use crate::models::editor_optional;
-use crate::models::invoice::{InvoiceItem, InvoiceAttrs, InvoiceStage, PaidStatus};
-use anyhow::Result;
-use crate::render::TemplateEngine;
-use crate::db::prepare::PrepCreate;
-use crate::commands::selectors::EntitySelector;
+use std::path::PathBuf;
+use std::str::FromStr;
 
 use clap::{Args, Subcommand};
 use inquire::{DateSelect, Confirm, Select};
-use std::path::PathBuf;
-use std::str::FromStr;
+use anyhow::Result;
+
+use crate::cli::create::{CreateInvoice, CreateTemplate};
+use crate::db::InvoiceDB;
+use crate::db::prepare::PrepCreate;
+use crate::models::editor_optional;
+use crate::models::invoice::{InvoiceItem, InvoiceAttrs, InvoiceStage, PaidStatus};
+use crate::render::TemplateEngine;
+use crate::commands::selectors::EntitySelector;
 
 #[derive(Debug, Subcommand, PartialEq)]
 pub enum GenerateCommands {
@@ -123,7 +123,7 @@ impl GenerateInvoice {
         let stage = InvoiceStage::from_str(&selected_stage)
             .map_err(|err| anyhow::anyhow!(err))?;
 
-        let statuses = vec!["Waiting", "Paid", "Failed", "Refunded"];
+        let statuses = vec!["Waiting", "Past Due", "Paid", "Failed", "Refunded"];
         let selected_status = Select::new("Select payment status:", statuses).prompt()?;
 
         let status = PaidStatus::from_str(&selected_status)

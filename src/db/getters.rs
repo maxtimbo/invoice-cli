@@ -1,3 +1,7 @@
+use invoice_cli::i64_to_decimal;
+use anyhow::Result;
+use std::collections::HashMap;
+
 use crate::db::InvoiceDB;
 use crate::models::client::Client;
 use crate::models::company::Company;
@@ -8,9 +12,6 @@ use crate::models::items::Items;
 use crate::models::methods::Methods;
 use crate::models::terms::Terms;
 use crate::models::ShortList;
-use invoice_cli::i64_to_decimal;
-use anyhow::Result;
-use std::collections::HashMap;
 
 impl InvoiceDB {
     pub fn get_company(&self, id: &i64) -> Result<Company, rusqlite::Error> {

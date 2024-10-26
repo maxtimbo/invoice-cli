@@ -1,7 +1,7 @@
 use rust_decimal::Decimal;
 use anyhow::Result;
-
 use inquire::{MultiSelect, Text, Confirm, Select};
+
 use crate::db::InvoiceDB;
 use crate::cli::create::{CreateCommands, CreateItem, CreateTerms, handle_create};
 

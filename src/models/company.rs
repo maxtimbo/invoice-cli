@@ -1,13 +1,16 @@
-use crate::models::contact::Contact;
+use std::fmt;
+use std::path::PathBuf;
+
 use base64::{engine::general_purpose::STANDARD, Engine};
 use infer;
 use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
-use std::fmt;
-use std::path::PathBuf;
+
+use crate::models::contact::Contact;
 use crate::models::{prompt_optional, EntityUpdater, EntityDeleter};
 use crate::cli::edit::EditCompany;
 use crate::cli::delete::DeleteCompany;
 use crate::cli::contact::Contact as cli_contact;
+
 use inquire::{MultiSelect, Text, InquireError};
 
 #[derive(Debug, Deserialize)]

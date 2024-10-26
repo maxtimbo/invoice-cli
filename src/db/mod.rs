@@ -1,15 +1,15 @@
-pub mod cached;
-pub mod getters;
-mod initdb;
-mod migrate;
-pub mod prepare;
-pub mod transactions;
-
 use std::path::PathBuf;
 
 use anyhow::{Context, Result};
 use rusqlite::{Connection, Transaction, OptionalExtension};
-//use directories::ProjectDirs;
+
+pub mod cached;
+pub mod getters;
+pub mod prepare;
+pub mod transactions;
+
+mod initdb;
+mod migrate;
 
 #[derive(Debug)]
 pub struct InvoiceDB {

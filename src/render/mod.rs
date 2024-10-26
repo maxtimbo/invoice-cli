@@ -1,12 +1,12 @@
+use std::fs::File;
+use std::io::Write;
+use std::path::PathBuf;
+
 use crate::models::invoice::Invoice;
 use anyhow::{Error, Result};
 use tera::{Context, Tera};
 use headless_chrome::{Browser, LaunchOptions};
 use headless_chrome::types::PrintToPdfOptions;
-
-use std::fs::File;
-use std::io::Write;
-use std::path::PathBuf;
 
 pub struct TemplateEngine {
     tera: Tera,

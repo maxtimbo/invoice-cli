@@ -1,11 +1,14 @@
-use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::hash::{Hash, Hasher};
+
+use serde::{Deserialize, Serialize};
+use rust_decimal::Decimal;
+
 use crate::models::{EntityDeleter, EntityUpdater};
 use crate::cli::edit::EditItem;
 use crate::cli::delete::DeleteItem;
+
 use inquire::{MultiSelect, Text, InquireError};
-use rust_decimal::Decimal;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Items {

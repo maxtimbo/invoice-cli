@@ -1,6 +1,6 @@
-use crate::db::InvoiceTx;
-
 use anyhow::{Context, Result};
+
+use crate::db::InvoiceTx;
 
 impl<'conn> InvoiceTx<'conn> {
     pub fn migrate01(&self) -> Result<()> {

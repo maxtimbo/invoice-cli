@@ -1,17 +1,16 @@
-//use crate::cli::list::*;
+use std::path::PathBuf;
+use std::str::FromStr;
+use clap::{Args, Subcommand};
+use inquire::{DateSelect, Confirm, Select};
+use anyhow::Result;
+
 use crate::cli::create::{CreateInvoice, CreateTemplate};
 use crate::db::InvoiceDB;
 use crate::models::editor_optional;
 use crate::models::invoice::{InvoiceItem, InvoiceAttrs, InvoiceStage, PaidStatus};
-use anyhow::Result;
 use crate::render::TemplateEngine;
 use crate::db::prepare::PrepCreate;
 use crate::commands::selectors::EntitySelector;
-
-use clap::{Args, Subcommand};
-use inquire::{DateSelect, Confirm, Select};
-use std::path::PathBuf;
-use std::str::FromStr;
 
 #[derive(Debug, Subcommand, PartialEq)]
 pub enum GenerateCommands {

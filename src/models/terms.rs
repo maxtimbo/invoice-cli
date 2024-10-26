@@ -1,8 +1,11 @@
-use serde::{Deserialize, Serialize};
 use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
 use crate::models::{EntityDeleter, EntityUpdater};
 use crate::cli::edit::EditTerms;
 use crate::cli::delete::DeleteTerms;
+
 use inquire::{MultiSelect, Text, InquireError};
 
 #[derive(Debug, Serialize, Deserialize)]

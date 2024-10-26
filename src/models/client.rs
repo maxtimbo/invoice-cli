@@ -1,11 +1,13 @@
-use crate::models::contact::Contact;
-use serde::{Deserialize, Serialize};
 use std::fmt;
+
+use serde::{Deserialize, Serialize};
+use inquire::{MultiSelect, Text, InquireError};
+
+use crate::models::contact::Contact;
 use crate::models::{prompt_optional, EntityUpdater, EntityDeleter};
 use crate::cli::edit::EditClient;
 use crate::cli::delete::DeleteClient;
 use crate::cli::contact::Contact as cli_contact;
-use inquire::{MultiSelect, Text, InquireError};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Client {

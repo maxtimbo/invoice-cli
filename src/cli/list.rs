@@ -1,4 +1,5 @@
 use clap::Subcommand;
+
 use crate::db::InvoiceDB;
 use crate::commands::selectors::EntitySelector;
 

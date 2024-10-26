@@ -1,11 +1,14 @@
+use std::fmt;
+use std::path::PathBuf;
+
 use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 use base64::{engine::general_purpose::STANDARD, Engine};
 use infer;
-use std::fmt;
-use std::path::PathBuf;
+
 use crate::models::{prompt_optional, EntityDeleter, EntityUpdater};
 use crate::cli::edit::EditMethod;
 use crate::cli::delete::DeleteMethod;
+
 use inquire::{Text, InquireError, MultiSelect};
 
 #[derive(Debug, Deserialize)]

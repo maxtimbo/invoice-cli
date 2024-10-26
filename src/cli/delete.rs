@@ -1,9 +1,9 @@
+use clap::Subcommand;
+
 use crate::db::prepare::{PrepDelete, TableName};
 use crate::db::InvoiceDB;
 use crate::models::EntityDeleter;
 use crate::commands::selectors::EntitySelector;
-
-use clap::Subcommand;
 
 #[derive(Debug, Subcommand, PartialEq)]
 pub enum DeleteCommands {

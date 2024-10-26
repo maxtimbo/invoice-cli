@@ -1,21 +1,22 @@
-pub mod contact;
-pub mod create;
-use crate::cli::create::*;
-pub mod edit;
-use crate::cli::edit::*;
-mod list;
-use crate::cli::list::*;
-pub mod delete;
-use crate::cli::delete::*;
-mod generate;
-use crate::cli::generate::*;
-use crate::render::TemplateEngine;
-use crate::db::InvoiceDB;
-
 use std::io;
 use clap_complete::{generate, Generator, Shell};
 use anyhow::Result;
 use clap::{Parser, Subcommand, Command, CommandFactory};
+
+use crate::cli::create::*;
+use crate::cli::edit::*;
+use crate::cli::list::*;
+use crate::cli::delete::*;
+use crate::cli::generate::*;
+use crate::render::TemplateEngine;
+use crate::db::InvoiceDB;
+
+pub mod edit;
+pub mod delete;
+pub mod contact;
+pub mod create;
+mod generate;
+mod list;
 
 #[derive(Parser, Debug, PartialEq)]
 #[command(version, about, long_about = None)]

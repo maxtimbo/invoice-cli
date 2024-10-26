@@ -41,6 +41,13 @@ impl<'conn> InvoiceTx<'conn> {
         self.tx.execute("DROP TABLE IF EXISTS invoice_backup;", []).context("failed to delete backup")?;
         Ok(())
     }
+    pub fn iter_migration(&self, version: i32) -> Result<()> {
+        self.tx.execute("CREATE TABLE IF NOT EXISTS migrations (
+            version INTEGER PRIMARY KEY);", [])
+            .context("failed to insert migrations table")?;
+        self.tx.execute(&format!("INSERT OR REPLACE INTO migrations (version) VALUES ({})", version), [])?;
+        Ok(())
+    }
 }
 
                 

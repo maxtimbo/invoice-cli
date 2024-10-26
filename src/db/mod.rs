@@ -76,11 +76,9 @@ impl InvoiceDB {
         tx.migrate01()?;
         tx.commit()?;
 
-        //let tx = self.transaction()?;
-        self.connection.execute("CREATE TABLE IF NOT EXISTS migrations (
-            version INTEGER PRIMARY KEY);", [])
-            .context("failed to insert migrations table")?;
-        self.connection.execute(&format!("INSERT OR REPLACE INTO migrations (version) VALUES ({})", version), [])?;
+        let tx = self.transaction()?;
+        tx.iter_migration(version)?;
+        tx.commit()?;
         Ok(())
     }
 

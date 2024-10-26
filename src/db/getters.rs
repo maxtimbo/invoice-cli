@@ -146,6 +146,7 @@ impl InvoiceDB {
 
             let status = match status_str.as_str() {
                 "Waiting" => PaidStatus::Waiting,
+                "Past Due" => PaidStatus::PastDue,
                 "Paid" => PaidStatus::Paid {
                     date: status_date.unwrap_or_else(|| "Unknown".to_string()),
                     check: status_check

@@ -207,6 +207,26 @@ impl Serialize for Invoice {
             InvoiceStage::Invoice => "Invoice",
         };
         state.serialize_field("invoice_stage", &stage_str)?;
+        match &self.attributes.status {
+            PaidStatus::Waiting => {}
+            PaidStatus::PastDue => { state.serialize_field("status", "Past Due")?; }
+            PaidStatus::Paid { date, check } => {
+                let date_fmt = NaiveDate::parse_from_str(date, "%Y%m%d").unwrap();
+                state.serialize_field("status", "Paid")?;
+                state.serialize_field("status_date", &date_fmt.format("%B %d, %Y").to_string())?;
+                state.serialize_field("status_check", check)?;
+            }
+            PaidStatus::Failed { date } => {
+                let date_fmt = NaiveDate::parse_from_str(date, "%Y%m%d").unwrap();
+                state.serialize_field("status", "Failed")?;
+                state.serialize_field("status_date", &date_fmt.format("%B %d, %Y").to_string())?;
+            }
+            PaidStatus::Refunded { date } => {
+                let date_fmt = NaiveDate::parse_from_str(date, "%Y%m%d").unwrap();
+                state.serialize_field("status", "Refunded")?;
+                state.serialize_field("status_date", &date_fmt.format("%B %d, %Y").to_string())?;
+            }
+        }
         if let Some(notes) = &self.notes {
             let parser = Parser::new(notes);
             let mut html_output = String::new();
@@ -252,7 +272,7 @@ impl EntityUpdater<Invoice> for Invoice {
                     edit_invoice.stage = Some(stage);
                 }
                 "payment status" => {
-                    let statuses = vec!["Waiting", "Paid", "Failed", "Refunded"];
+                    let statuses = vec!["Waiting", "Past Due", "Paid", "Failed", "Refunded"];
                     let selected_status = Select::new("Select payment status:", statuses).prompt()?;
                     let status = PaidStatus::from_str(&selected_status)
                         .map_err(|err| InquireError::Custom(err.to_string().into()))?;

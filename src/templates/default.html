@@ -82,6 +82,10 @@
                 text-align: right;
                 float: right;
                 width: 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: end;
+                justify-content: space-between;
             }
             #summary {
                 float: right;
@@ -96,7 +100,6 @@
             }
             #itemized {
                 width: 100%;
-                margin: 50px 0;
             }
             
             #items thead {
@@ -202,6 +205,19 @@
                 border-collapse: collapse;
                 margin-top: 20px;
             }
+            #status-container {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            #payment-status {
+                justify-content: center;
+            }
+            #status-details {
+                width: 100%;
+                text-align: left;
+            }
             @media print {
                 body {
                     zoom: 0.95;
@@ -294,6 +310,33 @@
                                 <td>${{ total }}</td>
                             </tr>
                         </table>
+                    </div>
+                    <div id="status-container">
+                        {% if status %}
+                            <h1 id="payment-status">{{ status }}</h1>
+                            <table id="status-details">
+                                <thead>
+                                    <tr>
+                                    {% if status_date %}
+                                        <td>Date</td>
+                                    {% endif %}
+                                    {% if status_check %}
+                                        <td>Check</td>
+                                    {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                    {% if status_date %}
+                                        <td>{{ status_date }}</td>
+                                    {% endif %}
+                                    {% if status_check %}
+                                        <td>{{ status_check }}</td>
+                                    {% endif %}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        {% endif %}
                     </div>
                 </div>
             </div>

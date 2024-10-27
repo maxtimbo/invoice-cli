@@ -41,6 +41,21 @@ impl<'conn> InvoiceTx<'conn> {
         self.tx.execute("DROP TABLE IF EXISTS invoice_backup;", []).context("failed to delete backup")?;
         Ok(())
     }
+    pub fn migrate02(&self) -> Result<()> {
+        self.tx.execute(
+            "CREATE TABLE IF NOT EXISTS email_config (
+                id INTEGER PRIMARY KEY CHECK (id = 0),
+                smtp_server TEXT NOT NULL,
+                port INTEGER NOT NULL,
+                tls INTEGER NOT NULL,
+                username TEXT NOT NULL,
+                password TEXT NOT NULL,
+                fromname TEXT NOT NULL
+            );", [])
+            .context("failed to create email_config table")?;
+
+        Ok(())
+    }
     pub fn iter_migration(&self, version: i32) -> Result<()> {
         self.tx.execute("CREATE TABLE IF NOT EXISTS migrations (
             version INTEGER PRIMARY KEY);", [])

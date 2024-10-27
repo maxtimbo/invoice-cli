@@ -40,6 +40,15 @@ pub enum InvoiceStage {
     Invoice,
 }
 
+impl fmt::Display for InvoiceStage {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Quote => write!(f, "Quote"),
+            Self::Invoice => write!(f, "Invoice"),
+        }
+    }
+}
+
 impl FromStr for InvoiceStage {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -115,7 +124,7 @@ impl Invoice {
     fn calculate_total(&self) -> Decimal {
         self.calculate_subtotals().iter().map(|item| item.subtotal).sum()
     }
-    fn issue_date(&self) -> NaiveDate {
+    pub fn issue_date(&self) -> NaiveDate {
         NaiveDate::parse_from_str(&self.date, "%Y%m%d").unwrap()
     }
     fn due_date(&self) -> NaiveDate {

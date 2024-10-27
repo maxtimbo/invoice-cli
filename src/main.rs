@@ -1,4 +1,5 @@
 use anyhow::Result;
+use tokio;
 
 pub use cli::Cli;
 pub use commands::paths::Paths;
@@ -12,10 +13,14 @@ pub mod models;
 pub mod render;
 pub mod validators;
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let paths = Paths::init()?;
-    let mut db = InvoiceDB::open(paths.db, 1)?;
+    let mut db = InvoiceDB::open(paths.db, 2)?;
     let renderer = TemplateEngine::new(&paths.templates)?;
-    Cli::to_cmd(&mut db, &renderer)?;
+    if let Err(e) = Cli::to_cmd(&mut db, &renderer).await {
+        eprintln!("Error: {:?}", e);
+        return Err(e);
+    }
     Ok(())
 }

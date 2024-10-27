@@ -1,5 +1,12 @@
 use crate::db::prepare::TableName;
 use crate::cli::edit::*;
+use crate::models::config::Config;
+
+impl TableName for Config {
+    fn table_name(&self) -> String {
+        "email_config".to_string()
+    }
+}
 
 impl TableName for EditCompany {
     fn table_name(&self) -> String {

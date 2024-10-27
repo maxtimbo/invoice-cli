@@ -1,7 +1,8 @@
-use crate::db::prepare::PrepCreate;
+use crate::db::prepare::{PrepCreate, PrepCreateUpdate};
 use crate::cli::create::*;
+use crate::models::config::Config;
 
-
+impl PrepCreateUpdate for Config {}
 impl PrepCreate for CreateCompany {}
 impl PrepCreate for CreateClient {}
 impl PrepCreate for CreateTerms {}

@@ -120,6 +120,17 @@ impl<'conn> InvoiceTx<'conn> {
                 [],
             )
             .context("failed to create invoices table")?;
+        self.tx.execute(
+            "CREATE TABLE IF NOT EXISTS email_config (
+                id INTEGER PRIMARY KEY CHECK (id = 0),
+                smtp_server TEXT NOT NULL,
+                port INTEGER NOT NULL,
+                tls INTEGER NOT NULL,
+                username TEXT NOT NULL,
+                password TEXT NOT NULL,
+                fromname TEXT NOT NULL
+            );", [])
+            .context("failed to create email_config table")?;
 
         Ok(())
     }

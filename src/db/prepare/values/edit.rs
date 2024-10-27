@@ -3,10 +3,24 @@ use rusqlite::types::Value;
 use crate::db::prepare::PrepValues;
 use crate::cli::edit::*;
 use crate::models::invoice::{InvoiceStage, PaidStatus};
+use crate::models::config::Config;
 use crate::validators::{ValidSize, ValidImage};
 
 use invoice_cli::decimal_to_i64;
 
+impl PrepValues for Config {
+    fn values(&self) -> Vec<Value> {
+        let mut values: Vec<Value> = Vec::new();
+        values.push(0.into());
+        values.push(self.smtp_server.clone().into());
+        values.push(self.port.into());
+        values.push(self.tls.into());
+        values.push(self.username.clone().into());
+        values.push(self.password.clone().into());
+        values.push(self.fromname.clone().into());
+        values
+    }
+}
 
 impl PrepValues for EditCompany {
     fn values(&self) -> Vec<Value> {

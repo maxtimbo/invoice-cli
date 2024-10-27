@@ -17,6 +17,32 @@ pub trait TableName {
     fn table_name(&self) -> String;
 }
 
+pub trait PrepCreateUpdate: PrepFields + TableName + PrepValues {
+    fn prepare(&self) -> CachedStmt {
+        let fields = self.fields();
+        let table_name = self.table_name();
+        let placeholders = fields
+            .iter()
+            .map(|f| format!(":{}", f))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let columns = fields
+            .iter()
+            .map(|f| f.to_string())
+            .collect::<Vec<_>>()
+            .join(", ");
+        let query = format!(
+            "INSERT OR REPLACE INTO {} ({}) VALUES ({})",
+            table_name, columns, placeholders
+        );
+        CachedStmt {
+            table: self.table_name(),
+            query: query,
+            params: self.values(),
+        }
+    }
+}
+
 pub trait PrepCreate: PrepFields + TableName + PrepValues {
     fn prepare(&self) -> CachedStmt {
         let fields = self.fields();

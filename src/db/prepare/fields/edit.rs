@@ -1,6 +1,21 @@
 use crate::db::prepare::PrepFields;
 use crate::cli::edit::*;
 use crate::models::invoice::PaidStatus;
+use crate::models::config::Config;
+
+impl PrepFields for Config {
+    fn fields(&self) -> Vec<String> {
+        let mut fnames = Vec::new();
+        fnames.push("id".to_string());
+        fnames.push("smtp_server".to_string());
+        fnames.push("port".to_string());
+        fnames.push("tls".to_string());
+        fnames.push("username".to_string());
+        fnames.push("password".to_string());
+        fnames.push("fromname".to_string());
+        fnames
+    }
+}
 
 impl PrepFields for EditCompany {
     fn fields(&self) -> Vec<String> {

@@ -8,7 +8,6 @@ impl InvoiceDB {
         let mut stmt = self.connection.prepare(&cache.query)?;
         stmt.execute(rusqlite::params_from_iter(&cache.params))?;
         let new_id = self.connection.last_insert_rowid();
-        //self.print_entry(&cache.table.as_str(), &new_id)?;
         Ok(new_id)
     }
     pub fn update_entry(&self, cache: CachedStmt, id: &i64) -> Result<()> {
@@ -24,6 +23,10 @@ impl InvoiceDB {
     }
     pub fn print_entry(&self, table: &str, new_id: &i64) -> Result<()> {
         match table {
+            "email_config" => {
+                let new_entry = self.get_config()?;
+                println!("{}", new_entry);
+            }
             "company" => {
                 let new_entry = self.get_company(&new_id)?;
                 println!("{}", new_entry);

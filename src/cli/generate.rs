@@ -18,20 +18,21 @@ pub enum GenerateCommands {
     Invoice(GenerateInvoice),
 }
 
-pub fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &TemplateEngine) -> Result<(), anyhow::Error> {
+pub async fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &TemplateEngine) -> Result<(), anyhow::Error> {
     match gen {
         GenerateCommands::Template(obj) => {
             let template = GenerateTemplate::generate(obj, &db)?;
             db.create_entry(template.prepare())?;
         }
         GenerateCommands::Invoice(obj) => {
-            match (&obj.id, &obj.output) {
+            let output = match (&obj.id, &obj.output) {
                 (Some(id), Some(output)) => {
                     let invoice_obj = db.get_invoice(id)?;
                     let render = renderer.render(&invoice_obj)?;
                     renderer.to_file(&render, output)?;
                     let pdf = renderer.to_pdf(&output)?;
-                    open::that(pdf)?;
+                    // open::that(pdf)?;
+                    (render, pdf, invoice_obj)
                 }
                 (None, Some(output)) => {
                     let invoice = GenerateInvoice::generate(obj, &db)?;
@@ -40,7 +41,8 @@ pub fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &Templa
                     let render = renderer.render(&invoice_obj)?;
                     renderer.to_file(&render, output)?;
                     let pdf = renderer.to_pdf(&output)?;
-                    open::that(pdf)?;
+                    // open::that(pdf)?;
+                    (render, pdf, invoice_obj)
                 }
                 (Some(id), None) => {
                     let invoice_obj = db.get_invoice(id)?;
@@ -53,7 +55,8 @@ pub fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &Templa
                     let render = renderer.render(&invoice_obj)?;
                     renderer.to_file(&render, &output)?;
                     let pdf = renderer.to_pdf(&output)?;
-                    open::that(pdf)?;
+                    // open::that(pdf)?;
+                    (render, pdf, invoice_obj)
                 }
                 (None, None) => {
                     let invoice = GenerateInvoice::generate(obj, &db)?;
@@ -68,9 +71,25 @@ pub fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &Templa
                     let render = renderer.render(&invoice_obj)?;
                     renderer.to_file(&render, &output)?;
                     let pdf = renderer.to_pdf(&output)?;
-                    open::that(pdf)?;
+                    // open::that(pdf)?;
+                    (render, pdf, invoice_obj)
                 }
             };
+            if obj.email {
+                //let config = db.get_config()?;
+                if !output.2.template.client.contact.email.is_some() {
+                    println!("Client email field is empty, cannot send email");
+                } else {
+                    println!("I would send an email here");
+                    let config = db.get_config()?;
+                    if let Err(e) = config.send_mail(output).await {
+                        eprint!("Error sending mail: {:?}", e);
+                        return Err(e);
+                    }
+                }
+            } else {
+                open::that(&output.1)?;
+            }
         }
     }
     Ok(())
@@ -83,7 +102,6 @@ pub struct GenerateTemplate {
 
 impl GenerateTemplate {
     pub fn generate(&self, db: &InvoiceDB) -> Result<CreateTemplate> {
-        //let company_selection = select_entity!("Select Company:", db, "company")?;
         let company_selection = EntitySelector::new(db, "company", "Select Company:", true).select_entity()?;
         let client_selection = EntitySelector::new(db, "client", "Select Client:", true).select_entity()?;
         let terms_selection = EntitySelector::new(db, "terms", "Select Payment Terms:", true).select_entity()?;
@@ -104,6 +122,8 @@ pub struct GenerateInvoice {
     pub id: Option<i64>,
     #[arg(long, short)]
     pub output: Option<PathBuf>,
+    #[arg(long, short)]
+    pub email: bool,
 }
 
 impl GenerateInvoice {

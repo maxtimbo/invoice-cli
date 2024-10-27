@@ -48,7 +48,7 @@ impl InvoiceDB {
             let initdb = db.transaction()?;
             initdb.initdb().context("failed to create db tables")?;
             initdb.tx
-                .execute("INSERT INTO migrations (version) VALUES (1);", [])
+                .execute("INSERT INTO migrations (version) VALUES (?);", [version])
                 .context("failed to set initial migration version")?;
             initdb.commit().context("failed to commit transaction")?;
         } else {
@@ -74,6 +74,10 @@ impl InvoiceDB {
     pub fn run_migrations(&mut self, version: i32) -> Result<()> {
         let tx = self.transaction()?;
         tx.migrate01()?;
+        tx.commit()?;
+
+        let tx = self.transaction()?;
+        tx.migrate02()?;
         tx.commit()?;
 
         let tx = self.transaction()?;

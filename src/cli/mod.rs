@@ -8,8 +8,10 @@ use crate::cli::edit::*;
 use crate::cli::list::*;
 use crate::cli::delete::*;
 use crate::cli::generate::*;
+use crate::cli::config::configure_email;
 use crate::render::TemplateEngine;
 use crate::db::InvoiceDB;
+//use crate::models::config::Config;
 
 pub mod edit;
 pub mod delete;
@@ -17,6 +19,7 @@ pub mod contact;
 pub mod create;
 mod generate;
 mod list;
+mod config;
 
 #[derive(Parser, Debug, PartialEq)]
 #[command(version, about, long_about = None)]
@@ -34,6 +37,9 @@ fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
 
 #[derive(Subcommand, Debug, PartialEq)]
 pub enum Commands {
+    /// Edit email configuration
+    EditConfig,
+
     #[command(subcommand)]
     /// Create an entity
     Create(CreateCommands),
@@ -56,7 +62,7 @@ pub enum Commands {
 }
 
 impl Cli {
-    pub fn to_cmd(db: &mut InvoiceDB, renderer: &TemplateEngine) -> Result<()> {
+    pub async fn to_cmd(db: &mut InvoiceDB, renderer: &TemplateEngine) -> Result<()> {
         let cli = Cli::parse();
         if let Some(generator) = cli.generator {
             let mut cmd = Cli::command();
@@ -65,6 +71,12 @@ impl Cli {
         }
         if let Some(commands) = cli.command { 
             match commands {
+                Commands::EditConfig => {
+                    if let Err(e) = configure_email(&db).await {
+                        eprintln!("Error: {:?}", e);
+                        return Err(e);
+                    }
+                }
                 Commands::Create(create) => {
                     handle_create(&create, &db)?;
                 }
@@ -78,7 +90,10 @@ impl Cli {
                     handle_delete(&arg, &db)?;
                 },
                 Commands::Generate(gen) => {
-                    handle_generate(&gen, &db, &renderer)?;
+                    if let Err(e) = handle_generate(&gen, &db, &renderer).await {
+                        eprintln!("Error: {:?}", e);
+                        return Err(e);
+                    }
                 },
             }
         }

@@ -34,7 +34,9 @@ impl<'a> EntitySelector<'a> {
             selection.push(new_entity.to_string());
             add_more = Confirm::new("Add another?").prompt()?;
         }
-        Ok(selection.iter().map(|s| s.parse::<i64>().unwrap()).collect())
+        Ok(selection.iter()
+            .filter_map(|s| s.split(" - ").next()?.parse::<i64>().ok())
+            .collect())
     }
 
     pub fn select_entity(&self) -> Result<i64, anyhow::Error> {

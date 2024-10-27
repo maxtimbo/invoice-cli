@@ -2,6 +2,7 @@ use std::fmt;
 
 use inquire::{Text, InquireError, Editor};
 
+pub mod config;
 pub mod client;
 pub mod company;
 pub mod contact;

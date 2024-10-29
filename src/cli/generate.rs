@@ -3,6 +3,7 @@ use std::str::FromStr;
 use clap::{Args, Subcommand};
 use inquire::{DateSelect, Confirm, Select};
 use anyhow::Result;
+use tokio::runtime::Runtime;
 
 use crate::cli::create::{CreateInvoice, CreateTemplate};
 use crate::db::InvoiceDB;
@@ -18,7 +19,7 @@ pub enum GenerateCommands {
     Invoice(GenerateInvoice),
 }
 
-pub async fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &TemplateEngine) -> Result<(), anyhow::Error> {
+pub fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &TemplateEngine) -> Result<(), anyhow::Error> {
     match gen {
         GenerateCommands::Template(obj) => {
             let template = GenerateTemplate::generate(obj, &db)?;
@@ -76,15 +77,15 @@ pub async fn handle_generate(gen: &GenerateCommands, db: &InvoiceDB, renderer: &
                 }
             };
             if obj.email {
-                //let config = db.get_config()?;
                 if !output.2.template.client.contact.email.is_some() {
                     println!("Client email field is empty, cannot send email");
                 } else {
                     println!("I would send an email here");
                     let config = db.get_config()?;
-                    if let Err(e) = config.send_mail(output).await {
-                        eprint!("Error sending mail: {:?}", e);
-                        return Err(e);
+                    //let result = config.send_mail()?;
+                    let result = Runtime::new()?.block_on(config.send_mail(output));
+                    if let Err(e) = result {
+                        eprintln!("Email was not sent: {:?}", e);
                     }
                 }
             } else {
@@ -142,7 +143,7 @@ impl GenerateInvoice {
         let stage = InvoiceStage::from_str(&selected_stage)
             .map_err(|err| anyhow::anyhow!(err))?;
 
-        let statuses = vec!["Waiting", "Paid", "Failed", "Refunded"];
+        let statuses = vec!["Waiting", "Past Due", "Paid", "Failed", "Refunded"];
         let selected_status = Select::new("Select payment status:", statuses).prompt()?;
 
         let status = PaidStatus::from_str(&selected_status)

@@ -2,7 +2,7 @@ use inquire::{Confirm, Text};
 use mail_send::{SmtpClientBuilder, Credentials};
 use mail_builder::MessageBuilder;
 use mail_builder::headers::address::Address;
-//use tokio;
+use tokio::runtime::Runtime;
 
 use crate::db::InvoiceDB;
 use crate::models::config::Config;
@@ -38,7 +38,7 @@ impl Config {
     }
 }
 
-pub async fn configure_email(db: &InvoiceDB) -> Result<(), anyhow::Error> {
+pub fn configure_email(db: &InvoiceDB) -> Result<(), anyhow::Error> {
     let config = match db.get_config() {
         Ok(config) => {
             println!("Adjust email configuration");
@@ -54,9 +54,9 @@ pub async fn configure_email(db: &InvoiceDB) -> Result<(), anyhow::Error> {
         Err(e) => return Err(anyhow::Error::new(e)),
     };
     if Confirm::new("Test configuration?").prompt()? {
-        if let Err(e) = config.test_email().await {
+        let result = Runtime::new()?.block_on(config.test_email());
+        if let Err(e) = result {
             eprintln!("Email test failed: {:?}", e);
-            return Err(e);
         }
     }
     Ok(())

@@ -10,6 +10,7 @@ use crate::models::invoice::{PaidStatus, Invoice};
 
 impl Config {
     pub async fn send_mail(&self, output: (String, PathBuf, Invoice)) -> Result<(), anyhow::Error> {
+        println!("SEND MAIL CALLED");
         let recipients: Vec<String> = output.2.template.client.contact.email.as_ref()
             .map(|emails|
                 emails.split(',')

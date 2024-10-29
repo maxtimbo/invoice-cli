@@ -28,10 +28,9 @@ impl fmt::Display for Template {
         write!(f, "Name:\t\t{}\n\n", self.name)?;
         write!(f, "Company Information:\n{}\n", self.company)?;
         write!(f, "Client Information:\n{}\n", self.client)?;
-        write!(f, "Template Terms:\n")?;
+        write!(f, "Terms:\n")?;
         write!(f, "{}\n", self.terms)?;
-write!(f, "Payment Status:\n")?;
-write!(f, "Template Payment Methods:\n")?;
+        write!(f, "Payment Methods:\n")?;
         for method in &self.methods {
             write!(f, "{}\n", method)?;
         }
@@ -69,11 +68,18 @@ impl EntityUpdater<Template> for Template {
                     edit_template.name = Some(name);
                 }
                 "company" => {
-                    // let company_selection = select_entity!("Select Company:", db
+                    //let company_selection = EntitySelector::new(db, "company", "Select Company:", true).select_entity()?;
+                    //edit_template.company = company_selection;
                 }
-                "client" => {}
-                "terms" => {}
-                "methods" => {}
+                "client" => {
+                    //let client_selection = EntitySelector::new(db, "client", "Select Client:", true).select_entity()?;
+                }
+                "terms" => {
+                    //let terms_selection = EntitySelector::new(db, "terms", "Select Payment Terms:", true).select_entity()?;
+                }
+                "methods" => {
+                    //let methods_selection = EntitySelector::new(db, "methods", "Select Payment Methods:", true).multi_select_entity()?;
+                }
                 _ => {}
             }
         }

@@ -62,7 +62,7 @@ pub enum Commands {
 }
 
 impl Cli {
-    pub async fn to_cmd(db: &mut InvoiceDB, renderer: &TemplateEngine) -> Result<()> {
+    pub fn to_cmd(db: &mut InvoiceDB, renderer: &TemplateEngine) -> Result<()> {
         let cli = Cli::parse();
         if let Some(generator) = cli.generator {
             let mut cmd = Cli::command();
@@ -72,29 +72,23 @@ impl Cli {
         if let Some(commands) = cli.command { 
             match commands {
                 Commands::EditConfig => {
-                    if let Err(e) = configure_email(&db).await {
-                        eprintln!("Error: {:?}", e);
-                        return Err(e);
-                    }
+                    configure_email(&db)?;
                 }
                 Commands::Create(create) => {
                     handle_create(&create, &db)?;
                 }
                 Commands::List(flags) => {
                     handle_list(&flags, &db)?;
-                },
+                }
                 Commands::Edit(edit) => {
                     handle_edit(&edit, &db)?;
-                },
+                }
                 Commands::Delete(arg) => {
                     handle_delete(&arg, &db)?;
-                },
+                }
                 Commands::Generate(gen) => {
-                    if let Err(e) = handle_generate(&gen, &db, &renderer).await {
-                        eprintln!("Error: {:?}", e);
-                        return Err(e);
-                    }
-                },
+                    handle_generate(&gen, &db, &renderer)?;
+                }
             }
         }
         Ok(())

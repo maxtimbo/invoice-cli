@@ -176,7 +176,7 @@ impl fmt::Display for Invoice {
         write!(f, "Show payment methods:\t{}\n\n", self.attributes.show_methods)?;
 
         write!(f, "Invoice Items:\n")?;
-        write!(f, "Item\t\t\t| Rate\t| Quantity\t| Subtotal\n")?;
+        write!(f, "Item\t\t\t\t| Rate\t| Quantity\t| Subtotal\n")?;
         for item in &self.calculate_subtotals() {
             write!(f, "{}\t| {}\t| ${}\t\t| ${}\n",
                         item.name,
@@ -251,6 +251,7 @@ impl EntityUpdater<Invoice> for Invoice {
     fn update(&self) -> Result<Self::Output, InquireError> {
         println!("{}", self);
         let fields = vec!["show methods", "show notes", "invoice stage", "payment status", "notes"];
+        let selected_fields = MultiSelect::new("Select fields to update:", fields).prompt()?;
         let mut edit_invoice = EditInvoice {
             id: self.id,
             show_methods: None,
@@ -259,7 +260,6 @@ impl EntityUpdater<Invoice> for Invoice {
             status: None,
             notes: None,
         };
-        let selected_fields = MultiSelect::new("Select fields to update:", fields).prompt()?;
         for field in selected_fields {
             match field {
                 "show methods" => {

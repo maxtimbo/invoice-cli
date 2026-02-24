@@ -21,10 +21,10 @@ impl Config {
             .unwrap_or_default();
         let subject = match &output.2.attributes.status {
             PaidStatus::Waiting => format!("{} {} - {}", output.2.attributes.stage, output.2.id, output.2.issue_date()),
-            PaidStatus::PastDue => format!("PAST DUE:{} {} - {}", output.2.attributes.stage, output.2.id, output.2.issue_date()),
-            PaidStatus::Paid { date, .. } => format!("PAID:{} {} - {}", output.2.attributes.stage, output.2.id, date),
-            PaidStatus::Failed { date } => format!("FAILED:{} {} - {}", output.2.attributes.stage, output.2.id, date),
-            PaidStatus::Refunded { date } => format!("REFUNDED:{} {} - {}", output.2.attributes.stage, output.2.id, date),
+            PaidStatus::PastDue => format!("PAST DUE: {} {} - {}", output.2.attributes.stage, output.2.id, output.2.issue_date()),
+            PaidStatus::Paid { date, .. } => format!("PAID: {} {} - {}", output.2.attributes.stage, output.2.id, date),
+            PaidStatus::Failed { date } => format!("FAILED: {} {} - {}", output.2.attributes.stage, output.2.id, date),
+            PaidStatus::Refunded { date } => format!("REFUNDED: {} {} - {}", output.2.attributes.stage, output.2.id, date),
         };
         println!("{}", subject);
         //let subject = format!("{} {} - {}", output.2.attributes.stage, output.2.id, output.2.issue_date());

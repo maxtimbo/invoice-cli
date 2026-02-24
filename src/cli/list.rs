@@ -12,7 +12,10 @@ pub enum ListFlags {
     Methods,
     Items,
     Templates,
-    Invoices,
+    Invoices {
+        #[arg(short, long)]
+        verbose: bool,
+    },
 }
 
 pub fn handle_list(flags: &ListFlags, db: &InvoiceDB) -> Result<(), anyhow::Error> {
@@ -47,10 +50,14 @@ pub fn handle_list(flags: &ListFlags, db: &InvoiceDB) -> Result<(), anyhow::Erro
             let entity = db.get_template(&id)?;
             println!("{}", entity);
         },
-        ListFlags::Invoices => {
+        ListFlags::Invoices { verbose } => {
             let id = EntitySelector::new(db, "invoices", "Select Invoices", false).select_entity()?;
             let entity = db.get_invoice(&id)?;
-            println!("{}", entity);
+            if *verbose {
+                println!("{}", entity);
+            } else {
+                println!("{}", entity.summary());
+            }
         }
     }
     Ok(())

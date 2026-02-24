@@ -130,6 +130,26 @@ impl Invoice {
     fn due_date(&self) -> NaiveDate {
         self.issue_date() + Duration::days(self.template.terms.due)
     }
+    pub fn summary(&self) -> String {
+        let total = self.calculate_total();
+
+        format!(
+            concat!(
+                "Invoice #{}\n",
+                "Client: {}\n",
+                "Issued: {}\n",
+                "Due: {}\n",
+                "Status: {:?}\n",
+                "Total: ${}\n",
+            ),
+            self.id,
+            self.template.client.name,
+            self.issue_date().to_string(),
+            self.due_date().to_string(),
+            self.attributes.status,
+            total
+        )
+    }
 }
 
 impl fmt::Display for Invoice {

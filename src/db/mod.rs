@@ -28,7 +28,7 @@ impl<'conn> InvoiceTx<'conn> {
 }
 
 impl InvoiceDB {
-    pub fn transaction(&mut self) -> Result<InvoiceTx> {
+    pub fn transaction(&mut self) -> Result<InvoiceTx<'_>> {
         let transaction = self.connection.transaction()?;
         let tx = InvoiceTx { tx: transaction };
 

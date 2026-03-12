@@ -9,6 +9,7 @@ use crate::cli::edit::EditClient;
 use crate::cli::delete::DeleteClient;
 use crate::cli::contact::Contact as cli_contact;
 
+//moved to invoice-core/src/models
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Client {
     pub id: i64,
@@ -16,6 +17,7 @@ pub struct Client {
     pub contact: Contact,
 }
 
+//moved to invoice-app/src/display
 impl fmt::Display for Client {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "ID:\t\t{}\n", self.id)?;

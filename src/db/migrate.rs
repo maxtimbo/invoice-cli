@@ -64,5 +64,3 @@ impl<'conn> InvoiceTx<'conn> {
         Ok(())
     }
 }
-
-                

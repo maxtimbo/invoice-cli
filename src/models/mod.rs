@@ -12,16 +12,6 @@ pub mod items;
 pub mod methods;
 pub mod terms;
 
-//enum InvoiceTables {
-//    Company,
-//    Client,
-//    Terms,
-//    Methods,
-//    Items,
-//    Templates,
-//    Invoices,
-//}
-
 pub struct ShortList {
     pub id: i64,
     pub name: String,

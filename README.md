@@ -1,3 +1,9 @@
+# Archived
+
+This repository has been archived as I have refactored this and moved it to the more robust [invoice-app](https://github.com/maxtimbo/invoice-app). Much of the same functionality is present with the cli, but I've also added invoice-web for a web based gui.
+
+---
+
 # Invoice-CLI Work in Progress
 
 I wanted to learn how to write in Rust. I'm using this project to practice. I don't recommend you use this until this readme is more fleshed out as the project will likely be closer to completion. In the meantime, have a look at the src to view my progress.
